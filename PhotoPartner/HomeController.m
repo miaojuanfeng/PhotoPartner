@@ -6,17 +6,18 @@
 //  Copyright © 2018 MJF. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "HomeController.h"
 
-@interface ViewController ()
+@interface HomeController ()
 
 @end
 
-@implementation ViewController
+@implementation HomeController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 
