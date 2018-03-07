@@ -11,7 +11,7 @@
 #import "MessageController.h"
 #import "SettingController.h"
 
-@interface HomeController ()
+@interface HomeController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 
 @end
 
@@ -21,7 +21,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     COMMON_MACRO;
-//    self.navigationItem.title = @"照片伴侣";
+    self.navigationItem.title = @"照片伴侣";
+    self.navigationController.delegate = self;
     
     VIEW_WIDTH = VIEW_WIDTH - GAP_WIDTH * 2;
     VIEW_HEIGHT = VIEW_HEIGHT - GAP_HEIGHT * 3;
@@ -30,6 +31,7 @@
     UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
     [takePhotoButton setTitle:@"拍照片" forState:UIControlStateNormal];
     takePhotoButton.backgroundColor = [UIColor blueColor];
+    [takePhotoButton addTarget:self action:@selector(clickTakePhotoButton) forControlEvents:UIControlEventTouchUpInside];
     [topBoxView addSubview:takePhotoButton];
     [self.view addSubview:topBoxView];
     
@@ -51,10 +53,11 @@
     UIButton *photoLibButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/3)];
     photoLibButton.backgroundColor = [UIColor orangeColor];
     [photoLibButton setTitle:@"本地照片" forState:UIControlStateNormal];
+    [photoLibButton addTarget:self action:@selector(clickPhotoLibButton) forControlEvents:UIControlEventTouchUpInside];
     [centerRightBoxView addSubview:photoLibButton];
     UIButton *messageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(photoLibButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/3*2)];
     messageButton.backgroundColor = [UIColor greenColor];
-    [messageButton setTitle:@"消息" forState:UIControlStateNormal];
+    [messageButton setTitle:NSLocalizedString(@"messageNavigationItemTitle", nil) forState:UIControlStateNormal];
     [messageButton addTarget:self action:@selector(clickMessageButton) forControlEvents:UIControlEventTouchUpInside];
     [centerRightBoxView addSubview:messageButton];
     [centerBoxView addSubview:centerRightBoxView];
@@ -68,28 +71,50 @@
     [bottomBoxView addSubview:bindDeviceButton];
     UIButton *settingButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(bindDeviceButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
     settingButton.backgroundColor = [UIColor blueColor];
-    [settingButton setTitle:@"设置" forState:UIControlStateNormal];
+    [settingButton setTitle:NSLocalizedString(@"settingNavigationItemTitle", nil) forState:UIControlStateNormal];
     [settingButton addTarget:self action:@selector(clickSettingButton) forControlEvents:UIControlEventTouchUpInside];
     [bottomBoxView addSubview:settingButton];
     [self.view addSubview:bottomBoxView];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    [self.navigationController setNavigationBarHidden:YES animated:YES];
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    [self.navigationController setNavigationBarHidden:[viewController isKindOfClass:[self class]] animated:YES];
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    
-    [self.navigationController setNavigationBarHidden:NO animated:YES];
+
+
+#pragma mark - Button Action
+
+
+- (void)clickTakePhotoButton {
+    if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ){
+//        [self.activityIndicator startAnimating];
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        //            pickerController.allowsEditing = YES;
+        pickerController.delegate = self;
+        [self presentViewController:pickerController animated:YES completion:nil];
+    }else{
+        NSLog(@"不支持相机");
+    }
+}
+
+- (void)clickPhotoLibButton {
+    if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary] ){
+//        [self.activityIndicator startAnimating];
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //            pickerController.allowsEditing = YES;
+        pickerController.delegate = self;
+        [self presentViewController:pickerController animated:YES completion:nil];
+    }else{
+        NSLog(@"不支持图库");
+    }
 }
 
 - (void)clickMessageButton {

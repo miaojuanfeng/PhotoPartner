@@ -19,7 +19,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     COMMON_MACRO;
-    self.navigationItem.title = @"消息";
+    self.navigationItem.title = NSLocalizedString(@"messageNavigationItemTitle", nil);
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT)];
     self.tableView.dataSource = self;

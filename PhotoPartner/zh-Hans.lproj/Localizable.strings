@@ -1,0 +1,9 @@
+/* 
+  Localizable.strings
+  PhotoPartner
+
+  Created by USER on 7/3/2018.
+  Copyright © 2018 MJF. All rights reserved.
+*/
+settingNavigationItemTitle = "设置";
+messageNavigationItemTitle = "消息";
