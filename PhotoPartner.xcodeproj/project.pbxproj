@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE70A463204F962D00470A16 /* SettingController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE70A462204F962D00470A16 /* SettingController.m */; };
+		CE70A468204FC3CD00470A16 /* MessageController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE70A467204FC3CD00470A16 /* MessageController.m */; };
 		CEC978EB204E38F800AE8CB3 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC978EA204E38F800AE8CB3 /* AppDelegate.m */; };
 		CEC978EE204E38F800AE8CB3 /* HomeController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC978ED204E38F800AE8CB3 /* HomeController.m */; };
 		CEC978F3204E38F800AE8CB3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEC978F2204E38F800AE8CB3 /* Assets.xcassets */; };
@@ -34,6 +36,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CE70A462204F962D00470A16 /* SettingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingController.m; sourceTree = "<group>"; };
+		CE70A464204F963900470A16 /* SettingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingController.h; sourceTree = "<group>"; };
+		CE70A465204F971800470A16 /* MacroDefine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacroDefine.h; sourceTree = "<group>"; };
+		CE70A467204FC3CD00470A16 /* MessageController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageController.m; sourceTree = "<group>"; };
+		CE70A469204FC3D700470A16 /* MessageController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageController.h; sourceTree = "<group>"; };
 		CEC978E6204E38F800AE8CB3 /* PhotoPartner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoPartner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEC978E9204E38F800AE8CB3 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		CEC978EA204E38F800AE8CB3 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -76,6 +83,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CE70A45F204F953300470A16 /* SettingTab */ = {
+			isa = PBXGroup;
+			children = (
+				CE70A462204F962D00470A16 /* SettingController.m */,
+				CE70A464204F963900470A16 /* SettingController.h */,
+			);
+			path = SettingTab;
+			sourceTree = "<group>";
+		};
+		CE70A466204FC3B300470A16 /* MessageTab */ = {
+			isa = PBXGroup;
+			children = (
+				CE70A467204FC3CD00470A16 /* MessageController.m */,
+				CE70A469204FC3D700470A16 /* MessageController.h */,
+			);
+			path = MessageTab;
+			sourceTree = "<group>";
+		};
 		CEC978DD204E38F800AE8CB3 = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +124,8 @@
 		CEC978E8204E38F800AE8CB3 /* PhotoPartner */ = {
 			isa = PBXGroup;
 			children = (
+				CE70A466204FC3B300470A16 /* MessageTab */,
+				CE70A45F204F953300470A16 /* SettingTab */,
 				CEC978E9204E38F800AE8CB3 /* AppDelegate.h */,
 				CEC978EA204E38F800AE8CB3 /* AppDelegate.m */,
 				CEC978EC204E38F800AE8CB3 /* HomeController.h */,
@@ -107,6 +134,7 @@
 				CEC978F4204E38F800AE8CB3 /* LaunchScreen.storyboard */,
 				CEC978F7204E38F800AE8CB3 /* Info.plist */,
 				CEC978F8204E38F800AE8CB3 /* main.m */,
+				CE70A465204F971800470A16 /* MacroDefine.h */,
 			);
 			path = PhotoPartner;
 			sourceTree = "<group>";
@@ -261,7 +289,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE70A463204F962D00470A16 /* SettingController.m in Sources */,
 				CEC978EE204E38F800AE8CB3 /* HomeController.m in Sources */,
+				CE70A468204FC3CD00470A16 /* MessageController.m in Sources */,
 				CEC978F9204E38F800AE8CB3 /* main.m in Sources */,
 				CEC978EB204E38F800AE8CB3 /* AppDelegate.m in Sources */,
 			);
