@@ -21,7 +21,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     COMMON_MACRO;
-    self.navigationItem.title = @"照片伴侣";
+    self.navigationItem.title = NSLocalizedString(@"homeNavigationItemTitle", nil);
     self.navigationController.delegate = self;
     
     VIEW_WIDTH = VIEW_WIDTH - GAP_WIDTH * 2;

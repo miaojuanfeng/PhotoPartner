@@ -5,5 +5,6 @@
   Created by USER on 7/3/2018.
   Copyright © 2018 MJF. All rights reserved.
 */
+homeNavigationItemTitle = "照片伴侣";
 settingNavigationItemTitle = "设置";
 messageNavigationItemTitle = "消息";
