@@ -8,6 +8,7 @@
 
 #import "MacroDefine.h"
 #import "HomeController.h"
+#import "UploadPhotoController.h"
 #import "MessageController.h"
 #import "SettingController.h"
 
@@ -83,7 +84,14 @@
 }
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    [self.navigationController setNavigationBarHidden:[viewController isKindOfClass:[self class]] animated:YES];
+    NSLog(@"current view controller: %@", [viewController class]);
+    NSLog(@"is hidden: %d", [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")]);
+    BOOL isHidden = NO;
+    if( [viewController isKindOfClass:[self class]] ||
+        [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")] ){
+        isHidden = YES;
+    }
+    [self.navigationController setNavigationBarHidden:isHidden animated:YES];
 }
 
 
@@ -92,6 +100,10 @@
 
 
 - (void)clickTakePhotoButton {
+    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+    [self.navigationController pushViewController:uploadPhotoController animated:YES];
+    return;
+    
     if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ){
 //        [self.activityIndicator startAnimating];
         UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
@@ -125,6 +137,54 @@
 - (void)clickSettingButton {
     SettingController *settingController = [[SettingController alloc] init];
     [self.navigationController pushViewController:settingController animated:YES];
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+//    [self.activityIndicator startAnimating];
+    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+    NSLog(@"%@", info);
+    if ([type isEqualToString:@"public.image"]) {
+        
+        //        NSURL *videoUrl=(NSURL*) [info objectForKey:UIImagePickerControllerReferenceURL];
+        
+        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSTimeInterval timeStamp = [date timeIntervalSince1970];
+        NSString *timeStampString = [NSString stringWithFormat:@"%d", (int)floor(timeStamp)];
+        
+        NSLog(@"%@", timeStampString);
+        
+//        //拿到图片
+//        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+////        image = [self fixOrientation:image];
+//        //设置一个图片的存储路径
+//        NSString *imagePath = [NSString stringWithFormat:@"%@/Documents/%@",NSHomeDirectory(),timeStampString];
+//        //把图片直接保存到指定的路径（同时应该把图片的路径imagePath存起来，下次就可以直接用来取）
+//        [UIImagePNGRepresentation(image) writeToFile:imagePath atomically:YES];
+//        self.photoName = timeStampString;
+        
+        
+        //        // 读取沙盒路径图片
+        //        NSString *aPath3=[NSString stringWithFormat:@"%@/Documents/%@",NSHomeDirectory(),timeStampString];
+        //        // 拿到沙盒路径图片
+        //        UIImage *imgFromUrl3=[[UIImage alloc]initWithContentsOfFile:aPath3];
+        //        self.imageView.image = imgFromUrl3;
+        
+        UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+        [self.navigationController pushViewController:uploadPhotoController animated:YES];
+        
+        //process image
+        [picker dismissViewControllerAnimated:YES completion:nil];
+    }
+//    [self.activityIndicator stopAnimating];
+    
+//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+//    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+//    [cell.contentView addSubview:self.photoButton];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+//    [self.activityIndicator stopAnimating];
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

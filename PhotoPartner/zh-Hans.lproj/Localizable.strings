@@ -6,5 +6,6 @@
   Copyright © 2018 MJF. All rights reserved.
 */
 homeNavigationItemTitle = "照片伴侣";
+uploadPhotoNavigationItemTitle = "发送照片";
 settingNavigationItemTitle = "设置";
 messageNavigationItemTitle = "消息";

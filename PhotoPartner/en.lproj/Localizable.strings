@@ -6,6 +6,7 @@
   Copyright © 2018 MJF. All rights reserved.
 */
 homeNavigationItemTitle = "Photo Partner";
+uploadPhotoNavigationItemTitle = "Send Photo";
 settingNavigationItemTitle = "Settings";
 messageNavigationItemTitle = "Messages";
 
