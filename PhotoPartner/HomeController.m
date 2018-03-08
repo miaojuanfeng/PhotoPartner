@@ -9,8 +9,11 @@
 #import "MacroDefine.h"
 #import "HomeController.h"
 #import "UploadPhotoController.h"
+#import "DeviceController.h"
+#import "AddDeviceController.h"
 #import "MessageController.h"
 #import "SettingController.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface HomeController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 
@@ -27,10 +30,12 @@
     
     VIEW_WIDTH = VIEW_WIDTH - GAP_WIDTH * 2;
     VIEW_HEIGHT = VIEW_HEIGHT - GAP_HEIGHT * 3;
+    MARGIN_TOP -= GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
+    VIEW_HEIGHT += GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
     
     UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT/4-20)];
     UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
-    [takePhotoButton setTitle:@"拍照片" forState:UIControlStateNormal];
+    [takePhotoButton setTitle:NSLocalizedString(@"homeTakePhotoTitle", nil) forState:UIControlStateNormal];
     takePhotoButton.backgroundColor = [UIColor blueColor];
     [takePhotoButton addTarget:self action:@selector(clickTakePhotoButton) forControlEvents:UIControlEventTouchUpInside];
     [topBoxView addSubview:takePhotoButton];
@@ -42,18 +47,20 @@
 //    centerLeftBoxView.backgroundColor = [UIColor lightGrayColor];
     UIButton *takeVideoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerLeftBoxView), (GET_LAYOUT_HEIGHT(centerLeftBoxView)-GAP_HEIGHT)/3*2)];
     takeVideoButton.backgroundColor = [UIColor redColor];
-    [takeVideoButton setTitle:@"录视频" forState:UIControlStateNormal];
+    [takeVideoButton setTitle:NSLocalizedString(@"homeTakeVodioTitle", nil) forState:UIControlStateNormal];
+    [takeVideoButton addTarget:self action:@selector(clickTakeVideoButton) forControlEvents:UIControlEventTouchUpInside];
     [centerLeftBoxView addSubview:takeVideoButton];
     UIButton *deviceManageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(takeVideoButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerLeftBoxView), (GET_LAYOUT_HEIGHT(centerLeftBoxView)-GAP_HEIGHT)/3)];
     deviceManageButton.backgroundColor = [UIColor darkGrayColor];
-    [deviceManageButton setTitle:@"设备管理" forState:UIControlStateNormal];
+    [deviceManageButton setTitle:NSLocalizedString(@"deviceListNavigationItemTitle", nil) forState:UIControlStateNormal];
+    [deviceManageButton addTarget:self action:@selector(clickDeviceManageButton) forControlEvents:UIControlEventTouchUpInside];
     [centerLeftBoxView addSubview:deviceManageButton];
     [centerBoxView addSubview:centerLeftBoxView];
     UIView *centerRightBoxView = [[UIView alloc] initWithFrame:CGRectMake(GET_LAYOUT_WIDTH(centerLeftBoxView)+GAP_WIDTH, 0, (GET_LAYOUT_WIDTH(centerBoxView)-GAP_WIDTH)/2, centerBoxView.frame.size.height)];
 //    centerRightBoxView.backgroundColor = [UIColor yellowColor];
     UIButton *photoLibButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/3)];
     photoLibButton.backgroundColor = [UIColor orangeColor];
-    [photoLibButton setTitle:@"本地照片" forState:UIControlStateNormal];
+    [photoLibButton setTitle:NSLocalizedString(@"homePhotoLibTitle", nil) forState:UIControlStateNormal];
     [photoLibButton addTarget:self action:@selector(clickPhotoLibButton) forControlEvents:UIControlEventTouchUpInside];
     [centerRightBoxView addSubview:photoLibButton];
     UIButton *messageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(photoLibButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/3*2)];
@@ -68,7 +75,8 @@
 //    bottomBoxView.backgroundColor = [UIColor yellowColor];
     UIButton *bindDeviceButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
     bindDeviceButton.backgroundColor = [UIColor redColor];
-    [bindDeviceButton setTitle:@"绑定设备" forState:UIControlStateNormal];
+    [bindDeviceButton setTitle:NSLocalizedString(@"deviceAddNavigationItemTitle", nil) forState:UIControlStateNormal];
+    [bindDeviceButton addTarget:self action:@selector(clickBindDeviceButton) forControlEvents:UIControlEventTouchUpInside];
     [bottomBoxView addSubview:bindDeviceButton];
     UIButton *settingButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(bindDeviceButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
     settingButton.backgroundColor = [UIColor blueColor];
@@ -88,7 +96,9 @@
     NSLog(@"is hidden: %d", [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")]);
     BOOL isHidden = NO;
     if( [viewController isKindOfClass:[self class]] ||
-        [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")] ){
+        [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")] ||
+        [viewController isKindOfClass: NSClassFromString(@"PUPhotoPickerHostViewController")] ||
+        [viewController isKindOfClass: NSClassFromString(@"PUUIAlbumListViewController")] ){
         isHidden = YES;
     }
     [self.navigationController setNavigationBarHidden:isHidden animated:YES];
@@ -100,9 +110,9 @@
 
 
 - (void)clickTakePhotoButton {
-    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
-    [self.navigationController pushViewController:uploadPhotoController animated:YES];
-    return;
+//    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+//    [self.navigationController pushViewController:uploadPhotoController animated:YES];
+//    return;
     
     if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ){
 //        [self.activityIndicator startAnimating];
@@ -129,6 +139,22 @@
     }
 }
 
+- (void)clickTakeVideoButton{
+    if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ){
+        //        [self.activityIndicator startAnimating];
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        pickerController.mediaTypes = @[(NSString *)kUTTypeMovie];
+        pickerController.videoQuality = UIImagePickerControllerQualityTypeIFrame1280x720;
+        pickerController.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
+        //            pickerController.allowsEditing = YES;
+        pickerController.delegate = self;
+        [self presentViewController:pickerController animated:YES completion:nil];
+    }else{
+        NSLog(@"不支持相机");
+    }
+}
+
 - (void)clickMessageButton {
     MessageController *messageController = [[MessageController alloc] init];
     [self.navigationController pushViewController:messageController animated:YES];
@@ -137,6 +163,16 @@
 - (void)clickSettingButton {
     SettingController *settingController = [[SettingController alloc] init];
     [self.navigationController pushViewController:settingController animated:YES];
+}
+
+- (void)clickDeviceManageButton {
+    DeviceController *deviceController = [[DeviceController alloc] init];
+    [self.navigationController pushViewController:deviceController animated:YES];
+}
+
+- (void)clickBindDeviceButton {
+    AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+    [self.navigationController pushViewController:addDeviceController animated:YES];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
@@ -173,8 +209,12 @@
         [self.navigationController pushViewController:uploadPhotoController animated:YES];
         
         //process image
-        [picker dismissViewControllerAnimated:YES completion:nil];
+        
+    }else if([type isEqualToString:@"public.movie"]){
+        UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+        [self.navigationController pushViewController:uploadPhotoController animated:YES];
     }
+    [picker dismissViewControllerAnimated:YES completion:nil];
 //    [self.activityIndicator stopAnimating];
     
 //    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];

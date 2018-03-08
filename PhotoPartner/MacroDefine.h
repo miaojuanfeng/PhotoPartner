@@ -15,7 +15,7 @@
                             float MARGIN_BOTTOM = 0; \
                             do{ \
                                 CGRect rectStatus = [[UIApplication sharedApplication] statusBarFrame]; \
-                                MARGIN_TOP = rectStatus.size.height; \
+                                MARGIN_TOP = rectStatus.size.height + GET_LAYOUT_HEIGHT(self.navigationController.navigationBar); \
                                 if(IS_IPHONE_X){ \
                                     MARGIN_BOTTOM = 34; \
                                 } \
@@ -32,5 +32,8 @@
 #define COMMON_MACRO    SET_VIEW_BACKGROUND_COLOR; \
                         GET_LAYOUT_MARGIN; \
                         GET_VIEW_SIZE
+
+#define BORDER_COLOR [UIColor colorWithWhite:0.8f alpha:1.0f].CGColor
+#define BORDER_WIDTH 1.0f
 
 #endif /* MacroDefine_h */

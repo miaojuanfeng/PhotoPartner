@@ -6,7 +6,21 @@
   Copyright © 2018 MJF. All rights reserved.
 */
 homeNavigationItemTitle = "Photo Partner";
+
+homeTakePhotoTitle = "Take Photo";
+homePhotoLibTitle = "Local Photo";
+homeTakeVodioTitle = "Take Video";
+
 uploadPhotoNavigationItemTitle = "Send Photo";
+uploadPhotoRightBarButtonItemTitle = "Send";
+
+deviceListNavigationItemTitle = "Device Manage";
+deviceAddNavigationItemTitle = "Bind Device";
+deviceAddRightBarButtonItemTitle = "Bind";
+deviceAddDeviceName = "Device Name";
+deviceAddDeviceNumber = "Device Number";
+
 settingNavigationItemTitle = "Settings";
+
 messageNavigationItemTitle = "Messages";
 
