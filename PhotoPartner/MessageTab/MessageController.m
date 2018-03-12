@@ -8,6 +8,7 @@
 
 #import "MacroDefine.h"
 #import "MessageController.h"
+#import <AFNetworking/AFNetworking.h>
 
 @interface MessageController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
@@ -25,6 +26,39 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     [self.view addSubview:self.tableView];
+    
+    
+//    NSString *urlString = @"https://well.bsimb.cn/user/user_device?user_id=26";
+//    NSURL *url = [NSURL URLWithString:urlString];
+//    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+//    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+//        //block 参数的解释
+//        //response 响应头的信息
+//        //data 我们所需要的真是的数据
+//        //connectionError 链接服务器的错误信息
+//        NSLog(@"请求到数据了");
+//        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
+//                                                            options:NSJSONReadingAllowFragments error:NULL];
+//        NSLog(@"%@", dic);
+//    }];
+    
+    NSString *urlString = @"https://well.bsimb.cn/weather/city_name?city_name=shenzhen";
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [manager GET:url.absoluteString parameters:nil progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+//        NSLog(@"results: %@", responseObject);
+        NSLog(@"Data results =======================================================================================>:");
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+        NSLog(@"results: %@", dic);
+        
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        
+        NSLog(@"results: %@", error);
+        
+    }];
 }
 
 

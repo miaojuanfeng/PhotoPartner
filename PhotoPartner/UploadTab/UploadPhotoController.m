@@ -8,6 +8,7 @@
 
 #import "MacroDefine.h"
 #import "UploadPhotoController.h"
+#import <AFNetworking/AFNetworking.h>
 
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
@@ -109,9 +110,103 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
+
+/*
+ *  要让AFHTTPSessionManager支持上传表单数组，需要修改AFNetworking/Serialization/AFURLRequestSerialization.m
+ *  将
+ *  [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@[]", key], nestedValue)];
+ *  修改为
+ *  [mutableQueryStringComponents addObjectsFromArray:AFQueryStringPairsFromKeyAndValue([NSString stringWithFormat:@"%@", key], nestedValue)];
+ */
+
 - (void)clickSubmitButton {
+    //创建会话管理者
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    //发送post请求上传路径
+    /*
+     第一个参数:请求路径
+     第二个参数:字典(非文件参数)
+     第三个参数:constructingBodyWithBlock 处理要上传的文件数据
+     第四个参数:进度回调
+     第五个参数:成功回调 responseObject响应体信息
+     第六个参数:失败回调
+     */
+    NSArray *device_id = @[@1];
+    NSArray *file_desc = @[@"sd"];
+    NSDictionary *parameters=@{@"user_id":@"1",@"device_id":device_id,@"file_desc":file_desc};
+    [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        
+        UIImage *image = [UIImage imageNamed:@"image"];
+        NSData *imageData = UIImagePNGRepresentation(image);
+        
+        //使用formData拼接数据
+        /* 方法一:
+         第一个参数:二进制数据 要上传的文件参数
+         第二个参数:服务器规定的
+         第三个参数:文件上传到服务器以什么名称保存
+         */
+        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xxx.png" mimeType:@"image/png"];
+        
+//        //方法二:
+//        [formData appendPartWithFileURL:[NSURL fileURLWithPath:@""] name:@"file" fileName:@"xxx.png" mimeType:@"image/png" error:nil];
+//
+//        //方法三:
+//        [formData appendPartWithFileURL:[NSURL fileURLWithPath:@""] name:@"file" error:nil];
+        
+    }
+         progress:^(NSProgress * _Nonnull uploadProgress) {
+             
+             NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
+             
+         }
+          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+              
+              NSLog(@"上传成功.%@",responseObject);
+          }
+          failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+              
+              NSLog(@"上传失败.%@",error);
+              NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+          }];
+    
     [self.navigationController popViewControllerAnimated:YES];
 }
+
+//- (AFHTTPSessionManager *)sharedManager {
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    //最大请求并发任务数
+//    manager.operationQueue.maxConcurrentOperationCount = 5;
+//
+//    // 请求格式
+//    // AFHTTPRequestSerializer            二进制格式
+//    // AFJSONRequestSerializer            JSON
+//    // AFPropertyListRequestSerializer    PList(是一种特殊的XML,解析起来相对容易)
+//
+//    manager.requestSerializer = [AFHTTPRequestSerializer serializer]; // 上传普通格式
+//
+//    // 超时时间
+//    manager.requestSerializer.timeoutInterval = 30.0f;
+//    // 设置请求头
+//    [manager.requestSerializer setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
+//    // 设置接收的Content-Type
+//    manager.responseSerializer.acceptableContentTypes = [[NSSet alloc] initWithObjects:@"application/xml", @"text/xml",@"text/html", @"application/json",@"text/plain",nil];
+//
+//    // 返回格式
+//    // AFHTTPResponseSerializer           二进制格式
+//    // AFJSONResponseSerializer           JSON
+//    // AFXMLParserResponseSerializer      XML,只能返回XMLParser,还需要自己通过代理方法解析
+//    // AFXMLDocumentResponseSerializer (Mac OS X)
+//    // AFPropertyListResponseSerializer   PList
+//    // AFImageResponseSerializer          Image
+//    // AFCompoundResponseSerializer       组合
+//
+//    manager.responseSerializer = [AFJSONResponseSerializer serializer];//返回格式 JSON
+////    //设置返回C的ontent-type
+////    manager.responseSerializer.acceptableContentTypes=[[NSSet alloc] initWithObjects:@"application/xml", @"text/xml",@"text/html", @"application/json",@"text/plain",nil];
+//
+//    return manager;
+//}
 
 @end
 
