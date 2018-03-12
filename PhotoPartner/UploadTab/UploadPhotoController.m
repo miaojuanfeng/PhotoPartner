@@ -10,6 +10,9 @@
 #import "UploadPhotoController.h"
 #import <AFNetworking/AFNetworking.h>
 
+#define FileHashDefaultChunkSizeForReadingData 1024*8
+#include <CommonCrypto/CommonDigest.h>
+
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
 @end
@@ -132,13 +135,16 @@
      第五个参数:成功回调 responseObject响应体信息
      第六个参数:失败回调
      */
-    NSArray *device_id = @[@1];
-    NSArray *file_desc = @[@"sd"];
+    NSArray *device_id = @[@1,@2];
+    NSArray *file_desc = @[@"sd",@"dd"];
     NSDictionary *parameters=@{@"user_id":@"1",@"device_id":device_id,@"file_desc":file_desc};
     [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
         UIImage *image = [UIImage imageNamed:@"image"];
         NSData *imageData = UIImagePNGRepresentation(image);
+        
+        UIImage *image2 = [UIImage imageNamed:@"iv_upload"];
+        NSData *imageData2 = UIImagePNGRepresentation(image2);
         
         //使用formData拼接数据
         /* 方法一:
@@ -146,7 +152,8 @@
          第二个参数:服务器规定的
          第三个参数:文件上传到服务器以什么名称保存
          */
-        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xxx.png" mimeType:@"image/png"];
+        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xx1.png" mimeType:@"image/png"];
+        [formData appendPartWithFileData:imageData2 name:@"file" fileName:@"xx2.png" mimeType:@"image/png"];
         
 //        //方法二:
 //        [formData appendPartWithFileURL:[NSURL fileURLWithPath:@""] name:@"file" fileName:@"xxx.png" mimeType:@"image/png" error:nil];
@@ -207,6 +214,74 @@
 //
 //    return manager;
 //}
+
+
+
+
+- (NSString*)getFileMD5WithPath:(NSString*)path {
+    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
+}
+
+CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,size_t chunkSizeForReadingData) {
+    // Declare needed variables
+    CFStringRef result = NULL;
+    CFReadStreamRef readStream = NULL;
+    // Get the file URL
+    CFURLRef fileURL =
+    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
+                                  (CFStringRef)filePath,
+                                  kCFURLPOSIXPathStyle,
+                                  (Boolean)false);
+    if (!fileURL) goto done;
+    // Create and open the read stream
+    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
+                                            (CFURLRef)fileURL);
+    if (!readStream) goto done;
+    bool didSucceed = (bool)CFReadStreamOpen(readStream);
+    if (!didSucceed) goto done;
+    // Initialize the hash object
+    CC_MD5_CTX hashObject;
+    CC_MD5_Init(&hashObject);
+    // Make sure chunkSizeForReadingData is valid
+    if (!chunkSizeForReadingData) {
+        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
+    }
+    // Feed the data to the hash object
+    bool hasMoreData = true;
+    while (hasMoreData) {
+        uint8_t buffer[chunkSizeForReadingData];
+        CFIndex readBytesCount = CFReadStreamRead(readStream,(UInt8 *)buffer,(CFIndex)sizeof(buffer));
+        if (readBytesCount == -1) break;
+        if (readBytesCount == 0) {
+            hasMoreData = false;
+            continue;
+        }
+        CC_MD5_Update(&hashObject,(const void *)buffer,(CC_LONG)readBytesCount);
+    }
+    // Check if the read operation succeeded
+    didSucceed = !hasMoreData;
+    // Compute the hash digest
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5_Final(digest, &hashObject);
+    // Abort if the read operation failed
+    if (!didSucceed) goto done;
+    // Compute the string result
+    char hash[2 * sizeof(digest) + 1];
+    for (size_t i = 0; i < sizeof(digest); ++i) {
+        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
+    }
+    result = CFStringCreateWithCString(kCFAllocatorDefault,(const char *)hash,kCFStringEncodingUTF8);
+    
+done:
+    if (readStream) {
+        CFReadStreamClose(readStream);
+        CFRelease(readStream);
+    }
+    if (fileURL) {
+        CFRelease(fileURL);
+    }
+    return result;
+}
 
 @end
 
