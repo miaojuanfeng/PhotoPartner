@@ -27,6 +27,8 @@
 #define GAP_HEIGHT 5
 #define GET_LAYOUT_WIDTH(v) v.frame.size.width
 #define GET_LAYOUT_HEIGHT(v) v.frame.size.height
+#define GET_BOUNDS_WIDTH(v) v.bounds.size.width
+#define GET_BOUNDS_HEIGHT(v) v.bounds.size.height
 #define GET_LAYOUT_OFFSET_X(v) v.frame.origin.x
 #define GET_LAYOUT_OFFSET_Y(v) v.frame.origin.y
 #define COMMON_MACRO    SET_VIEW_BACKGROUND_COLOR; \
