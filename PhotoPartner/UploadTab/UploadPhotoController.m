@@ -30,6 +30,9 @@
 
 @property UITextView *textView;
 @property UIView *mediaView;
+
+@property UIProgressView *progressView;
+@property UIActivityIndicatorView *activityIndicatorView;
 @end
 
 @implementation UploadPhotoController
@@ -50,6 +53,18 @@
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
+    
+    self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 44, GET_LAYOUT_WIDTH(self.view), 1)];
+//    [self.navigationController.navigationBar addSubview:self.progressView];
+    
+    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:(UIActivityIndicatorViewStyleWhiteLarge)];
+    self.activityIndicatorView.frame= CGRectMake((GET_LAYOUT_WIDTH(self.view)/2)-30, (GET_LAYOUT_HEIGHT(self.view)/2)-30, 60, 60);
+    self.activityIndicatorView.color = [UIColor whiteColor];
+    UIColor *blackColor = [UIColor blackColor];
+    self.activityIndicatorView.backgroundColor = [blackColor colorWithAlphaComponent:0.6];
+        self.activityIndicatorView.hidesWhenStopped = NO;
+    [self.view addSubview:self.activityIndicatorView];
+    NSLog(@"%@", self.activityIndicatorView);
 
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
     self.tableView.dataSource = self;
@@ -62,9 +77,9 @@
 //    }
     [self.view addSubview:self.tableView];
     
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    imagePickerVc.allowPickingVideo = NO;
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+//    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+//    imagePickerVc.allowPickingVideo = NO;
+//    [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -255,7 +270,11 @@
 - (void)clickSubmitButton {
     //创建会话管理者
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-//    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    /*
+     *  返回json格式数据时，如果没有下面代码，会提示上传失败，实际上已经成功。
+     *  加上下面这句才会提示成功
+     */
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     //发送post请求上传路径
     /*
      第一个参数:请求路径
@@ -290,6 +309,10 @@
         for (int i=0; i< file.count; i++) {
             [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:@"MichaelMiao%d.png", i] mimeType:@"image/png"];
         }
+        self.progressView.progress = 0.0;
+        [self.navigationController.navigationBar addSubview:self.progressView];
+        
+        [self.activityIndicatorView startAnimating];
 //        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xx1.png" mimeType:@"image/png"];
 //        [formData appendPartWithFileData:imageData2 name:@"file" fileName:@"xx2.png" mimeType:@"image/png"];
         
@@ -301,21 +324,31 @@
         
     }
          progress:^(NSProgress * _Nonnull uploadProgress) {
-             
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 self.progressView.progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+             });
              NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
              
          }
           success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
               
               NSLog(@"上传成功.%@",responseObject);
+              NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+              NSLog(@"results: %@", dic);
+              
+              [self.progressView removeFromSuperview];
+              [self.activityIndicatorView stopAnimating];
           }
           failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
               
               NSLog(@"上传失败.%@",error);
               NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+              
+              [self.progressView removeFromSuperview];
+              [self.activityIndicatorView stopAnimating];
           }];
     
-    [self.navigationController popViewControllerAnimated:YES];
+//    [self.navigationController popViewControllerAnimated:YES];
 }
 
 //- (AFHTTPSessionManager *)sharedManager {
