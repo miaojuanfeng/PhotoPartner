@@ -20,8 +20,8 @@
 
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate>
 @property UITableView *tableView;
-
 @property UITextView *textView;
+@property NSMutableArray<UIImage *> *photos;
 @end
 
 @implementation UploadPhotoController
@@ -35,6 +35,8 @@
     
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadPhotoRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
+    
+    self.photos = [[NSMutableArray alloc] init];
     
 //    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, 100)];
 ////    textView.backgroundColor = [UIColor redColor];
@@ -99,17 +101,17 @@
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.tableView setSeparatorInset:UIEdgeInsetsZero];
+    }
+    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.tableView setLayoutMargins:UIEdgeInsetsZero];
+    }
     [self.view addSubview:self.tableView];
     
-    
-//    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-//    
-//    // You can get the photos by block, the same as by delegate.
-//    // 你可以通过block或者代理，来得到用户选择的照片.
-//    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-//        
-//    }];
-//    [self presentViewController:imagePickerVc animated:YES completion:nil];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    imagePickerVc.allowPickingVideo = NO;
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -133,32 +135,21 @@
     }
 }
 
-- (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    if (section == 0)
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 0){
         return CGFLOAT_MIN;
-    return tableView.sectionHeaderHeight;
+    }else{
+//        return tableView.sectionHeaderHeight;
+        return 12;
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-//    cell.accessoryType = UITableViewCellAccessoryCheckmark;
-//    cell.textLabel.text = @"设备";
-//    return cell;
-    static NSString *CellIdentifier = @"ImageOnRightCell";
-//    static int i = 0;
-//    UILabel *mainLabel, *secondLabel;
-//    UIImageView *photo;
-    
+    static NSString *CellIdentifier = @"UploadMediaCell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    
-
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-    cell.frame = CGRectMake(0, 0, self.tableView.frame.size.width, 180);
-    
-    
-//        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+    cell.frame = CGRectMake(0, 0, self.tableView.frame.size.width, tableView.rowHeight);
     if( indexPath.section == 0 ){
-        
         if( indexPath.row == 0 ){
             self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
 //            self.textView.backgroundColor = [UIColor redColor];
@@ -168,6 +159,7 @@
             cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, cell.bounds.size.width);
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             self.tableView.rowHeight = self.textView.frame.size.height;
+            
         }else if( indexPath.row == 1 ){
             UIView *mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, 150)];
 //            mediaView.backgroundColor = [UIColor blueColor];
@@ -222,10 +214,34 @@
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if( indexPath.section > 0 ){
+        if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+            [cell setSeparatorInset:UIEdgeInsetsZero];
+        }
+        if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+            [cell setLayoutMargins:UIEdgeInsetsZero];
+        }
+    }
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
     //    [self.navigationController pushViewController:videoDetailController animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
+    NSLog(@"%@", photos);
+//    for (int i=0; i<photos.count; i++) {
+//        [self.photos addObject:photos[i]];
+//    }
+    [self.photos addObjectsFromArray:photos];
+    NSLog(@"self.photos: %@", self.photos);
+}
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
+    NSLog(@"%@", coverImage);
 }
 
 - (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker {
@@ -254,16 +270,23 @@
      第五个参数:成功回调 responseObject响应体信息
      第六个参数:失败回调
      */
-    NSArray *device_id = @[@1,@2];
-    NSArray *file_desc = @[@"sd",@"dd"];
-    NSDictionary *parameters=@{@"user_id":@"1",@"device_id":device_id,@"file_desc":file_desc};
+    NSLog(@"%ld", self.photos.count);
+    NSMutableArray *deviceId = [[NSMutableArray alloc] init];
+    NSMutableArray *fileDesc = [[NSMutableArray alloc] init];
+    NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
+    for (int i = 0; i < self.photos.count; i++) {
+        [deviceId addObject:@1];
+        [fileDesc addObject:@2];
+        [file addObject:UIImagePNGRepresentation(self.photos[i])];
+    }
+    NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[deviceId copy],@"file_desc":[fileDesc copy]};
     [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
-        UIImage *image = [UIImage imageNamed:@"image"];
-        NSData *imageData = UIImagePNGRepresentation(image);
-        
-        UIImage *image2 = [UIImage imageNamed:@"iv_upload"];
-        NSData *imageData2 = UIImagePNGRepresentation(image2);
+//        UIImage *image = [UIImage imageNamed:@"image"];
+//        NSData *imageData = UIImagePNGRepresentation(image);
+//
+//        UIImage *image2 = [UIImage imageNamed:@"iv_upload"];
+//        NSData *imageData2 = UIImagePNGRepresentation(image2);
         
         //使用formData拼接数据
         /* 方法一:
@@ -271,8 +294,11 @@
          第二个参数:服务器规定的
          第三个参数:文件上传到服务器以什么名称保存
          */
-        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xx1.png" mimeType:@"image/png"];
-        [formData appendPartWithFileData:imageData2 name:@"file" fileName:@"xx2.png" mimeType:@"image/png"];
+        for (int i=0; i< file.count; i++) {
+            [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:@"MichaelMiao%d.png", i] mimeType:@"image/png"];
+        }
+//        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xx1.png" mimeType:@"image/png"];
+//        [formData appendPartWithFileData:imageData2 name:@"file" fileName:@"xx2.png" mimeType:@"image/png"];
         
 //        //方法二:
 //        [formData appendPartWithFileURL:[NSURL fileURLWithPath:@""] name:@"file" fileName:@"xxx.png" mimeType:@"image/png" error:nil];
@@ -403,7 +429,8 @@ done:
 }
 
 - (void)clickAddMediaButton {
-    NSLog(@"asdasdsda");
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
 @end
