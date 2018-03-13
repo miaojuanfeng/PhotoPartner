@@ -9,12 +9,19 @@
 #import "MacroDefine.h"
 #import "UploadPhotoController.h"
 #import <AFNetworking/AFNetworking.h>
+#import <TZImagePickerController.h>
 
 #define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
 
-@interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate>
+#define MAINLABEL_TAG 1
+#define SECONDLABEL_TAG 2
+#define PHOTO_TAG 3
+
+@interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate>
 @property UITableView *tableView;
+
+@property UITextView *textView;
 @end
 
 @implementation UploadPhotoController
@@ -23,87 +30,195 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     COMMON_MACRO;
+    
     self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
     
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadPhotoRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
     
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, 100)];
-//    textView.backgroundColor = [UIColor redColor];
-    textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
-    [self.view addSubview:textView];
+//    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, 100)];
+////    textView.backgroundColor = [UIColor redColor];
+//    textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
+//    [self.view addSubview:textView];
     
-    UIView *mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(textView)+GET_LAYOUT_HEIGHT(textView), VIEW_WIDTH, 150)];
-//    mediaView.backgroundColor = [UIColor blueColor];
-    int imagePerRow = 5;
-    int imageTotal = 9;
-    float imageViewSize = (GET_LAYOUT_WIDTH(mediaView)-GAP_WIDTH*(imagePerRow+1))/imagePerRow;
-    float x = GAP_WIDTH;
-    float y = GAP_HEIGHT;
-    for(int i=0;i<imageTotal;i++){
-        if( i%imagePerRow == 0 ){
-            x = GAP_WIDTH;
-        }else{
-            x += imageViewSize + GAP_HEIGHT;
-        }
-        if( i > 0 && i%imagePerRow == 0 ){
-            y += imageViewSize + GAP_HEIGHT;
-            mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), GET_LAYOUT_OFFSET_Y(textView)+GET_LAYOUT_HEIGHT(textView), GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
-        }
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-//        imageView.backgroundColor = [UIColor orangeColor];
-        imageView.image = [UIImage imageNamed:@"image"];
-        [mediaView addSubview:imageView];
-    }
-    
-    if( imageTotal%imagePerRow == 0 ){
-        x = GAP_WIDTH;
-    }else{
-        x += imageViewSize + GAP_HEIGHT;
-    }
-    if( imageTotal > 0 && imageTotal%imagePerRow == 0 ){
-        y += imageViewSize + GAP_HEIGHT;
-        mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), GET_LAYOUT_OFFSET_Y(textView)+GET_LAYOUT_HEIGHT(textView), GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
-    }
-    UIButton *addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-//    [addImageButton setTitle:@"+" forState:UIControlStateNormal];
-//    addImageButton.titleLabel.font = [UIFont systemFontOfSize:46.0];
-//    [addImageButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
-    [addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
-    addImageButton.layer.borderColor = BORDER_COLOR;
-    addImageButton.layer.borderWidth = BORDER_WIDTH;
-    [mediaView addSubview:addImageButton];
-    
-    CALayer *topBorder = [CALayer layer];
-    topBorder.frame = CGRectMake(0.0f, 0.0f, GET_LAYOUT_WIDTH(mediaView), BORDER_WIDTH);
-    topBorder.backgroundColor = BORDER_COLOR;
-    [mediaView.layer addSublayer:topBorder];
-    CALayer *bottomBorder = [CALayer layer];
-    bottomBorder.frame = CGRectMake(0.0f, GET_LAYOUT_HEIGHT(mediaView)-1, GET_LAYOUT_WIDTH(mediaView), BORDER_WIDTH);
-    bottomBorder.backgroundColor = BORDER_COLOR;
-    [mediaView.layer addSublayer:bottomBorder];
-    [self.view addSubview:mediaView];
-    
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(mediaView)+GET_LAYOUT_HEIGHT(mediaView), VIEW_WIDTH, VIEW_HEIGHT-GET_LAYOUT_OFFSET_Y(self.tableView))];
+//    UIView *mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(textView)+GET_LAYOUT_HEIGHT(textView), VIEW_WIDTH, 150)];
+////    mediaView.backgroundColor = [UIColor blueColor];
+//    int imagePerRow = 5;
+//    int imageTotal = 9;
+//    float imageViewSize = (GET_LAYOUT_WIDTH(mediaView)-GAP_WIDTH*(imagePerRow+1))/imagePerRow;
+//    float x = GAP_WIDTH;
+//    float y = GAP_HEIGHT;
+//    for(int i=0;i<imageTotal;i++){
+//        if( i%imagePerRow == 0 ){
+//            x = GAP_WIDTH;
+//        }else{
+//            x += imageViewSize + GAP_HEIGHT;
+//        }
+//        if( i > 0 && i%imagePerRow == 0 ){
+//            y += imageViewSize + GAP_HEIGHT;
+//            mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), GET_LAYOUT_OFFSET_Y(textView)+GET_LAYOUT_HEIGHT(textView), GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
+//        }
+//        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+////        imageView.backgroundColor = [UIColor orangeColor];
+//        imageView.image = [UIImage imageNamed:@"image"];
+//        [mediaView addSubview:imageView];
+//    }
+//
+//    if( imageTotal%imagePerRow == 0 ){
+//        x = GAP_WIDTH;
+//    }else{
+//        x += imageViewSize + GAP_HEIGHT;
+//    }
+//    if( imageTotal > 0 && imageTotal%imagePerRow == 0 ){
+//        y += imageViewSize + GAP_HEIGHT;
+//        mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), GET_LAYOUT_OFFSET_Y(textView)+GET_LAYOUT_HEIGHT(textView), GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
+//    }
+//    UIButton *addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+////    [addImageButton setTitle:@"+" forState:UIControlStateNormal];
+////    addImageButton.titleLabel.font = [UIFont systemFontOfSize:46.0];
+////    [addImageButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+//    [addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
+//    addImageButton.layer.borderColor = BORDER_COLOR;
+//    addImageButton.layer.borderWidth = BORDER_WIDTH;
+//    [mediaView addSubview:addImageButton];
+//
+//    CALayer *topBorder = [CALayer layer];
+//    topBorder.frame = CGRectMake(0.0f, 0.0f, GET_LAYOUT_WIDTH(mediaView), BORDER_WIDTH);
+//    topBorder.backgroundColor = BORDER_COLOR;
+//    [mediaView.layer addSublayer:topBorder];
+//    CALayer *bottomBorder = [CALayer layer];
+//    bottomBorder.frame = CGRectMake(0.0f, GET_LAYOUT_HEIGHT(mediaView)-1, GET_LAYOUT_WIDTH(mediaView), BORDER_WIDTH);
+//    bottomBorder.backgroundColor = BORDER_COLOR;
+//    [mediaView.layer addSublayer:bottomBorder];
+//    [self.view addSubview:mediaView];
+//
+//    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(mediaView)+GET_LAYOUT_HEIGHT(mediaView), VIEW_WIDTH, VIEW_HEIGHT-GET_LAYOUT_OFFSET_Y(self.tableView)) style:UITableViewStyleGrouped];
+//    self.tableView.dataSource = self;
+//    self.tableView.delegate = self;
+//    [self.view addSubview:self.tableView];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     [self.view addSubview:self.tableView];
+    
+    
+//    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+//    
+//    // You can get the photos by block, the same as by delegate.
+//    // 你可以通过block或者代理，来得到用户选择的照片.
+//    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+//        
+//    }];
+//    [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 30;
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return @"推送设备";
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if( section == 0 ){
+        return 2;
+    }else{
+        return 20;
+    }
+}
+
+- (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    if (section == 0)
+        return CGFLOAT_MIN;
+    return tableView.sectionHeaderHeight;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    cell.textLabel.text = @"设备";
+//    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
+//    cell.accessoryType = UITableViewCellAccessoryCheckmark;
+//    cell.textLabel.text = @"设备";
+//    return cell;
+    static NSString *CellIdentifier = @"ImageOnRightCell";
+//    static int i = 0;
+//    UILabel *mainLabel, *secondLabel;
+//    UIImageView *photo;
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    cell.frame = CGRectMake(0, 0, self.tableView.frame.size.width, 180);
+    
+    
+//        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+    if( indexPath.section == 0 ){
+        
+        if( indexPath.row == 0 ){
+            self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
+//            self.textView.backgroundColor = [UIColor redColor];
+            self.textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
+            
+            [cell.contentView addSubview:self.textView];
+            cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, cell.bounds.size.width);
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            self.tableView.rowHeight = self.textView.frame.size.height;
+        }else if( indexPath.row == 1 ){
+            UIView *mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, 150)];
+//            mediaView.backgroundColor = [UIColor blueColor];
+            int imagePerRow = 5;
+            int imageTotal = 10;
+            float imageViewSize = (GET_LAYOUT_WIDTH(mediaView)-GAP_WIDTH*(imagePerRow+1))/imagePerRow;
+            float x = GAP_WIDTH;
+            float y = GAP_HEIGHT;
+            for(int i=0;i<imageTotal;i++){
+                if( i%imagePerRow == 0 ){
+                    x = GAP_WIDTH;
+                }else{
+                    x += imageViewSize + GAP_HEIGHT;
+                }
+                if( i > 0 && i%imagePerRow == 0 ){
+                    y += imageViewSize + GAP_HEIGHT;
+                    mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), 0, GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
+                }
+                UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+        //        imageView.backgroundColor = [UIColor orangeColor];
+                imageView.image = [UIImage imageNamed:@"image"];
+                [mediaView addSubview:imageView];
+            }
+        
+            if( imageTotal%imagePerRow == 0 ){
+                x = GAP_WIDTH;
+            }else{
+                x += imageViewSize + GAP_HEIGHT;
+            }
+            if( imageTotal > 0 && imageTotal%imagePerRow == 0 ){
+                y += imageViewSize + GAP_HEIGHT;
+                mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), 0, GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
+            }
+            UIButton *addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+            [addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
+            [addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
+            addImageButton.layer.borderColor = BORDER_COLOR;
+            addImageButton.layer.borderWidth = BORDER_WIDTH;
+            [mediaView addSubview:addImageButton];
+            
+            [cell.contentView addSubview:mediaView];
+            cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, cell.bounds.size.width);
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            self.tableView.rowHeight = mediaView.frame.size.height;
+        }
+    }else{
+        cell.textLabel.text = @"设备编号（axz1122334）";
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+        self.tableView.rowHeight = 44;
+    }
     return cell;
 }
 
@@ -111,6 +226,10 @@
     //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
     //    [self.navigationController pushViewController:videoDetailController animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker {
+    NSLog(@"Cancel");
 }
 
 
@@ -281,6 +400,10 @@ done:
         CFRelease(fileURL);
     }
     return result;
+}
+
+- (void)clickAddMediaButton {
+    NSLog(@"asdasdsda");
 }
 
 @end

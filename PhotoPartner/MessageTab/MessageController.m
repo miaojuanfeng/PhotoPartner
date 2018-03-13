@@ -42,25 +42,24 @@
 //        NSLog(@"%@", dic);
 //    }];
     
-    NSString *urlString = @"https://well.bsimb.cn/weather/city_name?city_name=shenzhen";
-    NSURL *url = [NSURL URLWithString:urlString];
-    
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    [manager GET:url.absoluteString parameters:nil progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-        
-//        NSLog(@"results: %@", responseObject);
-        NSLog(@"Data results =======================================================================================>:");
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-        NSLog(@"results: %@", dic);
-        
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        
-        NSLog(@"results: %@", error);
-        
-    }];
+//    NSString *urlString = @"https://well.bsimb.cn/weather/city_name?city_name=shenzhen";
+//    NSURL *url = [NSURL URLWithString:urlString];
+//
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+//    [manager GET:url.absoluteString parameters:nil progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+//
+////        NSLog(@"results: %@", responseObject);
+//        NSLog(@"Data results =======================================================================================>:");
+//        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+//        NSLog(@"results: %@", dic);
+//
+//    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+//
+//        NSLog(@"results: %@", error);
+//
+//    }];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

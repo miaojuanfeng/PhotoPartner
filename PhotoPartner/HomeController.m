@@ -127,16 +127,18 @@
 }
 
 - (void)clickPhotoLibButton {
-    if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary] ){
-//        [self.activityIndicator startAnimating];
-        UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
-        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        //            pickerController.allowsEditing = YES;
-        pickerController.delegate = self;
-        [self presentViewController:pickerController animated:YES completion:nil];
-    }else{
-        NSLog(@"不支持图库");
-    }
+    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+    [self.navigationController pushViewController:uploadPhotoController animated:YES];
+//    if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary] ){
+////        [self.activityIndicator startAnimating];
+//        UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
+//        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+//        //            pickerController.allowsEditing = YES;
+//        pickerController.delegate = self;
+//        [self presentViewController:pickerController animated:YES completion:nil];
+//    }else{
+//        NSLog(@"不支持图库");
+//    }
 }
 
 - (void)clickTakeVideoButton{

@@ -10,6 +10,7 @@ target 'PhotoPartner' do
   source 'https://github.com/CocoaPods/Specs.git'
   platform :ios, '8.0'
   pod 'AFNetworking', '~> 3.0'
+  pod 'TZImagePickerController'
 
   target 'PhotoPartnerTests' do
     inherit! :search_paths
