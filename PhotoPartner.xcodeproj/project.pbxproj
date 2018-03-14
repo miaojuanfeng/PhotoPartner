@@ -23,6 +23,7 @@
 		CEC978F9204E38F800AE8CB3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC978F8204E38F800AE8CB3 /* main.m */; };
 		CEC97903204E38F800AE8CB3 /* PhotoPartnerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC97902204E38F800AE8CB3 /* PhotoPartnerTests.m */; };
 		CEC9790E204E38F800AE8CB3 /* PhotoPartnerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC9790D204E38F800AE8CB3 /* PhotoPartnerUITests.m */; };
+		CEFF9E1E2059088C0084DB27 /* UploadVideoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEFF9E1C2059088C0084DB27 /* UploadVideoController.m */; };
 		D8B4FA3CFF6C7F3069A53B42 /* libPods-PhotoPartner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DF083557A9DF8F98D6DE818 /* libPods-PhotoPartner.a */; };
 /* End PBXBuildFile section */
 
@@ -83,6 +84,8 @@
 		CEC97909204E38F800AE8CB3 /* PhotoPartnerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoPartnerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEC9790D204E38F800AE8CB3 /* PhotoPartnerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhotoPartnerUITests.m; sourceTree = "<group>"; };
 		CEC9790F204E38F800AE8CB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CEFF9E1C2059088C0084DB27 /* UploadVideoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UploadVideoController.m; sourceTree = "<group>"; };
+		CEFF9E1D2059088C0084DB27 /* UploadVideoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UploadVideoController.h; sourceTree = "<group>"; };
 		ECB2EE1FDC345582E34F38CC /* Pods-PhotoPartnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhotoPartnerTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PhotoPartnerTests/Pods-PhotoPartnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -158,6 +161,8 @@
 		CEB8E2BE2050E11700655887 /* UploadTab */ = {
 			isa = PBXGroup;
 			children = (
+				CEFF9E1D2059088C0084DB27 /* UploadVideoController.h */,
+				CEFF9E1C2059088C0084DB27 /* UploadVideoController.m */,
 				CEB8E2C02050E1A900655887 /* UploadPhotoController.m */,
 				CEB8E2C22050E1B400655887 /* UploadPhotoController.h */,
 			);
@@ -531,6 +536,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEFF9E1E2059088C0084DB27 /* UploadVideoController.m in Sources */,
 				CE70A463204F962D00470A16 /* SettingController.m in Sources */,
 				CEB8E2C7205117C400655887 /* DeviceController.m in Sources */,
 				CEB8E2C12050E1A900655887 /* UploadPhotoController.m in Sources */,

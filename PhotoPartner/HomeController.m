@@ -9,6 +9,7 @@
 #import "MacroDefine.h"
 #import "HomeController.h"
 #import "UploadPhotoController.h"
+#import "UploadVideoController.h"
 #import "DeviceController.h"
 #import "AddDeviceController.h"
 #import "MessageController.h"
@@ -16,7 +17,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 @interface HomeController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
-
+@property UIAlertController *actionSheet;
 @end
 
 @implementation HomeController
@@ -127,18 +128,25 @@
 }
 
 - (void)clickPhotoLibButton {
-    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
-    [self.navigationController pushViewController:uploadPhotoController animated:YES];
-//    if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary] ){
-////        [self.activityIndicator startAnimating];
-//        UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
-//        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-//        //            pickerController.allowsEditing = YES;
-//        pickerController.delegate = self;
-//        [self presentViewController:pickerController animated:YES completion:nil];
-//    }else{
-//        NSLog(@"不支持图库");
-//    }
+    self.actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction *photoAction = [UIAlertAction actionWithTitle:@"照片" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+        [self.navigationController pushViewController:uploadPhotoController animated:YES];
+    }];
+    UIAlertAction *videoAction = [UIAlertAction actionWithTitle:@"视频" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UploadVideoController *uploadVideoController = [[UploadVideoController alloc] init];
+        [self.navigationController pushViewController:uploadVideoController animated:YES];
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    [cancelAction setValue:[UIColor redColor] forKey:@"_titleTextColor"];
+    [self.actionSheet addAction:photoAction];
+    [self.actionSheet addAction:videoAction];
+    [self.actionSheet addAction:cancelAction];
+    [self presentViewController:self.actionSheet animated:YES completion:^{
+        
+    }];
 }
 
 - (void)clickTakeVideoButton{

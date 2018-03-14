@@ -7,9 +7,10 @@
 //
 
 #import "MacroDefine.h"
-#import "UploadPhotoController.h"
+#import "UploadVideoController.h"
 #import <AFNetworking/AFNetworking.h>
 #import <TZImagePickerController.h>
+#import <TZImageManager.h>
 
 #define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
@@ -21,7 +22,7 @@
 #define IMAGE_PER_ROW 5
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
 
-@interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate>
+@interface UploadVideoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate>
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
 
@@ -37,14 +38,14 @@
 @property UIProgressView *progressView;
 @end
 
-@implementation UploadPhotoController
+@implementation UploadVideoController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     COMMON_MACRO;
     
-    self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
+    self.navigationItem.title = NSLocalizedString(@"uploadVideoNavigationItemTitle", nil);
     
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
@@ -84,7 +85,7 @@
 
     
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    self.imagePickerVc.allowPickingVideo = NO;
+    self.imagePickerVc.allowPickingImage = NO;
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
 }
 
@@ -113,7 +114,6 @@
     if (section == 0){
         return CGFLOAT_MIN;
     }else{
-//        return tableView.sectionHeaderHeight;
         return 12;
     }
 }
@@ -126,45 +126,13 @@
     if( indexPath.section == 0 ){
         if( indexPath.row == 0 ){
             self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView);
-            NSLog(@"%f",GET_LAYOUT_HEIGHT(self.textView));
-//            self.textView.backgroundColor = [UIColor redColor];
             self.textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
-            
             [cell.contentView addSubview:self.textView];
             cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            
-            
         }else if( indexPath.row == 1 ){
-//            mediaView.backgroundColor = [UIColor blueColor];
-//            int imagePerRow = 5;
-//            int imageTotal = 10;
-//            float imageViewSize = (GET_LAYOUT_WIDTH(mediaView)-GAP_WIDTH*(imagePerRow+1))/imagePerRow;
-//            float x = GAP_WIDTH;
-//            float y = GAP_HEIGHT;
-//            for(int i=0;i<imageTotal;i++){
-//                if( i%imagePerRow == 0 ){
-//                    x = GAP_WIDTH;
-//                }else{
-//                    x += imageViewSize + GAP_HEIGHT;
-//                }
-//                if( i > 0 && i%imagePerRow == 0 ){
-//                    y += imageViewSize + GAP_HEIGHT;
-//                    mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), 0, GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
-//                }
-//                UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-//        //        imageView.backgroundColor = [UIColor orangeColor];
-//                imageView.image = [UIImage imageNamed:@"image"];
-//                [mediaView addSubview:imageView];
-//            }
-            NSLog(@"mediaView HEight: %f", GET_LAYOUT_HEIGHT(self.mediaView));
-//            CGRect rect = cell.frame;
-//            rect.size.height = [self getMediaView:cell];
-//            cell.frame = rect;
-//            NSLog(@"%f", GET_LAYOUT_HEIGHT(cell));
             self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.mediaView);
             [self getMediaView:cell];
-//            cell.backgroundColor = [UIColor blueColor];
         }
     }else{
         self.tableView.rowHeight = 44;
@@ -251,23 +219,39 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
+//- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
+//    self.focusImageIndex = self.fileDesc.count;
+//    for (int i=0; i<photos.count; i++) {
+//        [self.photos addObject:photos[i]];
+//        [self.fileDesc addObject:@""];
+//    }
+//    NSLog(@"self.photos: %@", self.photos);
+//    self.textView.text = [self.fileDesc objectAtIndex:self.focusImageIndex];
+//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+//    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+//    [self getMediaView:cell];
+//    [self.tableView reloadData];
+//}
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
+    NSLog(@"%@", coverImage);
     self.focusImageIndex = self.fileDesc.count;
-    for (int i=0; i<photos.count; i++) {
-        [self.photos addObject:photos[i]];
-        [self.fileDesc addObject:@""];
-    }
+    [self.photos addObject:coverImage];
+    [self.fileDesc addObject:@""];
     NSLog(@"self.photos: %@", self.photos);
     self.textView.text = [self.fileDesc objectAtIndex:self.focusImageIndex];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     [self getMediaView:cell];
     [self.tableView reloadData];
+    
+    [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
+        NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+        NSLog(@"MD5%@", [self getFileMD5WithPath:outputPath]);
+    } failure:^(NSString *errorMessage, NSError *error) {
+        
+    }];
 }
-
-//- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
-//    NSLog(@"%@", coverImage);
-//}
 
 - (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker {
     NSLog(@"Cancel");
@@ -394,72 +378,75 @@
 
 
 
-//- (NSString*)getFileMD5WithPath:(NSString*)path {
-//    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
-//}
-//
-//CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,size_t chunkSizeForReadingData) {
-//    // Declare needed variables
-//    CFStringRef result = NULL;
-//    CFReadStreamRef readStream = NULL;
-//    // Get the file URL
-//    CFURLRef fileURL =
-//    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
-//                                  (CFStringRef)filePath,
-//                                  kCFURLPOSIXPathStyle,
-//                                  (Boolean)false);
-//    if (!fileURL) goto done;
-//    // Create and open the read stream
-//    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
-//                                            (CFURLRef)fileURL);
-//    if (!readStream) goto done;
-//    bool didSucceed = (bool)CFReadStreamOpen(readStream);
-//    if (!didSucceed) goto done;
-//    // Initialize the hash object
-//    CC_MD5_CTX hashObject;
-//    CC_MD5_Init(&hashObject);
-//    // Make sure chunkSizeForReadingData is valid
-//    if (!chunkSizeForReadingData) {
-//        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
-//    }
-//    // Feed the data to the hash object
-//    bool hasMoreData = true;
-//    while (hasMoreData) {
-//        uint8_t buffer[chunkSizeForReadingData];
-//        CFIndex readBytesCount = CFReadStreamRead(readStream,(UInt8 *)buffer,(CFIndex)sizeof(buffer));
-//        if (readBytesCount == -1) break;
-//        if (readBytesCount == 0) {
-//            hasMoreData = false;
-//            continue;
-//        }
-//        CC_MD5_Update(&hashObject,(const void *)buffer,(CC_LONG)readBytesCount);
-//    }
-//    // Check if the read operation succeeded
-//    didSucceed = !hasMoreData;
-//    // Compute the hash digest
-//    unsigned char digest[CC_MD5_DIGEST_LENGTH];
-//    CC_MD5_Final(digest, &hashObject);
-//    // Abort if the read operation failed
-//    if (!didSucceed) goto done;
-//    // Compute the string result
-//    char hash[2 * sizeof(digest) + 1];
-//    for (size_t i = 0; i < sizeof(digest); ++i) {
-//        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
-//    }
-//    result = CFStringCreateWithCString(kCFAllocatorDefault,(const char *)hash,kCFStringEncodingUTF8);
-//
-//done:
-//    if (readStream) {
-//        CFReadStreamClose(readStream);
-//        CFRelease(readStream);
-//    }
-//    if (fileURL) {
-//        CFRelease(fileURL);
-//    }
-//    return result;
-//}
+- (NSString*)getFileMD5WithPath:(NSString*)path {
+    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
+}
+
+CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,size_t chunkSizeForReadingData) {
+    // Declare needed variables
+    CFStringRef result = NULL;
+    CFReadStreamRef readStream = NULL;
+    // Get the file URL
+    CFURLRef fileURL =
+    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
+                                  (CFStringRef)filePath,
+                                  kCFURLPOSIXPathStyle,
+                                  (Boolean)false);
+    if (!fileURL) goto done;
+    // Create and open the read stream
+    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
+                                            (CFURLRef)fileURL);
+    if (!readStream) goto done;
+    bool didSucceed = (bool)CFReadStreamOpen(readStream);
+    if (!didSucceed) goto done;
+    // Initialize the hash object
+    CC_MD5_CTX hashObject;
+    CC_MD5_Init(&hashObject);
+    // Make sure chunkSizeForReadingData is valid
+    if (!chunkSizeForReadingData) {
+        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
+    }
+    // Feed the data to the hash object
+    bool hasMoreData = true;
+    while (hasMoreData) {
+        uint8_t buffer[chunkSizeForReadingData];
+        CFIndex readBytesCount = CFReadStreamRead(readStream,(UInt8 *)buffer,(CFIndex)sizeof(buffer));
+        if (readBytesCount == -1) break;
+        if (readBytesCount == 0) {
+            hasMoreData = false;
+            continue;
+        }
+        CC_MD5_Update(&hashObject,(const void *)buffer,(CC_LONG)readBytesCount);
+    }
+    // Check if the read operation succeeded
+    didSucceed = !hasMoreData;
+    // Compute the hash digest
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5_Final(digest, &hashObject);
+    // Abort if the read operation failed
+    if (!didSucceed) goto done;
+    // Compute the string result
+    char hash[2 * sizeof(digest) + 1];
+    for (size_t i = 0; i < sizeof(digest); ++i) {
+        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
+    }
+    result = CFStringCreateWithCString(kCFAllocatorDefault,(const char *)hash,kCFStringEncodingUTF8);
+
+done:
+    if (readStream) {
+        CFReadStreamClose(readStream);
+        CFRelease(readStream);
+    }
+    if (fileURL) {
+        CFRelease(fileURL);
+    }
+    return result;
+}
 
 - (void)clickAddMediaButton {
+    if( self.photos.count > 0 ){
+        return;
+    }
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
 }
 

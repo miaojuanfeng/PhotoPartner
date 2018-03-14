@@ -8,10 +8,11 @@
 homeNavigationItemTitle = "Photo Partner";
 
 homeTakePhotoTitle = "Take Photo";
-homePhotoLibTitle = "Local Photo";
+homePhotoLibTitle = "Local Media";
 homeTakeVodioTitle = "Take Video";
 
 uploadPhotoNavigationItemTitle = "Send Photo";
+uploadVideoNavigationItemTitle = "Send Video";
 uploadPhotoRightBarButtonItemTitle = "Send";
 
 deviceListNavigationItemTitle = "Device Manage";

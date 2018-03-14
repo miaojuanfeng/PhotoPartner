@@ -8,11 +8,12 @@
 homeNavigationItemTitle = "照片伴侣";
 
 homeTakePhotoTitle = "拍照片";
-homePhotoLibTitle = "本地照片";
+homePhotoLibTitle = "本地图库";
 homeTakeVodioTitle = "录视频";
 
 uploadPhotoNavigationItemTitle = "发送照片";
-uploadPhotoRightBarButtonItemTitle = "发送";
+uploadVideoNavigationItemTitle = "发送视频";
+uploadSendRightBarButtonItemTitle = "发送";
 
 deviceListNavigationItemTitle = "设备管理";
 deviceAddNavigationItemTitle = "绑定设备";
