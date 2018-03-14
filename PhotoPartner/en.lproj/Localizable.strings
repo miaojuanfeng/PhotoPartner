@@ -14,6 +14,7 @@ homeTakeVodioTitle = "Take Video";
 uploadPhotoNavigationItemTitle = "Send Photo";
 uploadVideoNavigationItemTitle = "Send Video";
 uploadPhotoRightBarButtonItemTitle = "Send";
+uploadSendingRightBarButtonItemTitle = "Sending";
 
 deviceListNavigationItemTitle = "Device Manage";
 deviceAddNavigationItemTitle = "Bind Device";

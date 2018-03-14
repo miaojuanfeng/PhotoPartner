@@ -12,6 +12,13 @@
 
 @property (strong, nonatomic) UIWindow *window;
 
+@property NSMutableArray *deviceId;
+@property NSMutableArray *fileDesc;
+@property NSMutableArray<UIImage *> *photos;
+@property long focusImageIndex;
+@property bool isSending;
+
+- (void)clearProperty;
 
 @end
 

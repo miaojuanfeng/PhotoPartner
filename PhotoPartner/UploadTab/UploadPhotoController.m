@@ -6,10 +6,11 @@
 //  Copyright © 2018 MJF. All rights reserved.
 //
 
-#import "MacroDefine.h"
-#import "UploadPhotoController.h"
 #import <AFNetworking/AFNetworking.h>
 #import <TZImagePickerController.h>
+#import "MacroDefine.h"
+#import "AppDelegate.h"
+#import "UploadPhotoController.h"
 
 #define IMAGE_PER_ROW 5
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
@@ -18,10 +19,7 @@
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
 
-@property NSMutableArray *deviceId;
-@property NSMutableArray *fileDesc;
-@property NSMutableArray<UIImage *> *photos;
-@property long focusImageIndex;
+@property AppDelegate *appDelegate;
 
 @property UITextView *textView;
 @property UIView *mediaView;
@@ -39,16 +37,7 @@
     
     self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
     
-    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
-    self.navigationItem.rightBarButtonItem = submitButton;
-    
-    self.deviceId = [[NSMutableArray alloc] init];
-    self.fileDesc = [[NSMutableArray alloc] init];
-    self.photos = [[NSMutableArray alloc] init];
-    self.focusImageIndex = -1;
-    
-    self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
+    self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 44, GET_LAYOUT_WIDTH(self.view), 1)];
 //    [self.navigationController.navigationBar addSubview:self.progressView];
@@ -75,10 +64,25 @@
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
 
-    
+
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     self.imagePickerVc.allowPickingVideo = NO;
-    [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
+    if( self.appDelegate.isSending ){
+        UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
+        submitButton.enabled = NO;
+        self.navigationItem.rightBarButtonItem = submitButton;
+        long imageRowCount = self.appDelegate.photos.count/IMAGE_PER_ROW+1;
+        self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE*imageRowCount+(imageRowCount-1)*GAP_HEIGHT+2*GAP_HEIGHT)];
+        self.textView.text = self.appDelegate.fileDesc[self.appDelegate.focusImageIndex];
+    }else{
+        UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
+        self.navigationItem.rightBarButtonItem = submitButton;
+        self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
+        [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+    }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tongzhi:)name:@"tongzhi" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -170,7 +174,10 @@
 
 - (void)getMediaView:(UITableViewCell *)cell {
 //    mediaView.backgroundColor = [UIColor blueColor];
-    long imageTotal = self.photos.count;
+    if( self.appDelegate.photos.count == 0 ){
+        self.mediaView.frame = CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT);
+    }
+    long imageTotal = self.appDelegate.photos.count;
     float imageViewSize = IMAGE_VIEW_SIZE;
     float x = GAP_WIDTH;
     float y = GAP_HEIGHT;
@@ -186,7 +193,7 @@
         }
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
         //        imageView.backgroundColor = [UIColor orangeColor];
-        imageView.image = self.photos[i];
+        imageView.image = self.appDelegate.photos[i];
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
         imageView.userInteractionEnabled = YES;
@@ -245,13 +252,13 @@
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
-    self.focusImageIndex = self.fileDesc.count;
+    self.appDelegate.focusImageIndex = self.appDelegate.fileDesc.count;
     for (int i=0; i<photos.count; i++) {
-        [self.photos addObject:photos[i]];
-        [self.fileDesc addObject:@""];
+        [self.appDelegate.photos addObject:photos[i]];
+        [self.appDelegate.fileDesc addObject:@""];
     }
-    NSLog(@"self.photos: %@", self.photos);
-    self.textView.text = [self.fileDesc objectAtIndex:self.focusImageIndex];
+    NSLog(@"self.photos: %@", self.appDelegate.photos);
+    self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     [self getMediaView:cell];
@@ -294,14 +301,14 @@
      第五个参数:成功回调 responseObject响应体信息
      第六个参数:失败回调
      */
-    NSLog(@"%ld", self.photos.count);
+    NSLog(@"%ld", self.appDelegate.photos.count);
     NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
-    for (int i = 0; i < self.photos.count; i++) {
-        [self.deviceId addObject:@1];
+    for (int i = 0; i < self.appDelegate.photos.count; i++) {
+        [self.appDelegate.deviceId addObject:@1];
 //        [self.fileDesc addObject:@2];
-        [file addObject:UIImagePNGRepresentation(self.photos[i])];
+        [file addObject:UIImagePNGRepresentation(self.appDelegate.photos[i])];
     }
-    NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.deviceId copy],@"file_desc":[self.fileDesc copy]};
+    NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
     [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         /*
         *   使用formData拼接数据
@@ -322,9 +329,10 @@
             [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:[NSString stringWithFormat:@"%@.%@", fileName, fileExt], i] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
         }
         self.navigationItem.rightBarButtonItem.enabled = NO;
-        self.navigationItem.rightBarButtonItem.title = @"发送中";
+        self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil);
         self.progressView.progress = 0.0;
         [self.navigationController.navigationBar addSubview:self.progressView];
+        self.appDelegate.isSending = true;
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.progressView.progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
@@ -335,9 +343,22 @@
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
         NSLog(@"results: %@", dic);
 
-        self.navigationItem.rightBarButtonItem.enabled = YES;
-        self.navigationItem.rightBarButtonItem.title = @"发送";
-        [self.progressView removeFromSuperview];
+//        [self.appDelegate clearProperty];
+//        NSArray *views = [self.mediaView subviews];
+//        for(UIView *view in views){
+//            [view removeFromSuperview];
+//        }
+//        self.textView.text = @"";
+//        [self.tableView reloadData];
+//        self.navigationItem.rightBarButtonItem.enabled = YES;
+//        self.navigationItem.rightBarButtonItem.title = @"发送";
+//        [self.progressView removeFromSuperview];
+//        self.appDelegate.isSending = false;
+        
+        NSNotification *notification =[NSNotification notificationWithName:@"tongzhi" object:nil userInfo:nil];
+        //通过通知中心发送通知
+        [[NSNotificationCenter defaultCenter] postNotification:notification];
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"上传失败.%@",error);
         NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
@@ -390,8 +411,8 @@
 
 - (void)clickImageView:(UIGestureRecognizer *) sender{
     [self setTextViewToFileDesc];
-    self.focusImageIndex = sender.view.tag;
-    self.textView.text = [self.fileDesc objectAtIndex:sender.view.tag];
+    self.appDelegate.focusImageIndex = sender.view.tag;
+    self.textView.text = [self.appDelegate.fileDesc objectAtIndex:sender.view.tag];
 }
 
 -(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
@@ -400,13 +421,13 @@
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     [self setTextViewToFileDesc];
-    NSLog(@"%@", self.fileDesc);
+    NSLog(@"%@", self.appDelegate.fileDesc);
 }
 
 - (void)setTextViewToFileDesc {
-    if( self.focusImageIndex > -1 ){
+    if( self.appDelegate.focusImageIndex > -1 ){
         NSLog(@"sds");
-        [self.fileDesc replaceObjectAtIndex:self.focusImageIndex withObject:self.textView.text];
+        [self.appDelegate.fileDesc replaceObjectAtIndex:self.appDelegate.focusImageIndex withObject:self.textView.text];
     }
 }
 
@@ -426,6 +447,27 @@
             return @"tiff";
     }
     return nil;
+}
+
+- (void)tongzhi:(NSNotification *)text{
+//    NSLog(@"%@",text);
+    
+    [self.appDelegate clearProperty];
+    NSArray *views = [self.mediaView subviews];
+    for(UIView *view in views){
+        [view removeFromSuperview];
+    }
+    self.textView.text = @"";
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    [self getMediaView:cell];
+    [self.tableView reloadData];
+    self.navigationItem.rightBarButtonItem.enabled = YES;
+    self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
+    [self.progressView removeFromSuperview];
+    self.appDelegate.isSending = false;
+    
+    NSLog(@"－－－－－接收到通知------");
 }
 
 @end

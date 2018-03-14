@@ -14,6 +14,7 @@ homeTakeVodioTitle = "录视频";
 uploadPhotoNavigationItemTitle = "发送照片";
 uploadVideoNavigationItemTitle = "发送视频";
 uploadSendRightBarButtonItemTitle = "发送";
+uploadSendingRightBarButtonItemTitle = "发送中";
 
 deviceListNavigationItemTitle = "设备管理";
 deviceAddNavigationItemTitle = "绑定设备";

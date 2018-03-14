@@ -19,6 +19,13 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
+    // Init Global Varables
+    self.deviceId = [[NSMutableArray alloc] init];
+    self.fileDesc = [[NSMutableArray alloc] init];
+    self.photos = [[NSMutableArray alloc] init];
+    self.focusImageIndex = -1;
+    self.isSending = false;
+    
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     HomeController *homeController = [[HomeController alloc] init];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:homeController];
@@ -53,6 +60,14 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)clearProperty {
+    [self.deviceId removeAllObjects];
+    [self.fileDesc removeAllObjects];
+    [self.photos removeAllObjects];
+    self.focusImageIndex = -1;
+    self.isSending = false;
 }
 
 
