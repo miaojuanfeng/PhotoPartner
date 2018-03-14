@@ -38,4 +38,6 @@
 #define BORDER_COLOR [UIColor colorWithWhite:0.8f alpha:1.0f].CGColor
 #define BORDER_WIDTH 1.0f
 
+#define VIDEO_CHUNK_SIZE (1024*1024)
+
 #endif /* MacroDefine_h */
