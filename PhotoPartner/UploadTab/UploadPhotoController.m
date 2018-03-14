@@ -23,16 +23,18 @@
 
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate>
 @property UITableView *tableView;
+@property TZImagePickerController *imagePickerVc;
 
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
 @property NSMutableArray<UIImage *> *photos;
+@property long focusImageIndex;
 
 @property UITextView *textView;
 @property UIView *mediaView;
+@property UIButton *addImageButton;
 
 @property UIProgressView *progressView;
-@property UIActivityIndicatorView *activityIndicatorView;
 @end
 
 @implementation UploadPhotoController
@@ -50,21 +52,13 @@
     self.deviceId = [[NSMutableArray alloc] init];
     self.fileDesc = [[NSMutableArray alloc] init];
     self.photos = [[NSMutableArray alloc] init];
+    self.focusImageIndex = -1;
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
     
     self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 44, GET_LAYOUT_WIDTH(self.view), 1)];
 //    [self.navigationController.navigationBar addSubview:self.progressView];
-    
-    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:(UIActivityIndicatorViewStyleWhiteLarge)];
-    self.activityIndicatorView.frame= CGRectMake((GET_LAYOUT_WIDTH(self.view)/2)-30, (GET_LAYOUT_HEIGHT(self.view)/2)-30, 60, 60);
-    self.activityIndicatorView.color = [UIColor whiteColor];
-    UIColor *blackColor = [UIColor blackColor];
-    self.activityIndicatorView.backgroundColor = [blackColor colorWithAlphaComponent:0.6];
-        self.activityIndicatorView.hidesWhenStopped = NO;
-    [self.view addSubview:self.activityIndicatorView];
-    NSLog(@"%@", self.activityIndicatorView);
 
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
     self.tableView.dataSource = self;
@@ -77,9 +71,21 @@
 //    }
     [self.view addSubview:self.tableView];
     
-//    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-//    imagePickerVc.allowPickingVideo = NO;
-//    [self presentViewController:imagePickerVc animated:YES completion:nil];
+    
+    self.view.userInteractionEnabled = YES;
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
+    [self.view addGestureRecognizer:singleTap];
+    
+    //监听当键将要退出时
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+
+    
+    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    self.imagePickerVc.allowPickingVideo = NO;
+    [self presentViewController:self.imagePickerVc animated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -188,6 +194,12 @@
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
         //        imageView.backgroundColor = [UIColor orangeColor];
         imageView.image = self.photos[i];
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        imageView.clipsToBounds = YES;
+        imageView.userInteractionEnabled = YES;
+        UITapGestureRecognizer *singleTap =[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickImageView:)];
+        [imageView setTag:i];
+        [imageView addGestureRecognizer:singleTap];
         [self.mediaView addSubview:imageView];
     }
     
@@ -200,12 +212,16 @@
         y += imageViewSize + GAP_HEIGHT;
         self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT);
     }
-    UIButton *addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-    [addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
-    [addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
-    addImageButton.layer.borderColor = BORDER_COLOR;
-    addImageButton.layer.borderWidth = BORDER_WIDTH;
-    [self.mediaView addSubview:addImageButton];
+    /*
+     *  移除旧的CGRect可点击区域
+     */
+    [self.addImageButton removeFromSuperview];
+    self.addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+    [self.addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
+    [self.addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
+    self.addImageButton.layer.borderColor = BORDER_COLOR;
+    self.addImageButton.layer.borderWidth = BORDER_WIDTH;
+    [self.mediaView addSubview:self.addImageButton];
     
     [cell.contentView addSubview:self.mediaView];
     cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
@@ -236,17 +252,16 @@
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
-    NSLog(@"%@", photos);
-//    for (int i=0; i<photos.count; i++) {
-//        [self.photos addObject:photos[i]];
-//    }
-    [self.photos addObjectsFromArray:photos];
+    self.focusImageIndex = self.fileDesc.count;
+    for (int i=0; i<photos.count; i++) {
+        [self.photos addObject:photos[i]];
+        [self.fileDesc addObject:@""];
+    }
     NSLog(@"self.photos: %@", self.photos);
+    self.textView.text = [self.fileDesc objectAtIndex:self.focusImageIndex];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     [self getMediaView:cell];
-//    [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:indexPath,nil] withRowAnimation:UITableViewRowAnimationNone];
-//    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
     [self.tableView reloadData];
 }
 
@@ -268,6 +283,7 @@
  */
 
 - (void)clickSubmitButton {
+    [self.view endEditing:YES];
     //创建会话管理者
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     /*
@@ -275,6 +291,7 @@
      *  加上下面这句才会提示成功
      */
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.requestSerializer.timeoutInterval = 30.0f;
     //发送post请求上传路径
     /*
      第一个参数:请求路径
@@ -288,66 +305,54 @@
     NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
     for (int i = 0; i < self.photos.count; i++) {
         [self.deviceId addObject:@1];
-        [self.fileDesc addObject:@2];
+//        [self.fileDesc addObject:@2];
         [file addObject:UIImagePNGRepresentation(self.photos[i])];
     }
     NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.deviceId copy],@"file_desc":[self.fileDesc copy]};
-    [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-        
-//        UIImage *image = [UIImage imageNamed:@"image"];
-//        NSData *imageData = UIImagePNGRepresentation(image);
-//
-//        UIImage *image2 = [UIImage imageNamed:@"iv_upload"];
-//        NSData *imageData2 = UIImagePNGRepresentation(image2);
-        
-        //使用formData拼接数据
-        /* 方法一:
-         第一个参数:二进制数据 要上传的文件参数
-         第二个参数:服务器规定的
-         第三个参数:文件上传到服务器以什么名称保存
-         */
+    [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        /*
+        *   使用formData拼接数据
+        *   方法一:
+        *   第一个参数:二进制数据 要上传的文件参数
+        *   第二个参数:服务器规定的
+        *   第三个参数:文件上传到服务器以什么名称保存
+        */
         for (int i=0; i< file.count; i++) {
-            [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:@"MichaelMiao%d.png", i] mimeType:@"image/png"];
+            NSString *fileExt = [self typeForImageData:file[i]];
+            if( fileExt == nil ){
+                fileExt = @"jpeg";
+            }
+            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDateFormat:@"yyyyMMdd"];
+            NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
+            [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:[NSString stringWithFormat:@"%@.%@", fileName, fileExt], i] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
         }
+        self.navigationItem.rightBarButtonItem.enabled = NO;
+        self.navigationItem.rightBarButtonItem.title = @"发送中";
         self.progressView.progress = 0.0;
         [self.navigationController.navigationBar addSubview:self.progressView];
-        
-        [self.activityIndicatorView startAnimating];
-//        [formData appendPartWithFileData:imageData name:@"file" fileName:@"xx1.png" mimeType:@"image/png"];
-//        [formData appendPartWithFileData:imageData2 name:@"file" fileName:@"xx2.png" mimeType:@"image/png"];
-        
-//        //方法二:
-//        [formData appendPartWithFileURL:[NSURL fileURLWithPath:@""] name:@"file" fileName:@"xxx.png" mimeType:@"image/png" error:nil];
-//
-//        //方法三:
-//        [formData appendPartWithFileURL:[NSURL fileURLWithPath:@""] name:@"file" error:nil];
-        
-    }
-         progress:^(NSProgress * _Nonnull uploadProgress) {
-             dispatch_async(dispatch_get_main_queue(), ^{
-                 self.progressView.progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
-             });
-             NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
-             
-         }
-          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-              
-              NSLog(@"上传成功.%@",responseObject);
-              NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-              NSLog(@"results: %@", dic);
-              
-              [self.progressView removeFromSuperview];
-              [self.activityIndicatorView stopAnimating];
-          }
-          failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-              
-              NSLog(@"上传失败.%@",error);
-              NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
-              
-              [self.progressView removeFromSuperview];
-              [self.activityIndicatorView stopAnimating];
-          }];
-    
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.progressView.progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+        });
+        NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"上传成功.%@",responseObject);
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+        NSLog(@"results: %@", dic);
+
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+        self.navigationItem.rightBarButtonItem.title = @"发送";
+        [self.progressView removeFromSuperview];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"上传失败.%@",error);
+        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+        self.navigationItem.rightBarButtonItem.title = @"发送";
+        [self.progressView removeFromSuperview];
+    }];
 //    [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -389,74 +394,113 @@
 
 
 
-- (NSString*)getFileMD5WithPath:(NSString*)path {
-    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
-}
-
-CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,size_t chunkSizeForReadingData) {
-    // Declare needed variables
-    CFStringRef result = NULL;
-    CFReadStreamRef readStream = NULL;
-    // Get the file URL
-    CFURLRef fileURL =
-    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
-                                  (CFStringRef)filePath,
-                                  kCFURLPOSIXPathStyle,
-                                  (Boolean)false);
-    if (!fileURL) goto done;
-    // Create and open the read stream
-    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
-                                            (CFURLRef)fileURL);
-    if (!readStream) goto done;
-    bool didSucceed = (bool)CFReadStreamOpen(readStream);
-    if (!didSucceed) goto done;
-    // Initialize the hash object
-    CC_MD5_CTX hashObject;
-    CC_MD5_Init(&hashObject);
-    // Make sure chunkSizeForReadingData is valid
-    if (!chunkSizeForReadingData) {
-        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
-    }
-    // Feed the data to the hash object
-    bool hasMoreData = true;
-    while (hasMoreData) {
-        uint8_t buffer[chunkSizeForReadingData];
-        CFIndex readBytesCount = CFReadStreamRead(readStream,(UInt8 *)buffer,(CFIndex)sizeof(buffer));
-        if (readBytesCount == -1) break;
-        if (readBytesCount == 0) {
-            hasMoreData = false;
-            continue;
-        }
-        CC_MD5_Update(&hashObject,(const void *)buffer,(CC_LONG)readBytesCount);
-    }
-    // Check if the read operation succeeded
-    didSucceed = !hasMoreData;
-    // Compute the hash digest
-    unsigned char digest[CC_MD5_DIGEST_LENGTH];
-    CC_MD5_Final(digest, &hashObject);
-    // Abort if the read operation failed
-    if (!didSucceed) goto done;
-    // Compute the string result
-    char hash[2 * sizeof(digest) + 1];
-    for (size_t i = 0; i < sizeof(digest); ++i) {
-        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
-    }
-    result = CFStringCreateWithCString(kCFAllocatorDefault,(const char *)hash,kCFStringEncodingUTF8);
-    
-done:
-    if (readStream) {
-        CFReadStreamClose(readStream);
-        CFRelease(readStream);
-    }
-    if (fileURL) {
-        CFRelease(fileURL);
-    }
-    return result;
-}
+//- (NSString*)getFileMD5WithPath:(NSString*)path {
+//    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
+//}
+//
+//CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,size_t chunkSizeForReadingData) {
+//    // Declare needed variables
+//    CFStringRef result = NULL;
+//    CFReadStreamRef readStream = NULL;
+//    // Get the file URL
+//    CFURLRef fileURL =
+//    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
+//                                  (CFStringRef)filePath,
+//                                  kCFURLPOSIXPathStyle,
+//                                  (Boolean)false);
+//    if (!fileURL) goto done;
+//    // Create and open the read stream
+//    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
+//                                            (CFURLRef)fileURL);
+//    if (!readStream) goto done;
+//    bool didSucceed = (bool)CFReadStreamOpen(readStream);
+//    if (!didSucceed) goto done;
+//    // Initialize the hash object
+//    CC_MD5_CTX hashObject;
+//    CC_MD5_Init(&hashObject);
+//    // Make sure chunkSizeForReadingData is valid
+//    if (!chunkSizeForReadingData) {
+//        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
+//    }
+//    // Feed the data to the hash object
+//    bool hasMoreData = true;
+//    while (hasMoreData) {
+//        uint8_t buffer[chunkSizeForReadingData];
+//        CFIndex readBytesCount = CFReadStreamRead(readStream,(UInt8 *)buffer,(CFIndex)sizeof(buffer));
+//        if (readBytesCount == -1) break;
+//        if (readBytesCount == 0) {
+//            hasMoreData = false;
+//            continue;
+//        }
+//        CC_MD5_Update(&hashObject,(const void *)buffer,(CC_LONG)readBytesCount);
+//    }
+//    // Check if the read operation succeeded
+//    didSucceed = !hasMoreData;
+//    // Compute the hash digest
+//    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+//    CC_MD5_Final(digest, &hashObject);
+//    // Abort if the read operation failed
+//    if (!didSucceed) goto done;
+//    // Compute the string result
+//    char hash[2 * sizeof(digest) + 1];
+//    for (size_t i = 0; i < sizeof(digest); ++i) {
+//        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
+//    }
+//    result = CFStringCreateWithCString(kCFAllocatorDefault,(const char *)hash,kCFStringEncodingUTF8);
+//
+//done:
+//    if (readStream) {
+//        CFReadStreamClose(readStream);
+//        CFRelease(readStream);
+//    }
+//    if (fileURL) {
+//        CFRelease(fileURL);
+//    }
+//    return result;
+//}
 
 - (void)clickAddMediaButton {
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+    [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+}
+
+- (void)clickImageView:(UIGestureRecognizer *) sender{
+    [self setTextViewToFileDesc];
+    self.focusImageIndex = sender.view.tag;
+    self.textView.text = [self.fileDesc objectAtIndex:sender.view.tag];
+}
+
+-(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    [self.view endEditing:YES];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    [self setTextViewToFileDesc];
+    NSLog(@"%@", self.fileDesc);
+}
+
+- (void)setTextViewToFileDesc {
+    if( self.focusImageIndex > -1 ){
+        NSLog(@"sds");
+        [self.fileDesc replaceObjectAtIndex:self.focusImageIndex withObject:self.textView.text];
+    }
+}
+
+- (NSString *)typeForImageData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+    
+    switch (c) {
+        case 0xFF:
+            return @"jpeg";
+        case 0x89:
+            return @"png";
+        case 0x47:
+            return @"gif";
+        case 0x49:
+        case 0x4D:
+            return @"tiff";
+    }
+    return nil;
 }
 
 @end
