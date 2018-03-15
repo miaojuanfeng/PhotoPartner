@@ -390,7 +390,7 @@
         [file addObject:UIImagePNGRepresentation(self.photos[i])];
     }
     NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.deviceId copy],@"file_desc":[self.fileDesc copy]};
-    [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+    [manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         /*
         *   使用formData拼接数据
         *   方法一:
@@ -398,16 +398,12 @@
         *   第二个参数:服务器规定的
         *   第三个参数:文件上传到服务器以什么名称保存
         */
+        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+        NSString *fileName = [NSString stringWithFormat:@"VID_%@", [dateFormatter stringFromDate:date]];
         for (int i=0; i< file.count; i++) {
-            NSString *fileExt = [self typeForImageData:file[i]];
-            if( fileExt == nil ){
-                fileExt = @"jpeg";
-            }
-            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyyMMdd"];
-            NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
-            [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:[NSString stringWithFormat:@"%@.%@", fileName, fileExt], i] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
+            [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:[NSString stringWithFormat:@"%@.mp4", fileName], i] mimeType:@"video/mp4"];
         }
         self.navigationItem.rightBarButtonItem.enabled = NO;
         self.navigationItem.rightBarButtonItem.title = @"发送中";

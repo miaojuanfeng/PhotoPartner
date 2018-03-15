@@ -40,4 +40,6 @@
 
 #define VIDEO_CHUNK_SIZE (1024*1024)
 
+#define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
+
 #endif /* MacroDefine_h */

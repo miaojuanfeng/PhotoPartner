@@ -309,7 +309,7 @@
         [file addObject:UIImagePNGRepresentation(self.appDelegate.photos[i])];
     }
     NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
-    [manager POST:@"https://well.bsimb.cn/upload/image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+    [manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         /*
         *   使用formData拼接数据
         *   方法一:
