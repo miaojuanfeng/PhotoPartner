@@ -79,7 +79,9 @@
         UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
         self.navigationItem.rightBarButtonItem = submitButton;
         self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
-        [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+        if( self.appDelegate.photos.count == 0 ){
+            [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+        }
     }
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tongzhi:)name:@"tongzhi" object:nil];

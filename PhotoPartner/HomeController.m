@@ -5,8 +5,9 @@
 //  Created by USER on 6/3/2018.
 //  Copyright © 2018 MJF. All rights reserved.
 //
-
+#import <MediaPlayer/MediaPlayer.h>
 #import "MacroDefine.h"
+#import "AppDelegate.h"
 #import "HomeController.h"
 #import "UploadPhotoController.h"
 #import "UploadVideoController.h"
@@ -18,6 +19,7 @@
 
 @interface HomeController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 @property UIAlertController *actionSheet;
+@property AppDelegate *appDelegate;
 @end
 
 @implementation HomeController
@@ -33,6 +35,8 @@
     VIEW_HEIGHT = VIEW_HEIGHT - GAP_HEIGHT * 3;
     MARGIN_TOP -= GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
     VIEW_HEIGHT += GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
+    
+    self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT/4-20)];
     UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
@@ -200,8 +204,11 @@
         NSLog(@"%@", timeStampString);
         
 //        //拿到图片
-//        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-////        image = [self fixOrientation:image];
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        image = [self fixOrientation:image];
+        [self.appDelegate.photos addObject:image];
+        [self.appDelegate.fileDesc addObject:@""];
+        self.appDelegate.focusImageIndex = 0;
 //        //设置一个图片的存储路径
 //        NSString *imagePath = [NSString stringWithFormat:@"%@/Documents/%@",NSHomeDirectory(),timeStampString];
 //        //把图片直接保存到指定的路径（同时应该把图片的路径imagePath存起来，下次就可以直接用来取）
@@ -221,8 +228,19 @@
         //process image
         
     }else if([type isEqualToString:@"public.movie"]){
-        UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
-        [self.navigationController pushViewController:uploadPhotoController animated:YES];
+        NSURL *videoURL = [info valueForKey:UIImagePickerControllerMediaURL];
+        MPMoviePlayerController *player = [[MPMoviePlayerController alloc]initWithContentURL:videoURL];
+        player.shouldAutoplay = NO;
+        UIImage  *thumbnail = [player thumbnailImageAtTime:0.0 timeOption:MPMovieTimeOptionNearestKeyFrame];
+        player = nil;
+        NSData *data = [NSData dataWithContentsOfURL:videoURL];
+        NSLog(@"Total bytes %ld", [data length]);
+        
+        [self.appDelegate.photos addObject:thumbnail];
+        self.appDelegate.focusImageIndex = 0;
+        
+        UploadVideoController *uploadVideoController = [[UploadVideoController alloc] init];
+        [self.navigationController pushViewController:uploadVideoController animated:YES];
     }
     [picker dismissViewControllerAnimated:YES completion:nil];
 //    [self.activityIndicator stopAnimating];
@@ -235,6 +253,83 @@
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
 //    [self.activityIndicator stopAnimating];
     [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (UIImage *)fixOrientation:(UIImage *)aImage {
+    
+    // No-op if the orientation is already correct
+    if (aImage.imageOrientation == UIImageOrientationUp)
+        return aImage;
+    
+    // We need to calculate the proper transformation to make the image upright.
+    // We do it in 2 steps: Rotate if Left/Right/Down, and then flip if Mirrored.
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    
+    switch (aImage.imageOrientation) {
+        case UIImageOrientationDown:
+        case UIImageOrientationDownMirrored:
+            transform = CGAffineTransformTranslate(transform, aImage.size.width, aImage.size.height);
+            transform = CGAffineTransformRotate(transform, M_PI);
+            break;
+            
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
+            transform = CGAffineTransformTranslate(transform, aImage.size.width, 0);
+            transform = CGAffineTransformRotate(transform, M_PI_2);
+            break;
+            
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
+            transform = CGAffineTransformTranslate(transform, 0, aImage.size.height);
+            transform = CGAffineTransformRotate(transform, -M_PI_2);
+            break;
+        default:
+            break;
+    }
+    
+    switch (aImage.imageOrientation) {
+        case UIImageOrientationUpMirrored:
+        case UIImageOrientationDownMirrored:
+            transform = CGAffineTransformTranslate(transform, aImage.size.width, 0);
+            transform = CGAffineTransformScale(transform, -1, 1);
+            break;
+            
+        case UIImageOrientationLeftMirrored:
+        case UIImageOrientationRightMirrored:
+            transform = CGAffineTransformTranslate(transform, aImage.size.height, 0);
+            transform = CGAffineTransformScale(transform, -1, 1);
+            break;
+        default:
+            break;
+    }
+    
+    // Now we draw the underlying CGImage into a new context, applying the transform
+    // calculated above.
+    CGContextRef ctx = CGBitmapContextCreate(NULL, aImage.size.width, aImage.size.height,
+                                             CGImageGetBitsPerComponent(aImage.CGImage), 0,
+                                             CGImageGetColorSpace(aImage.CGImage),
+                                             CGImageGetBitmapInfo(aImage.CGImage));
+    CGContextConcatCTM(ctx, transform);
+    switch (aImage.imageOrientation) {
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
+            // Grr...
+            CGContextDrawImage(ctx, CGRectMake(0,0,aImage.size.height,aImage.size.width), aImage.CGImage);
+            break;
+            
+        default:
+            CGContextDrawImage(ctx, CGRectMake(0,0,aImage.size.width,aImage.size.height), aImage.CGImage);
+            break;
+    }
+    
+    // And now we just create a new UIImage from the drawing context
+    CGImageRef cgimg = CGBitmapContextCreateImage(ctx);
+    UIImage *img = [UIImage imageWithCGImage:cgimg];
+    CGContextRelease(ctx);
+    CGImageRelease(cgimg);
+    return img;
 }
 
 @end
