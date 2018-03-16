@@ -29,6 +29,7 @@
 @property NSMutableArray<UIImage *> *photos;
 @property NSMutableArray<NSData *> *videos;
 @property long focusImageIndex;
+@property NSMutableArray *completedUnitPercent;
 
 @property UITextView *textView;
 @property UIView *mediaView;
@@ -54,6 +55,7 @@
     self.photos = [[NSMutableArray alloc] init];
     self.videos = [[NSMutableArray alloc] init];
     self.focusImageIndex = -1;
+    self.completedUnitPercent = [[NSMutableArray alloc] init];
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
@@ -270,6 +272,9 @@
             }
         }
         NSLog(@"%ld",self.videos.count);
+        for (int i=0; i<self.videos.count; i++) {
+            [self.completedUnitPercent addObject:@0];
+        }
         
 //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
 //        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
@@ -382,54 +387,73 @@
      第五个参数:成功回调 responseObject响应体信息
      第六个参数:失败回调
      */
-    NSLog(@"%ld", self.photos.count);
-    NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
+    NSLog(@"videos.count: %ld", self.videos.count);
+//    NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
     for (int i = 0; i < self.photos.count; i++) {
         [self.deviceId addObject:@1];
 //        [self.fileDesc addObject:@2];
-        [file addObject:UIImagePNGRepresentation(self.photos[i])];
+//        [file addObject:UIImagePNGRepresentation(self.photos[i])];
     }
-    NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.deviceId copy],@"file_desc":[self.fileDesc copy]};
-    [manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
-        /*
-        *   使用formData拼接数据
-        *   方法一:
-        *   第一个参数:二进制数据 要上传的文件参数
-        *   第二个参数:服务器规定的
-        *   第三个参数:文件上传到服务器以什么名称保存
-        */
-        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-        NSString *fileName = [NSString stringWithFormat:@"VID_%@", [dateFormatter stringFromDate:date]];
-        for (int i=0; i< file.count; i++) {
-            [formData appendPartWithFileData:file[i] name:@"file" fileName:[NSString stringWithFormat:[NSString stringWithFormat:@"%@.mp4", fileName], i] mimeType:@"video/mp4"];
-        }
-        self.navigationItem.rightBarButtonItem.enabled = NO;
-        self.navigationItem.rightBarButtonItem.title = @"发送中";
-        self.progressView.progress = 0.0;
-        [self.navigationController.navigationBar addSubview:self.progressView];
-    } progress:^(NSProgress * _Nonnull uploadProgress) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.progressView.progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
-        });
-        NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"上传成功.%@",responseObject);
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-        NSLog(@"results: %@", dic);
+    for (int i=0; i< self.videos.count; i++) {
+        NSDictionary *parameters=@{
+               @"user_id":@"1",
+               @"file_block":[NSString stringWithFormat:@"%d", i+1],
+               @"total_block":[NSString stringWithFormat:@"%ld", self.videos.count],
+               @"device_id":[self.deviceId copy],
+               @"file_MD5":@"MichaelMiao",
+               @"file_desc":[self.fileDesc copy]
+        };
+        [manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+            /*
+            *   使用formData拼接数据
+            *   方法一:
+            *   第一个参数:二进制数据 要上传的文件参数
+            *   第二个参数:服务器规定的
+            *   第三个参数:文件上传到服务器以什么名称保存
+            */
+            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+            NSString *fileName = [NSString stringWithFormat:@"VID_%@", [dateFormatter stringFromDate:date]];
+    //        for (int i=0; i< file.count; i++) {
+                [formData appendPartWithFileData:self.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
+    //        }
+            self.navigationItem.rightBarButtonItem.enabled = NO;
+            self.navigationItem.rightBarButtonItem.title = @"发送中";
+            self.progressView.progress = 0.0;
+            [self.navigationController.navigationBar addSubview:self.progressView];
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.videos.count;
+                NSNumber *number = [NSNumber numberWithFloat:progress];
+                [self.completedUnitPercent replaceObjectAtIndex:i withObject:number];
+//                NSLog(@"self.completedUnitPercent: %@", self.completedUnitPercent);
+//                self.progressView.progress = self.completedUnitPercent;
+                float total = 0.0f;
+                for (NSNumber *num in self.completedUnitPercent) {
+                    total += [num floatValue];
+                }
+                NSLog(@"self.completedUnitPercent: %f", total);
+                self.progressView.progress = total;
+            });
+            NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"上传成功.%@",responseObject);
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+            NSLog(@"results: %@", dic);
 
-        self.navigationItem.rightBarButtonItem.enabled = YES;
-        self.navigationItem.rightBarButtonItem.title = @"发送";
-        [self.progressView removeFromSuperview];
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"上传失败.%@",error);
-        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+//            self.navigationItem.rightBarButtonItem.enabled = YES;
+//            self.navigationItem.rightBarButtonItem.title = @"发送";
+//            [self.progressView removeFromSuperview];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"上传失败.%@",error);
+            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
 
-        self.navigationItem.rightBarButtonItem.enabled = YES;
-        self.navigationItem.rightBarButtonItem.title = @"发送";
-        [self.progressView removeFromSuperview];
-    }];
+//            self.navigationItem.rightBarButtonItem.enabled = YES;
+//            self.navigationItem.rightBarButtonItem.title = @"发送";
+//            [self.progressView removeFromSuperview];
+        }];
+    }
 //    [self.navigationController popViewControllerAnimated:YES];
 }
 
