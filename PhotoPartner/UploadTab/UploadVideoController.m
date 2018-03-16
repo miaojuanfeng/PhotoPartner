@@ -247,6 +247,9 @@
     [self getMediaView:cell];
     [self.tableView reloadData];
     
+    self.navigationItem.rightBarButtonItem.enabled = NO;
+    self.navigationItem.rightBarButtonItem.title = @"处理中";
+    
     [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
         NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
 //        NSString *md5 = (__bridge NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)outputPath, FileHashDefaultChunkSizeForReadingData);
@@ -275,6 +278,9 @@
         for (int i=0; i<self.videos.count; i++) {
             [self.completedUnitPercent addObject:@0];
         }
+        
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+        self.navigationItem.rightBarButtonItem.title = @"发送";
         
 //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
 //        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
@@ -377,7 +383,7 @@
      *  加上下面这句才会提示成功
      */
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    manager.requestSerializer.timeoutInterval = 30.0f;
+//    manager.requestSerializer.timeoutInterval = 30.0f;
     //发送post请求上传路径
     /*
      第一个参数:请求路径
@@ -435,16 +441,24 @@
                 }
                 NSLog(@"self.completedUnitPercent: %f", total);
                 self.progressView.progress = total;
+                self.navigationItem.rightBarButtonItem.title = [NSString stringWithFormat:@"%d%%", (int)floor(total*100)];
             });
             NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
         } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             NSLog(@"上传成功.%@",responseObject);
             NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
             NSLog(@"results: %@", dic);
+            
+            NSDictionary *data = [dic objectForKey:@"data"];
+            int complete = [[data objectForKey:@"complete"] intValue];
+            
+            NSLog(@"results: %d", complete);
 
-//            self.navigationItem.rightBarButtonItem.enabled = YES;
-//            self.navigationItem.rightBarButtonItem.title = @"发送";
-//            [self.progressView removeFromSuperview];
+            if( complete ){
+                self.navigationItem.rightBarButtonItem.enabled = YES;
+                self.navigationItem.rightBarButtonItem.title = @"发送";
+                [self.progressView removeFromSuperview];
+            }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"上传失败.%@",error);
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);

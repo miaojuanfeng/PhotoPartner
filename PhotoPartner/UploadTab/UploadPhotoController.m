@@ -335,7 +335,9 @@
         self.appDelegate.isSending = true;
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.progressView.progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+            float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+            self.progressView.progress = progress;
+            self.navigationItem.rightBarButtonItem.title = [NSString stringWithFormat:@"%d%%", (int)floor(progress*100)];
         });
         NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
