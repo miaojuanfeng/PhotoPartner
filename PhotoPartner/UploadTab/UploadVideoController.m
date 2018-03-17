@@ -7,6 +7,7 @@
 //
 
 #import "MacroDefine.h"
+#import "AppDelegate.h"
 #import "UploadVideoController.h"
 #import <AFNetworking/AFNetworking.h>
 #import <TZImagePickerController.h>
@@ -24,16 +25,11 @@
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
 
-@property NSMutableArray *deviceId;
-@property NSMutableArray *fileDesc;
-@property NSMutableArray<UIImage *> *photos;
-@property NSMutableArray<NSData *> *videos;
-@property long focusImageIndex;
-@property NSMutableArray *completedUnitPercent;
-
 @property UITextView *textView;
 @property UIView *mediaView;
 @property UIButton *addImageButton;
+
+@property AppDelegate *appDelegate;
 
 @property UIProgressView *progressView;
 @end
@@ -47,15 +43,17 @@
     
     self.navigationItem.title = NSLocalizedString(@"uploadVideoNavigationItemTitle", nil);
     
+    self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
     
-    self.deviceId = [[NSMutableArray alloc] init];
-    self.fileDesc = [[NSMutableArray alloc] init];
-    self.photos = [[NSMutableArray alloc] init];
-    self.videos = [[NSMutableArray alloc] init];
-    self.focusImageIndex = -1;
-    self.completedUnitPercent = [[NSMutableArray alloc] init];
+    self.appDelegate.deviceId = [[NSMutableArray alloc] init];
+    self.appDelegate.fileDesc = [[NSMutableArray alloc] init];
+    self.appDelegate.photos = [[NSMutableArray alloc] init];
+    self.appDelegate.videos = [[NSMutableArray alloc] init];
+    self.appDelegate.focusImageIndex = -1;
+    self.appDelegate.completedUnitPercent = [[NSMutableArray alloc] init];
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
@@ -147,7 +145,7 @@
 
 - (void)getMediaView:(UITableViewCell *)cell {
 //    mediaView.backgroundColor = [UIColor blueColor];
-    long imageTotal = self.photos.count;
+    long imageTotal = self.appDelegate.photos.count;
     float imageViewSize = IMAGE_VIEW_SIZE;
     float x = GAP_WIDTH;
     float y = GAP_HEIGHT;
@@ -163,7 +161,7 @@
         }
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
         //        imageView.backgroundColor = [UIColor orangeColor];
-        imageView.image = self.photos[i];
+        imageView.image = self.appDelegate.photos[i];
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
         imageView.userInteractionEnabled = YES;
@@ -237,11 +235,11 @@
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
     NSLog(@"%@", coverImage);
-    self.focusImageIndex = self.fileDesc.count;
-    [self.photos addObject:coverImage];
-    [self.fileDesc addObject:@""];
-    NSLog(@"self.photos: %@", self.photos);
-    self.textView.text = [self.fileDesc objectAtIndex:self.focusImageIndex];
+    self.appDelegate.focusImageIndex = self.appDelegate.fileDesc.count;
+    [self.appDelegate.photos addObject:coverImage];
+    [self.appDelegate.fileDesc addObject:@""];
+    NSLog(@"self.photos: %@", self.appDelegate.photos);
+    self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     [self getMediaView:cell];
@@ -269,14 +267,14 @@
         }
         for (int i=0; i<videoChunkCount; i++) {
             if( i == videoChunkCount-1 ){
-                [self.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, lastChunkEnd)]];
+                [self.appDelegate.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, lastChunkEnd)]];
             }else{
-                [self.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, VIDEO_CHUNK_SIZE)]];
+                [self.appDelegate.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, VIDEO_CHUNK_SIZE)]];
             }
         }
-        NSLog(@"%ld",self.videos.count);
-        for (int i=0; i<self.videos.count; i++) {
-            [self.completedUnitPercent addObject:@0];
+        NSLog(@"%ld",self.appDelegate.videos.count);
+        for (int i=0; i<self.appDelegate.videos.count; i++) {
+            [self.appDelegate.completedUnitPercent addObject:@0];
         }
         
         self.navigationItem.rightBarButtonItem.enabled = YES;
@@ -393,21 +391,21 @@
      第五个参数:成功回调 responseObject响应体信息
      第六个参数:失败回调
      */
-    NSLog(@"videos.count: %ld", self.videos.count);
+    NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
 //    NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
-    for (int i = 0; i < self.photos.count; i++) {
-        [self.deviceId addObject:@1];
+    for (int i = 0; i < self.appDelegate.photos.count; i++) {
+        [self.appDelegate.deviceId addObject:@1];
 //        [self.fileDesc addObject:@2];
 //        [file addObject:UIImagePNGRepresentation(self.photos[i])];
     }
-    for (int i=0; i< self.videos.count; i++) {
+    for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSDictionary *parameters=@{
                @"user_id":@"1",
                @"file_block":[NSString stringWithFormat:@"%d", i+1],
-               @"total_block":[NSString stringWithFormat:@"%ld", self.videos.count],
-               @"device_id":[self.deviceId copy],
+               @"total_block":[NSString stringWithFormat:@"%ld", self.appDelegate.videos.count],
+               @"device_id":[self.appDelegate.deviceId copy],
                @"file_MD5":@"MichaelMiao",
-               @"file_desc":[self.fileDesc copy]
+               @"file_desc":[self.appDelegate.fileDesc copy]
         };
         [manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             /*
@@ -422,7 +420,7 @@
             [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
             NSString *fileName = [NSString stringWithFormat:@"VID_%@", [dateFormatter stringFromDate:date]];
     //        for (int i=0; i< file.count; i++) {
-                [formData appendPartWithFileData:self.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
+                [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
     //        }
             self.navigationItem.rightBarButtonItem.enabled = NO;
             self.navigationItem.rightBarButtonItem.title = @"发送中";
@@ -430,13 +428,13 @@
             [self.navigationController.navigationBar addSubview:self.progressView];
         } progress:^(NSProgress * _Nonnull uploadProgress) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.videos.count;
+                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.appDelegate.videos.count;
                 NSNumber *number = [NSNumber numberWithFloat:progress];
-                [self.completedUnitPercent replaceObjectAtIndex:i withObject:number];
+                [self.appDelegate.completedUnitPercent replaceObjectAtIndex:i withObject:number];
 //                NSLog(@"self.completedUnitPercent: %@", self.completedUnitPercent);
 //                self.progressView.progress = self.completedUnitPercent;
                 float total = 0.0f;
-                for (NSNumber *num in self.completedUnitPercent) {
+                for (NSNumber *num in self.appDelegate.completedUnitPercent) {
                     total += [num floatValue];
                 }
                 NSLog(@"self.completedUnitPercent: %f", total);
@@ -653,7 +651,7 @@ done:
 //}
 
 - (void)clickAddMediaButton {
-    if( self.photos.count > 0 ){
+    if( self.appDelegate.photos.count > 0 ){
         return;
     }
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
@@ -661,8 +659,8 @@ done:
 
 - (void)clickImageView:(UIGestureRecognizer *) sender{
     [self setTextViewToFileDesc];
-    self.focusImageIndex = sender.view.tag;
-    self.textView.text = [self.fileDesc objectAtIndex:sender.view.tag];
+    self.appDelegate.focusImageIndex = sender.view.tag;
+    self.textView.text = [self.appDelegate.fileDesc objectAtIndex:sender.view.tag];
 }
 
 -(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
@@ -671,13 +669,13 @@ done:
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     [self setTextViewToFileDesc];
-    NSLog(@"%@", self.fileDesc);
+    NSLog(@"%@", self.appDelegate.fileDesc);
 }
 
 - (void)setTextViewToFileDesc {
-    if( self.focusImageIndex > -1 ){
+    if( self.appDelegate.focusImageIndex > -1 ){
         NSLog(@"sds");
-        [self.fileDesc replaceObjectAtIndex:self.focusImageIndex withObject:self.textView.text];
+        [self.appDelegate.fileDesc replaceObjectAtIndex:self.appDelegate.focusImageIndex withObject:self.textView.text];
     }
 }
 

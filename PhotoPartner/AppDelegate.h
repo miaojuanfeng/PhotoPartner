@@ -17,6 +17,12 @@
 @property NSMutableArray<UIImage *> *photos;
 @property long focusImageIndex;
 @property bool isSending;
+/*
+ *  For Video
+ */
+@property NSMutableArray<NSData *> *videos;
+@property NSMutableArray *completedUnitPercent;
+
 
 - (void)clearProperty;
 
