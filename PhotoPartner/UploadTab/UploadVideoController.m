@@ -87,6 +87,8 @@
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     self.imagePickerVc.allowPickingImage = NO;
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tongzhi:)name:@"tongzhi" object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -423,7 +425,7 @@
                 [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
     //        }
             self.navigationItem.rightBarButtonItem.enabled = NO;
-            self.navigationItem.rightBarButtonItem.title = @"发送中";
+            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil);
             self.progressView.progress = 0.0;
             [self.navigationController.navigationBar addSubview:self.progressView];
         } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -451,18 +453,24 @@
             int complete = [[data objectForKey:@"complete"] intValue];
             
             NSLog(@"results: %d", complete);
-
+//
+//            if( complete ){
+//                self.navigationItem.rightBarButtonItem.enabled = YES;
+//                self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
+//                [self.progressView removeFromSuperview];
+//            }
+            
             if( complete ){
-                self.navigationItem.rightBarButtonItem.enabled = YES;
-                self.navigationItem.rightBarButtonItem.title = @"发送";
-                [self.progressView removeFromSuperview];
+                NSNotification *notification =[NSNotification notificationWithName:@"tongzhi" object:nil userInfo:nil];
+                //通过通知中心发送通知
+                [[NSNotificationCenter defaultCenter] postNotification:notification];
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"上传失败.%@",error);
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
 
 //            self.navigationItem.rightBarButtonItem.enabled = YES;
-//            self.navigationItem.rightBarButtonItem.title = @"发送";
+//            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
 //            [self.progressView removeFromSuperview];
         }];
     }
@@ -695,6 +703,27 @@ done:
             return @"tiff";
     }
     return nil;
+}
+
+- (void)tongzhi:(NSNotification *)text{
+    //    NSLog(@"%@",text);
+    
+    [self.appDelegate clearProperty];
+    NSArray *views = [self.mediaView subviews];
+    for(UIView *view in views){
+        [view removeFromSuperview];
+    }
+    self.textView.text = @"";
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    [self getMediaView:cell];
+    [self.tableView reloadData];
+    self.navigationItem.rightBarButtonItem.enabled = YES;
+    self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
+    [self.progressView removeFromSuperview];
+    self.appDelegate.isSending = false;
+    
+    NSLog(@"－－－－－接收到通知------");
 }
 
 @end
