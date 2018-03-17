@@ -23,8 +23,12 @@
 @property NSMutableArray<NSData *> *videos;
 @property NSMutableArray *completedUnitPercent;
 
+@property NSMutableArray *deviceList;
+
 
 - (void)clearProperty;
+- (void)saveDeviceList:(NSMutableDictionary *) device;
+- (void)loadDeviceList;
 
 @end
 

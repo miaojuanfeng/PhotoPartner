@@ -104,7 +104,7 @@
     if( section == 0 ){
         return 2;
     }else{
-        return 20;
+        return self.appDelegate.deviceList.count;
     }
 }
 
@@ -167,8 +167,11 @@
         }
     }else{
         self.tableView.rowHeight = 44;
-        cell.textLabel.text = @"设备编号（axz1122334）";
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    
+        NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
+        cell.textLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
+        
+//        cell.accessoryType = UITableViewCellAccessoryCheckmark;
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     }
     return cell;
@@ -248,8 +251,13 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
-    //    [self.navigationController pushViewController:videoDetailController animated:YES];
+    NSArray *array = [tableView visibleCells];
+    for (UITableViewCell *cell in array) {
+        [cell setAccessoryType:UITableViewCellAccessoryNone];
+        cell.textLabel.textColor=[UIColor blackColor];
+    }
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.accessoryType = UITableViewCellAccessoryCheckmark;
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 

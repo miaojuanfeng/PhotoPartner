@@ -48,13 +48,6 @@
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
     
-    self.appDelegate.deviceId = [[NSMutableArray alloc] init];
-    self.appDelegate.fileDesc = [[NSMutableArray alloc] init];
-    self.appDelegate.photos = [[NSMutableArray alloc] init];
-    self.appDelegate.videos = [[NSMutableArray alloc] init];
-    self.appDelegate.focusImageIndex = -1;
-    self.appDelegate.completedUnitPercent = [[NSMutableArray alloc] init];
-    
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
     
@@ -108,7 +101,7 @@
     if( section == 0 ){
         return 2;
     }else{
-        return 20;
+        return self.appDelegate.deviceList.count;
     }
 }
 
@@ -138,8 +131,11 @@
         }
     }else{
         self.tableView.rowHeight = 44;
-        cell.textLabel.text = @"设备编号（axz1122334）";
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        
+        NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
+        cell.textLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
+        
+//        cell.accessoryType = UITableViewCellAccessoryCheckmark;
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     }
     return cell;
@@ -216,8 +212,13 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
-    //    [self.navigationController pushViewController:videoDetailController animated:YES];
+    NSArray *array = [tableView visibleCells];
+    for (UITableViewCell *cell in array) {
+        [cell setAccessoryType:UITableViewCellAccessoryNone];
+        cell.textLabel.textColor=[UIColor blackColor];
+    }
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.accessoryType = UITableViewCellAccessoryCheckmark;
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
