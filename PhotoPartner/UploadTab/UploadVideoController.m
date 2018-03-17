@@ -21,7 +21,7 @@
 #define IMAGE_PER_ROW 5
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
 
-@interface UploadVideoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate>
+@interface UploadVideoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate>
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
 
@@ -68,6 +68,7 @@
     
     self.view.userInteractionEnabled = YES;
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
+    singleTap.delegate = self;
     [self.view addGestureRecognizer:singleTap];
     
     //监听当键将要退出时
@@ -164,6 +165,7 @@
         imageView.clipsToBounds = YES;
         imageView.userInteractionEnabled = YES;
         UITapGestureRecognizer *singleTap =[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickImageView:)];
+        singleTap.delegate = self;
         [imageView setTag:i];
         [imageView addGestureRecognizer:singleTap];
         [self.mediaView addSubview:imageView];
@@ -212,13 +214,15 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    NSArray *array = [tableView visibleCells];
-    for (UITableViewCell *cell in array) {
-        [cell setAccessoryType:UITableViewCellAccessoryNone];
-        cell.textLabel.textColor=[UIColor blackColor];
-    }
+    NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    if( [self.appDelegate.deviceId containsObject:device_id] ){
+        [self.appDelegate.deviceId removeObject:device_id];
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }else{
+        [self.appDelegate.deviceId addObject:device_id];
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
@@ -395,12 +399,6 @@
      第六个参数:失败回调
      */
     NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
-//    NSMutableArray<NSData *> *file = [[NSMutableArray alloc] init];
-    for (int i = 0; i < self.appDelegate.photos.count; i++) {
-        [self.appDelegate.deviceId addObject:@1];
-//        [self.fileDesc addObject:@2];
-//        [file addObject:UIImagePNGRepresentation(self.photos[i])];
-    }
     for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSDictionary *parameters=@{
                @"user_id":@"1",
@@ -725,6 +723,17 @@ done:
     self.appDelegate.isSending = false;
     
     NSLog(@"－－－－－接收到通知------");
+}
+
+// 因为我在scrollView加了手势 点击tableView didSelectRowAtIndexPath不执行 导致手势冲突 可以用此方法解决
+#pragma mark 解决手势冲突
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+    if ([NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"]) {
+        return NO;
+    } else {
+        return YES;
+    }
 }
 
 @end

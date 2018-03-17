@@ -7,10 +7,12 @@
 //
 
 #import "MacroDefine.h"
+#import "AppDelegate.h"
 #import "DeviceController.h"
 
 @interface DeviceController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
+@property AppDelegate *appDelegate;
 @end
 
 @implementation DeviceController
@@ -25,6 +27,8 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     [self.view addSubview:self.tableView];
+    
+    self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
 }
 
 
@@ -34,13 +38,13 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return self.appDelegate.deviceList.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    cell.textLabel.text = @"设备XXXxXXX";
+    NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
     return cell;
 }
 
