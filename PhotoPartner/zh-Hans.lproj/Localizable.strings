@@ -17,6 +17,9 @@ uploadSendRightBarButtonItemTitle = "发送";
 uploadSendingRightBarButtonItemTitle = "发送中";
 
 deviceListNavigationItemTitle = "设备管理";
+deviceListRename = "重命名";
+deviceListUnbind = "解绑";
+
 deviceAddNavigationItemTitle = "设备绑定";
 deviceAddRightBarButtonItemTitle = "绑定";
 deviceAddDeviceName = "请输入设备昵称";

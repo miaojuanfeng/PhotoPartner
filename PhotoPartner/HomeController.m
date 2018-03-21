@@ -237,6 +237,7 @@
         NSLog(@"Total bytes %ld", [data length]);
         
         [self.appDelegate.photos addObject:thumbnail];
+        [self.appDelegate.fileDesc addObject:@""];
         self.appDelegate.focusImageIndex = 0;
         
         UploadVideoController *uploadVideoController = [[UploadVideoController alloc] init];

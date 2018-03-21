@@ -17,6 +17,9 @@ uploadPhotoRightBarButtonItemTitle = "Send";
 uploadSendingRightBarButtonItemTitle = "Sending";
 
 deviceListNavigationItemTitle = "Device Manage";
+deviceListRename = "Rename";
+deviceListUnbind = "Unbind";
+
 deviceAddNavigationItemTitle = "Devices Bind";
 deviceAddRightBarButtonItemTitle = "Bind";
 deviceAddDeviceName = "Please enter the device's nickname";

@@ -33,6 +33,16 @@
     self.focusImageIndex = -1;
     self.isSending = false;
     
+    self.videos = [[NSMutableArray alloc] init];
+    self.completedUnitPercent = [[NSMutableArray alloc] init];
+    
+//    self.deviceList = [[NSMutableDictionary alloc] init];
+    [self loadDeviceList];
+    if( self.deviceList == nil ){
+        self.deviceList = [[NSMutableArray alloc] init];
+    }
+    NSLog(@"%@", self.deviceList);
+    
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     HomeController *homeController = [[HomeController alloc] init];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:homeController];
@@ -75,6 +85,29 @@
     [self.photos removeAllObjects];
     self.focusImageIndex = -1;
     self.isSending = false;
+}
+
+- (void)saveDeviceList:(NSMutableDictionary *) device {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"deviceList.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableArray *newDic = nil;
+    if ([fileManager fileExistsAtPath:plistPath] == NO) {
+        newDic = [[NSMutableArray alloc] init];
+    }else{
+        newDic = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
+    }
+    [newDic addObject:device];
+    [newDic writeToFile:plistPath atomically:YES];
+}
+
+- (void)loadDeviceList {
+    NSArray *pathArray = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *path = [pathArray objectAtIndex:0];
+    NSString *plistPath = [path stringByAppendingPathComponent:@"deviceList.plist"];
+    self.deviceList = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
 }
 
 

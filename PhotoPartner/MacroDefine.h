@@ -37,6 +37,8 @@
 
 #define RGBA_COLOR(r,g,b,a) [UIColor colorWithRed: r/255.0 green: g/255.0 blue: b/255.0 alpha: a]
 #define BORDER_COLOR [UIColor colorWithWhite:0.8f alpha:1.0f].CGColor
+#define BORDER_WHITE_COLOR [UIColor whiteColor].CGColor
+#define BORDER_FOCUS_COLOR RGBA_COLOR(27,163,232,1).CGColor
 #define BORDER_WIDTH 1.0f
 
 #define VIDEO_CHUNK_SIZE (1024*1024)
