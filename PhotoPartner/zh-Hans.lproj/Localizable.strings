@@ -15,6 +15,10 @@ uploadPhotoNavigationItemTitle = "发送照片";
 uploadVideoNavigationItemTitle = "发送视频";
 uploadSendRightBarButtonItemTitle = "发送";
 uploadSendingRightBarButtonItemTitle = "发送中";
+uploadProcessingRightBarButtonItemTitle = "处理中";
+uploadSendSuccess = "发送成功";
+uploadSendFailed = "发送失败";
+uploadVideoMaxSizeError = "视频大小不能超过50M";
 
 deviceListNavigationItemTitle = "设备管理";
 deviceListRename = "重命名";

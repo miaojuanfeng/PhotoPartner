@@ -181,12 +181,14 @@
      *  移除旧的CGRect可点击区域
      */
     [self.addImageButton removeFromSuperview];
-    self.addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-    [self.addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
-    [self.addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
-    self.addImageButton.layer.borderColor = BORDER_COLOR;
-    self.addImageButton.layer.borderWidth = BORDER_WIDTH;
-    [self.mediaView addSubview:self.addImageButton];
+    if( self.appDelegate.photos.count == 0 ){
+        self.addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+        [self.addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
+        [self.addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
+        self.addImageButton.layer.borderColor = BORDER_COLOR;
+        self.addImageButton.layer.borderWidth = BORDER_WIDTH;
+        [self.mediaView addSubview:self.addImageButton];
+    }
     
     [cell.contentView addSubview:self.mediaView];
     cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
@@ -250,7 +252,7 @@
     [self.tableView reloadData];
     
     self.navigationItem.rightBarButtonItem.enabled = NO;
-    self.navigationItem.rightBarButtonItem.title = @"处理中";
+    self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadProcessingRightBarButtonItemTitle", nil);
     
     [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
         NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
@@ -261,13 +263,22 @@
         NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
 //        NSLog(@"***%@",videoData);
         NSLog(@"***%ld",videoData.length);
-        [self.appDelegate doDataToBlock:videoData];
+        
+        if( ![self.appDelegate doDataToBlock:videoData] ){
+            [self.appDelegate clearProperty];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+            [self getMediaView:cell];
+            self.textView.text = @"";
+            [self.tableView reloadData];
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
+        }
         
         self.navigationItem.rightBarButtonItem.enabled = YES;
-        self.navigationItem.rightBarButtonItem.title = @"发送";
+        self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
         
 //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
-//        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
+        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
 //
 //        NSURL *newVideoUrl ; //一般.mp4
 //        NSDateFormatter *formater = [[NSDateFormatter alloc] init];//用时间给文件全名，以免重复，在测试的时候其实可以判断文件是否存在若存在，则删除，重新生成文件即可
@@ -378,7 +389,7 @@
      第六个参数:失败回调
      */
     NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
-    HUD_LOADING_SHOW(@"Uploading");
+    HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
     for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSDictionary *parameters=@{
                @"user_id":@"1",
@@ -425,14 +436,16 @@
             if( [[data objectForKey:@"complete"] intValue] ){
                 DO_FINISH_UPLOAD;
                 NAV_UPLOAD_END;
-                HUD_LOADING_HIDDEN;
+                HUD_LOADING_HIDE;
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"上传失败.%@",error);
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
             // 这里要记录下没有上传成功的块
             NAV_UPLOAD_END;
-            HUD_LOADING_HIDDEN;
+            HUD_LOADING_HIDE;
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
         }];
     }
 }

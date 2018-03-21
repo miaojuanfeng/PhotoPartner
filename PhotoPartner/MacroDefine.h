@@ -42,16 +42,34 @@
 #define BORDER_WIDTH 1.0f
 
 #define VIDEO_CHUNK_SIZE (1024*1024)
+#define VIDEO_MAX_SIZE (50*1024*1024)
 
 #define HUD_LOADING_SHOW(t) do{ \
+                                [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
                                 self.appDelegate.hudLoading.label.text = t; \
                                 [self.appDelegate.hudLoading showAnimated:YES]; \
                             }while(0)
 #define HUD_LOADING_PROGRESS(p) do{ \
                                 self.appDelegate.hudLoading.progress = p; \
                              }while(0)
-#define HUD_LOADING_HIDDEN do{ \
+#define HUD_LOADING_HIDE do{ \
+                                self.appDelegate.hudLoading.progress =  0; \
                                 [self.appDelegate.hudLoading hideAnimated:YES]; \
+                            }while(0)
+
+#define HUD_TOAST_SHOW(t) do{ \
+                                [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
+                                self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \
+                                self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
+                                self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
+                                self.appDelegate.hudToast.label.text = t; \
+                                [self.appDelegate.hudToast showAnimated:YES whileExecutingBlock:^{ \
+                                    sleep(2); \
+                                } \
+                                completionBlock:^{ \
+                                    [self.appDelegate.hudToast removeFromSuperview]; \
+                                    self.appDelegate.hudToast = nil; \
+                                }]; \
                             }while(0)
 
 #define NAV_UPLOAD_START do{ \

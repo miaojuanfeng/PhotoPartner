@@ -307,7 +307,7 @@
      第六个参数:失败回调
      */
     NSLog(@"%ld", self.appDelegate.photos.count);
-    HUD_LOADING_SHOW(@"Uploading");
+    HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
     NSDictionary *parameters=@{@"user_id":@"1",@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
     [manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         /*
@@ -343,17 +343,16 @@
         NSLog(@"results: %@", dic);
         
         DO_FINISH_UPLOAD;
-        
         NAV_UPLOAD_END;
-        
-        HUD_LOADING_HIDDEN;
+        HUD_LOADING_HIDE;
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"上传失败.%@",error);
         NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
 
         NAV_UPLOAD_END;
-        
-        HUD_LOADING_HIDDEN;
+        HUD_LOADING_HIDE;
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
     }];
 }
 
@@ -449,6 +448,65 @@
     } else {
         return YES;
     }
+}
+
+
+
+
+
+/**
+ *  图片压缩到指定大小
+ *  @param targetSize  目标图片的大小
+ *  @param sourceImage 源图片
+ *  @return 目标图片
+ */
+- (UIImage*)imageByScalingAndCroppingForSize:(CGSize)targetSize withSourceImage:(UIImage *)sourceImage
+{
+    UIImage *newImage = nil;
+    CGSize imageSize = sourceImage.size;
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetWidth = targetSize.width;
+    CGFloat targetHeight = targetSize.height;
+    CGFloat scaleFactor = 0.0;
+    CGFloat scaledWidth = targetWidth;
+    CGFloat scaledHeight = targetHeight;
+    CGPoint thumbnailPoint = CGPointMake(0.0,0.0);
+    if (CGSizeEqualToSize(imageSize, targetSize) == NO)
+    {
+        CGFloat widthFactor = targetWidth / width;
+        CGFloat heightFactor = targetHeight / height;
+        if (widthFactor > heightFactor)
+            scaleFactor = widthFactor; // scale to fit height
+        else
+            scaleFactor = heightFactor; // scale to fit width
+        scaledWidth= width * scaleFactor;
+        scaledHeight = height * scaleFactor;
+        // center the image
+        if (widthFactor > heightFactor)
+        {
+            thumbnailPoint.y = (targetHeight - scaledHeight) * 0.5;
+        }
+        else if (widthFactor < heightFactor)
+        {
+            thumbnailPoint.x = (targetWidth - scaledWidth) * 0.5;
+        }
+    }
+    UIGraphicsBeginImageContext(targetSize); // this will crop
+    CGRect thumbnailRect = CGRectZero;
+    thumbnailRect.origin = thumbnailPoint;
+    thumbnailRect.size.width= scaledWidth;
+    thumbnailRect.size.height = scaledHeight;
+    
+    [sourceImage drawInRect:thumbnailRect];
+    newImage = UIGraphicsGetImageFromCurrentImageContext();
+    if(newImage == nil)
+        NSLog(@"could not scale image");
+    
+    //pop the context to get back to the default
+    UIGraphicsEndImageContext();
+    
+    return newImage;
 }
 
 @end

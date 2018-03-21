@@ -47,12 +47,10 @@
     self.window.rootViewController = navigationController;
     [self.window makeKeyAndVisible];
     
-    
     self.hudLoading = [MBProgressHUD showHUDAddedTo:self.window.rootViewController.view animated:YES];
     self.hudLoading.mode = MBProgressHUDModeAnnularDeterminate;
     self.hudLoading.removeFromSuperViewOnHide = NO;
     [self.hudLoading hideAnimated:NO];
-    
     
     return YES;
 }
@@ -114,7 +112,12 @@
     self.deviceList = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
 }
 
-- (void)doDataToBlock:(NSData *) videoData{
+- (bool)doDataToBlock:(NSData *) videoData{
+    
+    if( videoData.length > VIDEO_MAX_SIZE ){
+        return false;
+    }
+    
     long videoChunkCount = 0;
     long lastChunkEnd = 0;
     if( videoData.length%VIDEO_CHUNK_SIZE == 0 ){
@@ -134,6 +137,8 @@
     for (int i=0; i<self.videos.count; i++) {
         [self.completedUnitPercent addObject:@0];
     }
+    
+    return true;
 }
 
 

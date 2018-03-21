@@ -15,6 +15,10 @@ uploadPhotoNavigationItemTitle = "Send Photo";
 uploadVideoNavigationItemTitle = "Send Video";
 uploadPhotoRightBarButtonItemTitle = "Send";
 uploadSendingRightBarButtonItemTitle = "Sending";
+uploadProcessingRightBarButtonItemTitle = "Processing";
+uploadSendSuccess = "Send Success";
+uploadSendFailed = "Send Failed";
+uploadVideoMaxSizeError = "File size can not exceed 50M";
 
 deviceListNavigationItemTitle = "Device Manage";
 deviceListRename = "Rename";

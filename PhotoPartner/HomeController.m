@@ -236,7 +236,11 @@
         NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
         NSLog(@"Total bytes %ld", [videoData length]);
         
-        [self.appDelegate doDataToBlock:videoData];
+        if( ![self.appDelegate doDataToBlock:videoData] ){
+            [self.appDelegate clearProperty];
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
+            return;
+        }
         
         [self.appDelegate.photos addObject:thumbnail];
         [self.appDelegate.fileDesc addObject:@""];

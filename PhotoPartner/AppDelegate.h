@@ -25,13 +25,14 @@
 @property NSMutableArray *completedUnitPercent;
 //
 @property MBProgressHUD *hudLoading;
+@property MBProgressHUD *hudToast;
 /*
  *  For Function
  */
 - (void)clearProperty;
 - (void)saveDeviceList:(NSMutableDictionary *) device;
 - (void)loadDeviceList;
-- (void)doDataToBlock:(NSData *) videoData;
+- (bool)doDataToBlock:(NSData *) videoData;
 
 @end
 
