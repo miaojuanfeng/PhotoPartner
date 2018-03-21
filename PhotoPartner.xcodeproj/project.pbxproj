@@ -174,8 +174,8 @@
 			children = (
 				CEB8E2C5205117B800655887 /* DeviceController.h */,
 				CEB8E2C6205117C400655887 /* DeviceController.m */,
-				CEB8E2C82051229000655887 /* AddDeviceController.m */,
 				CEB8E2CA2051229F00655887 /* AddDeviceController.h */,
+				CEB8E2C82051229000655887 /* AddDeviceController.m */,
 			);
 			path = DeviceTab;
 			sourceTree = "<group>";

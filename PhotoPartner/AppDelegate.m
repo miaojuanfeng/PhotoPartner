@@ -6,6 +6,7 @@
 //  Copyright © 2018 MJF. All rights reserved.
 //
 
+#import "MacroDefine.h"
 #import "AppDelegate.h"
 #import "HomeController.h"
 
@@ -18,6 +19,12 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
+    
+    [UINavigationBar appearance].barTintColor = RGBA_COLOR(27, 163, 232, 1);
+    [UINavigationBar appearance].tintColor = [UIColor whiteColor];
+    [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor]}];
     
     // Init Global Varables
     self.deviceId = [[NSMutableArray alloc] init];

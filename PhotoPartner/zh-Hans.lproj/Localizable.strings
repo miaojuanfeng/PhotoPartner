@@ -17,10 +17,10 @@ uploadSendRightBarButtonItemTitle = "发送";
 uploadSendingRightBarButtonItemTitle = "发送中";
 
 deviceListNavigationItemTitle = "设备管理";
-deviceAddNavigationItemTitle = "绑定设备";
+deviceAddNavigationItemTitle = "设备绑定";
 deviceAddRightBarButtonItemTitle = "绑定";
-deviceAddDeviceName = "设备名称";
-deviceAddDeviceNumber = "设备号";
+deviceAddDeviceName = "请输入设备昵称";
+deviceAddDeviceNumber = "请输入设备编号";
 
 settingNavigationItemTitle = "设置";
 

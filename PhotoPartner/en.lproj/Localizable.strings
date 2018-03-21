@@ -17,10 +17,10 @@ uploadPhotoRightBarButtonItemTitle = "Send";
 uploadSendingRightBarButtonItemTitle = "Sending";
 
 deviceListNavigationItemTitle = "Device Manage";
-deviceAddNavigationItemTitle = "Bind Device";
+deviceAddNavigationItemTitle = "Devices Bind";
 deviceAddRightBarButtonItemTitle = "Bind";
-deviceAddDeviceName = "Device Name";
-deviceAddDeviceNumber = "Device Number";
+deviceAddDeviceName = "Please enter the device's nickname";
+deviceAddDeviceNumber = "Please enter smart device ID number";
 
 settingNavigationItemTitle = "Settings";
 
