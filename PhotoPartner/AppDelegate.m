@@ -31,12 +31,10 @@
     self.fileDesc = [[NSMutableArray alloc] init];
     self.photos = [[NSMutableArray alloc] init];
     self.focusImageIndex = -1;
-    self.isSending = false;
     
     self.videos = [[NSMutableArray alloc] init];
     self.completedUnitPercent = [[NSMutableArray alloc] init];
     
-//    self.deviceList = [[NSMutableDictionary alloc] init];
     [self loadDeviceList];
     if( self.deviceList == nil ){
         self.deviceList = [[NSMutableArray alloc] init];
@@ -48,6 +46,13 @@
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:homeController];
     self.window.rootViewController = navigationController;
     [self.window makeKeyAndVisible];
+    
+    
+    self.hudLoading = [MBProgressHUD showHUDAddedTo:self.window.rootViewController.view animated:YES];
+    self.hudLoading.mode = MBProgressHUDModeAnnularDeterminate;
+    self.hudLoading.removeFromSuperViewOnHide = NO;
+    [self.hudLoading hideAnimated:NO];
+    
     
     return YES;
 }
@@ -84,7 +89,6 @@
     [self.fileDesc removeAllObjects];
     [self.photos removeAllObjects];
     self.focusImageIndex = -1;
-    self.isSending = false;
 }
 
 - (void)saveDeviceList:(NSMutableDictionary *) device {
@@ -108,6 +112,28 @@
     NSString *path = [pathArray objectAtIndex:0];
     NSString *plistPath = [path stringByAppendingPathComponent:@"deviceList.plist"];
     self.deviceList = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
+}
+
+- (void)doDataToBlock:(NSData *) videoData{
+    long videoChunkCount = 0;
+    long lastChunkEnd = 0;
+    if( videoData.length%VIDEO_CHUNK_SIZE == 0 ){
+        videoChunkCount = videoData.length/VIDEO_CHUNK_SIZE;
+    }else{
+        videoChunkCount = videoData.length/VIDEO_CHUNK_SIZE + 1;
+        lastChunkEnd = videoData.length%VIDEO_CHUNK_SIZE;
+    }
+    for (int i=0; i<videoChunkCount; i++) {
+        if( i == videoChunkCount-1 ){
+            [self.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, lastChunkEnd)]];
+        }else{
+            [self.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, VIDEO_CHUNK_SIZE)]];
+        }
+    }
+    NSLog(@"%ld",self.videos.count);
+    for (int i=0; i<self.videos.count; i++) {
+        [self.completedUnitPercent addObject:@0];
+    }
 }
 
 

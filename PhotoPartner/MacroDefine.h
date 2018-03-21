@@ -43,6 +43,42 @@
 
 #define VIDEO_CHUNK_SIZE (1024*1024)
 
+#define HUD_LOADING_SHOW(t) do{ \
+                                self.appDelegate.hudLoading.label.text = t; \
+                                [self.appDelegate.hudLoading showAnimated:YES]; \
+                            }while(0)
+#define HUD_LOADING_PROGRESS(p) do{ \
+                                self.appDelegate.hudLoading.progress = p; \
+                             }while(0)
+#define HUD_LOADING_HIDDEN do{ \
+                                [self.appDelegate.hudLoading hideAnimated:YES]; \
+                            }while(0)
+
+#define NAV_UPLOAD_START do{ \
+                            self.view.window.userInteractionEnabled = NO;  \
+                            self.navigationItem.rightBarButtonItem.enabled = NO; \
+                            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil); \
+                         }while(0)
+
+#define NAV_UPLOAD_END do{ \
+                            self.view.window.userInteractionEnabled = YES; \
+                            self.navigationItem.rightBarButtonItem.enabled = YES; \
+                            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil); \
+                       }while(0)
+
+#define DO_FINISH_UPLOAD do{ \
+                            [self.appDelegate clearProperty];   \
+                            NSArray *views = [self.mediaView subviews]; \
+                            for(UIView *view in views){ \
+                                [view removeFromSuperview]; \
+                            }   \
+                            self.textView.text = @"";   \
+                            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];   \
+                            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];   \
+                            [self getMediaView:cell];   \
+                            [self.tableView reloadData];    \
+                         }while(0)
+
 #define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
 
 #endif /* MacroDefine_h */

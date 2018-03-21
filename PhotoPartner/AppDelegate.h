@@ -7,28 +7,31 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MBProgressHUD.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
+@property NSMutableArray *deviceList;
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
 @property NSMutableArray<UIImage *> *photos;
 @property long focusImageIndex;
-@property bool isSending;
 /*
  *  For Video
  */
 @property NSMutableArray<NSData *> *videos;
 @property NSMutableArray *completedUnitPercent;
-
-@property NSMutableArray *deviceList;
-
-
+//
+@property MBProgressHUD *hudLoading;
+/*
+ *  For Function
+ */
 - (void)clearProperty;
 - (void)saveDeviceList:(NSMutableDictionary *) device;
 - (void)loadDeviceList;
+- (void)doDataToBlock:(NSData *) videoData;
 
 @end
 

@@ -30,8 +30,6 @@
 @property UIButton *addImageButton;
 
 @property AppDelegate *appDelegate;
-
-@property UIProgressView *progressView;
 @end
 
 @implementation UploadVideoController
@@ -50,9 +48,6 @@
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
-    
-    self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 44, GET_LAYOUT_WIDTH(self.view), 1)];
-//    [self.navigationController.navigationBar addSubview:self.progressView];
 
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
     self.tableView.dataSource = self;
@@ -80,15 +75,11 @@
     
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     self.imagePickerVc.allowPickingImage = NO;
-    if( self.appDelegate.isSending ){
-        
-    }else{
-        if( self.appDelegate.photos.count == 0 ){
-             [self presentViewController:self.imagePickerVc animated:YES completion:nil];
-        }
-    }
+   
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tongzhi:)name:@"tongzhi" object:nil];
+    if( self.appDelegate.photos.count == 0 ){
+         [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -270,25 +261,7 @@
         NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
 //        NSLog(@"***%@",videoData);
         NSLog(@"***%ld",videoData.length);
-        long videoChunkCount = 0;
-        long lastChunkEnd = 0;
-        if( videoData.length%VIDEO_CHUNK_SIZE == 0 ){
-            videoChunkCount = videoData.length/VIDEO_CHUNK_SIZE;
-        }else{
-            videoChunkCount = videoData.length/VIDEO_CHUNK_SIZE + 1;
-            lastChunkEnd = videoData.length%VIDEO_CHUNK_SIZE;
-        }
-        for (int i=0; i<videoChunkCount; i++) {
-            if( i == videoChunkCount-1 ){
-                [self.appDelegate.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, lastChunkEnd)]];
-            }else{
-                [self.appDelegate.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, VIDEO_CHUNK_SIZE)]];
-            }
-        }
-        NSLog(@"%ld",self.appDelegate.videos.count);
-        for (int i=0; i<self.appDelegate.videos.count; i++) {
-            [self.appDelegate.completedUnitPercent addObject:@0];
-        }
+        [self.appDelegate doDataToBlock:videoData];
         
         self.navigationItem.rightBarButtonItem.enabled = YES;
         self.navigationItem.rightBarButtonItem.title = @"发送";
@@ -405,6 +378,7 @@
      第六个参数:失败回调
      */
     NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
+    HUD_LOADING_SHOW(@"Uploading");
     for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSDictionary *parameters=@{
                @"user_id":@"1",
@@ -426,27 +400,20 @@
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
             NSString *fileName = [NSString stringWithFormat:@"VID_%@", [dateFormatter stringFromDate:date]];
-    //        for (int i=0; i< file.count; i++) {
-                [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
-    //        }
-            self.navigationItem.rightBarButtonItem.enabled = NO;
-            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil);
-            self.progressView.progress = 0.0;
-            [self.navigationController.navigationBar addSubview:self.progressView];
+            [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
+
+            NAV_UPLOAD_START;
         } progress:^(NSProgress * _Nonnull uploadProgress) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.appDelegate.videos.count;
                 NSNumber *number = [NSNumber numberWithFloat:progress];
                 [self.appDelegate.completedUnitPercent replaceObjectAtIndex:i withObject:number];
-//                NSLog(@"self.completedUnitPercent: %@", self.completedUnitPercent);
-//                self.progressView.progress = self.completedUnitPercent;
                 float total = 0.0f;
                 for (NSNumber *num in self.appDelegate.completedUnitPercent) {
                     total += [num floatValue];
                 }
                 NSLog(@"self.completedUnitPercent: %f", total);
-                self.progressView.progress = total;
-                self.navigationItem.rightBarButtonItem.title = [NSString stringWithFormat:@"%d%%", (int)floor(total*100)];
+                HUD_LOADING_PROGRESS(total);
             });
             NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
         } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -455,31 +422,19 @@
             NSLog(@"results: %@", dic);
             
             NSDictionary *data = [dic objectForKey:@"data"];
-            int complete = [[data objectForKey:@"complete"] intValue];
-            
-            NSLog(@"results: %d", complete);
-//
-//            if( complete ){
-//                self.navigationItem.rightBarButtonItem.enabled = YES;
-//                self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
-//                [self.progressView removeFromSuperview];
-//            }
-            
-            if( complete ){
-                NSNotification *notification =[NSNotification notificationWithName:@"tongzhi" object:nil userInfo:nil];
-                //通过通知中心发送通知
-                [[NSNotificationCenter defaultCenter] postNotification:notification];
+            if( [[data objectForKey:@"complete"] intValue] ){
+                DO_FINISH_UPLOAD;
+                NAV_UPLOAD_END;
+                HUD_LOADING_HIDDEN;
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"上传失败.%@",error);
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
-
-//            self.navigationItem.rightBarButtonItem.enabled = YES;
-//            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
-//            [self.progressView removeFromSuperview];
+            // 这里要记录下没有上传成功的块
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDDEN;
         }];
     }
-//    [self.navigationController popViewControllerAnimated:YES];
 }
 
 //- (AFHTTPSessionManager *)sharedManager {
@@ -692,43 +647,8 @@ done:
     }
 }
 
-- (NSString *)typeForImageData:(NSData *)data {
-    uint8_t c;
-    [data getBytes:&c length:1];
-    
-    switch (c) {
-        case 0xFF:
-            return @"jpeg";
-        case 0x89:
-            return @"png";
-        case 0x47:
-            return @"gif";
-        case 0x49:
-        case 0x4D:
-            return @"tiff";
-    }
-    return nil;
-}
-
-- (void)tongzhi:(NSNotification *)text{
-    //    NSLog(@"%@",text);
-    
+- (void)viewWillDisappear:(BOOL)animated {
     [self.appDelegate clearProperty];
-    NSArray *views = [self.mediaView subviews];
-    for(UIView *view in views){
-        [view removeFromSuperview];
-    }
-    self.textView.text = @"";
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-    [self getMediaView:cell];
-    [self.tableView reloadData];
-    self.navigationItem.rightBarButtonItem.enabled = YES;
-    self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
-    [self.progressView removeFromSuperview];
-    self.appDelegate.isSending = false;
-    
-    NSLog(@"－－－－－接收到通知------");
 }
 
 // 因为我在scrollView加了手势 点击tableView didSelectRowAtIndexPath不执行 导致手势冲突 可以用此方法解决

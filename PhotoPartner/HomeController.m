@@ -233,8 +233,10 @@
         player.shouldAutoplay = NO;
         UIImage  *thumbnail = [player thumbnailImageAtTime:0.0 timeOption:MPMovieTimeOptionNearestKeyFrame];
         player = nil;
-        NSData *data = [NSData dataWithContentsOfURL:videoURL];
-        NSLog(@"Total bytes %ld", [data length]);
+        NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
+        NSLog(@"Total bytes %ld", [videoData length]);
+        
+        [self.appDelegate doDataToBlock:videoData];
         
         [self.appDelegate.photos addObject:thumbnail];
         [self.appDelegate.fileDesc addObject:@""];

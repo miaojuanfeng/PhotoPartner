@@ -25,7 +25,7 @@
     
     UIButton *_progressHUD;
     UIView *_HUDContainer;
-    UIActivityIndicatorView *_HUDIndicatorView;
+//    UIActivityIndicatorView *_HUDIndicatorView;
     UILabel *_HUDLabel;
     
     UIStatusBarStyle _originStatusBarStyle;
@@ -61,7 +61,8 @@
     self.oKButtonTitleColorDisabled = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:0.5];
     
     if (iOS7Later) {
-        self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
+//        self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
+        self.navigationBar.barTintColor = [UIColor colorWithRed:(27/255.0) green:(163/255.0)  blue:(232/255.0) alpha:1.0];
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
         if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
@@ -367,7 +368,7 @@
         _HUDContainer.backgroundColor = [UIColor darkGrayColor];
         _HUDContainer.alpha = 0.7;
         
-        _HUDIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+//        _HUDIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         
         _HUDLabel = [[UILabel alloc] init];
         _HUDLabel.textAlignment = NSTextAlignmentCenter;
@@ -376,10 +377,10 @@
         _HUDLabel.textColor = [UIColor whiteColor];
         
         [_HUDContainer addSubview:_HUDLabel];
-        [_HUDContainer addSubview:_HUDIndicatorView];
+//        [_HUDContainer addSubview:_HUDIndicatorView];
         [_progressHUD addSubview:_HUDContainer];
     }
-    [_HUDIndicatorView startAnimating];
+//    [_HUDIndicatorView startAnimating];
     [[UIApplication sharedApplication].keyWindow addSubview:_progressHUD];
     
     // if over time, dismiss HUD automatic
@@ -392,7 +393,7 @@
 
 - (void)hideProgressHUD {
     if (_progressHUD) {
-        [_HUDIndicatorView stopAnimating];
+//        [_HUDIndicatorView stopAnimating];
         [_progressHUD removeFromSuperview];
     }
 }
@@ -576,8 +577,8 @@
     [super viewDidLayoutSubviews];
     
     _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (self.view.tz_height - 90) / 2, 120, 90);
-    _HUDIndicatorView.frame = CGRectMake(45, 15, 30, 30);
-    _HUDLabel.frame = CGRectMake(0,40, 120, 50);    
+//    _HUDIndicatorView.frame = CGRectMake(45, 15, 30, 30);
+    _HUDLabel.frame = CGRectMake(0,40, 120, 50);
 }
 
 #pragma mark - Public

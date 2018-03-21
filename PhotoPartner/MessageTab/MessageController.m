@@ -7,11 +7,17 @@
 //
 
 #import "MacroDefine.h"
+#import "AppDelegate.h"
 #import "MessageController.h"
-#import <AFNetworking/AFNetworking.h>
+//#import <AFNetworking/AFNetworking.h>
+#import <MBProgressHUD.h>
 
 @interface MessageController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
+
+@property AppDelegate *appDelegate;
+
+@property MBProgressHUD *hudLoading;
 @end
 
 @implementation MessageController
@@ -26,6 +32,8 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     [self.view addSubview:self.tableView];
+    
+    self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     
 //    NSString *urlString = @"https://well.bsimb.cn/user/user_device?user_id=26";
@@ -59,6 +67,12 @@
 //        NSLog(@"results: %@", error);
 //
 //    }];
+    
+
+    self.hudLoading = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    self.hudLoading.mode = MBProgressHUDModeAnnularDeterminate;
+    self.hudLoading.removeFromSuperViewOnHide = NO;
+    [self.hudLoading hideAnimated:NO];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -80,6 +94,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
     //    [self.navigationController pushViewController:videoDetailController animated:YES];
+    [self.hudLoading showAnimated:YES];
+    
+    NSLog(@"sadasdasdasd");
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
