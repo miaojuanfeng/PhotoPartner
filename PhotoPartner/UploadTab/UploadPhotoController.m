@@ -244,6 +244,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    [self.view endEditing:YES];
     NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     if( [self.appDelegate.deviceId containsObject:device_id] ){
@@ -318,14 +319,24 @@
         *   第三个参数:文件上传到服务器以什么名称保存
         */
         for (int i=0; i< self.appDelegate.photos.count; i++) {
-            NSData *file = UIImagePNGRepresentation(self.appDelegate.photos[i]);
+            int imageWidth = 0;
+            int imageHeight = 0;
+            if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+                imageWidth = 750;
+                imageHeight = 750 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+            }else{
+                imageWidth = 750 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+                imageHeight = 750;
+            }
+            CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+            NSData *file = UIImagePNGRepresentation([self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]);
             NSString *fileExt = [self typeForImageData:file];
             if( fileExt == nil ){
                 fileExt = @"jpeg";
             }
             NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyyMMdd"];
+            [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
             NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
             [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
         }
