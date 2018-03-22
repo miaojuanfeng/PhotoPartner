@@ -54,6 +54,11 @@
     self.hudLoading.removeFromSuperViewOnHide = NO;
     [self.hudLoading hideAnimated:NO];
     
+    self.hudWaiting = [MBProgressHUD showHUDAddedTo:self.window.rootViewController.view animated:YES];
+    self.hudWaiting.mode = MBProgressHUDModeIndeterminate;
+    self.hudWaiting.removeFromSuperViewOnHide = NO;
+    [self.hudWaiting hideAnimated:NO];
+    
     return YES;
 }
 

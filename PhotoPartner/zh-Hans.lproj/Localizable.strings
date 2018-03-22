@@ -5,6 +5,10 @@
   Created by USER on 7/3/2018.
   Copyright © 2018 MJF. All rights reserved.
 */
+hudLoading = "加载中";
+confirmOK = "确认";
+confirmCancel = "取消";
+
 homeNavigationItemTitle = "照片伴侣";
 
 homeTakePhotoTitle = "拍照片";
@@ -23,6 +27,14 @@ uploadVideoMaxSizeError = "视频大小不能超过50M";
 deviceListNavigationItemTitle = "设备管理";
 deviceListRename = "重命名";
 deviceListUnbind = "解绑";
+deviceListEmpty = "当前未绑定任何设备，请点击右上角的绑定按钮进入设备绑定界面";
+deviceListUnbindConfirmTitle = "确认要解除与该设备的绑定？";
+deviceListUnbindConfirmSubtitle = "该操作不可恢复";
+deviceListUnbindSuccess = "解除绑定成功";
+deviceListUnbindFailed = "解除绑定失败";
+deviceListRenameTextFieldTitle = "请输入设备昵称";
+deviceListRenameSuccess = "重命名设备成功";
+deviceListRenameFailed = "重命名设备失败";
 
 deviceAddNavigationItemTitle = "设备绑定";
 deviceAddRightBarButtonItemTitle = "绑定";

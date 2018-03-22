@@ -27,6 +27,7 @@
 //
 @property MBProgressHUD *hudLoading;
 @property MBProgressHUD *hudToast;
+@property MBProgressHUD *hudWaiting;
 /*
  *  For Function
  */

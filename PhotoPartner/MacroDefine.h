@@ -63,6 +63,16 @@
                                 [self.appDelegate.hudLoading hideAnimated:YES]; \
                             }while(0)
 
+#define HUD_WAITING_SHOW(t) do{ \
+                                [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
+                                self.appDelegate.hudWaiting.label.text = t; \
+                                [self.appDelegate.hudWaiting showAnimated:YES]; \
+                            }while(0)
+#define HUD_WAITING_HIDE    do{ \
+                                self.appDelegate.hudWaiting.progress =  0; \
+                                [self.appDelegate.hudWaiting hideAnimated:YES]; \
+                            }while(0)
+
 #define HUD_TOAST_SHOW(t) do{ \
                                 [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
                                 self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \

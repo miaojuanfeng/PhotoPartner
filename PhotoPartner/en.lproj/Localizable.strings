@@ -5,6 +5,10 @@
   Created by USER on 7/3/2018.
   Copyright © 2018 MJF. All rights reserved.
 */
+hudLoading = "Loading";
+confirmOK = "OK";
+confirmCancel = "Cancel";
+
 homeNavigationItemTitle = "Photo Partner";
 
 homeTakePhotoTitle = "Take Photo";
@@ -23,6 +27,14 @@ uploadVideoMaxSizeError = "File size can not exceed 50M";
 deviceListNavigationItemTitle = "Device Manage";
 deviceListRename = "Rename";
 deviceListUnbind = "Unbind";
+deviceListEmpty = "No device is currently bound, please click the binding button in the upper right corner to enter the device binding interface";
+deviceListUnbindConfirmTitle = "Do you confirm that you want to unbind the device";
+deviceListUnbindConfirmSubtitle = "This operation is not recoverable";
+deviceListUnbindSuccess = "Unbind Success";
+deviceListUnbindFailed = "Unbind Failed";
+deviceListRenameTextFieldTitle = "Please enter the device's nickname";
+deviceListRenameSuccess = "Rename Success";
+deviceListRenameFailed = "Rename Failed";
 
 deviceAddNavigationItemTitle = "Devices Bind";
 deviceAddRightBarButtonItemTitle = "Bind";
