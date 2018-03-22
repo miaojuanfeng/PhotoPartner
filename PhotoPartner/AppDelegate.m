@@ -9,6 +9,7 @@
 #import "MacroDefine.h"
 #import "AppDelegate.h"
 #import "HomeController.h"
+#import <CommonCrypto/CommonDigest.h>
 
 @interface AppDelegate ()
 
@@ -34,6 +35,7 @@
     
     self.videos = [[NSMutableArray alloc] init];
     self.completedUnitPercent = [[NSMutableArray alloc] init];
+    self.md5 = @"";
     
     [self loadDeviceList];
     if( self.deviceList == nil ){
@@ -87,6 +89,10 @@
     [self.fileDesc removeAllObjects];
     [self.photos removeAllObjects];
     self.focusImageIndex = -1;
+    // Video
+    [self.videos removeAllObjects];
+    [self.completedUnitPercent removeAllObjects];
+    self.md5 = @"";
 }
 
 - (void)saveDeviceList:(NSMutableDictionary *) device {
@@ -141,5 +147,18 @@
     return true;
 }
 
+- (NSString *)md5:(NSString *)string{
+    const char *cStr = [string UTF8String];
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+    
+    CC_MD5(cStr, (CC_LONG)strlen(cStr), digest);
+    
+    NSMutableString *result = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_MD5_DIGEST_LENGTH; i++) {
+        [result appendFormat:@"%02X", digest[i]];
+    }
+    
+    return result;
+}
 
 @end

@@ -23,6 +23,7 @@
  */
 @property NSMutableArray<NSData *> *videos;
 @property NSMutableArray *completedUnitPercent;
+@property NSString *md5;
 //
 @property MBProgressHUD *hudLoading;
 @property MBProgressHUD *hudToast;
@@ -33,6 +34,7 @@
 - (void)saveDeviceList:(NSMutableDictionary *) device;
 - (void)loadDeviceList;
 - (bool)doDataToBlock:(NSData *) videoData;
+- (NSString *)md5:(NSString *) string;
 
 @end
 

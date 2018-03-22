@@ -249,40 +249,44 @@
     self.navigationItem.rightBarButtonItem.enabled = NO;
     self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadProcessingRightBarButtonItemTitle", nil);
     
-    [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
-        NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
-        NSString *md5 = (__bridge NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)outputPath, FileHashDefaultChunkSizeForReadingData);
-        NSLog(@"MD5: %@", md5);
-        NSURL *videoUrl = [NSURL fileURLWithPath:outputPath];
-        NSLog(@"videoUrl: %@", videoUrl);
-        NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
-//        NSLog(@"***%@",videoData);
-        NSLog(@"***%ld",videoData.length);
+    [[TZImageManager manager] getVideoWithAsset:asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
+        NSString *PHImageFileSandboxExtensionTokenKey = [info objectForKey:@"PHImageFileSandboxExtensionTokenKey"];
+        self.appDelegate.md5 =  [self.appDelegate md5:PHImageFileSandboxExtensionTokenKey];
+        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
         
-        if( ![self.appDelegate doDataToBlock:videoData] ){
-            [self.appDelegate clearProperty];
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
-            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-            [self getMediaView:cell];
-            self.textView.text = @"";
-            [self.tableView reloadData];
-            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
-        }
-        
-        self.navigationItem.rightBarButtonItem.enabled = YES;
-        self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
-        
-//        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
-        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
-//
-//        NSURL *newVideoUrl ; //一般.mp4
-//        NSDateFormatter *formater = [[NSDateFormatter alloc] init];//用时间给文件全名，以免重复，在测试的时候其实可以判断文件是否存在若存在，则删除，重新生成文件即可
-//        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
-//        newVideoUrl = [NSURL fileURLWithPath:[NSHomeDirectory() stringByAppendingFormat:@"/Documents/output-%@.mp4", [formater stringFromDate:[NSDate date]]]] ;//这个是保存在app自己的沙盒路径里，后面可以选择是否在上传后删除掉。我建议删除掉，免得占空间。
-//        [self convertVideoQuailtyWithInputURL:videoUrl outputURL:newVideoUrl completeHandler:nil];
-        
-    } failure:^(NSString *errorMessage, NSError *error) {
-        
+        [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
+            NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+            NSURL *videoUrl = [NSURL fileURLWithPath:outputPath];
+            NSLog(@"videoUrl: %@", videoUrl);
+            NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
+            //        NSLog(@"***%@",videoData);
+            NSLog(@"***%ld",videoData.length);
+            
+            if( ![self.appDelegate doDataToBlock:videoData] ){
+                [self.appDelegate clearProperty];
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+                [self getMediaView:cell];
+                self.textView.text = @"";
+                [self.tableView reloadData];
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
+            }
+            
+            self.navigationItem.rightBarButtonItem.enabled = YES;
+            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil);
+            
+            //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
+            //        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
+            //
+            //        NSURL *newVideoUrl ; //一般.mp4
+            //        NSDateFormatter *formater = [[NSDateFormatter alloc] init];//用时间给文件全名，以免重复，在测试的时候其实可以判断文件是否存在若存在，则删除，重新生成文件即可
+            //        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
+            //        //    这个是保存在app自己的沙盒路径里，后面可以选择是否在上传后删除掉。我建议删除掉，免得占空间。
+            //        newVideoUrl = [NSURL fileURLWithPath:[NSHomeDirectory() stringByAppendingFormat:@"/Documents/output-%@.mp4", [formater stringFromDate:[NSDate date]]]];
+            //        [self convertVideoQuailtyWithInputURL:videoUrl outputURL:newVideoUrl completeHandler:nil];
+        } failure:^(NSString *errorMessage, NSError *error) {
+            
+        }];
     }];
 }
 
@@ -384,14 +388,19 @@
      */
     NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
     HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+    NSString *totalBlock = [NSString stringWithFormat:@"%ld", self.appDelegate.videos.count];
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+    NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d.mp4", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
     for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSDictionary *parameters=@{
-               @"user_id":@"1",
-               @"file_block":[NSString stringWithFormat:@"%d", i+1],
-               @"total_block":[NSString stringWithFormat:@"%ld", self.appDelegate.videos.count],
-               @"device_id":[self.appDelegate.deviceId copy],
-               @"file_MD5":@"MichaelMiao",
-               @"file_desc":[self.appDelegate.fileDesc copy]
+               @"user_id"       :   @"1",
+               @"file_block"    :   [NSString stringWithFormat:@"%d", i+1],
+               @"total_block"   :   totalBlock,
+               @"device_id"     :   [self.appDelegate.deviceId copy],
+               @"file_MD5"      :   self.appDelegate.md5,
+               @"file_desc"     :   [self.appDelegate.fileDesc copy]
         };
         [manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             /*
@@ -401,11 +410,7 @@
             *   第二个参数:服务器规定的
             *   第三个参数:文件上传到服务器以什么名称保存
             */
-            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-            NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
-            [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
+            [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:fileName mimeType:@"video/mp4"];
 
             NAV_UPLOAD_START;
         } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -479,84 +484,84 @@
 //    return manager;
 //}
 
-CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,
-                                      size_t chunkSizeForReadingData) {
-    
-    // Declare needed variables
-    CFStringRef result = NULL;
-    CFReadStreamRef readStream = NULL;
-    
-    // Get the file URL
-    CFURLRef fileURL =
-    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
-                                  (CFStringRef)filePath,
-                                  kCFURLPOSIXPathStyle,
-                                  (Boolean)false);
-    if (!fileURL) goto done;
-    
-    // Create and open the read stream
-    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
-                                            (CFURLRef)fileURL);
-    if (!readStream) goto done;
-    bool didSucceed = (bool)CFReadStreamOpen(readStream);
-    if (!didSucceed) goto done;
-    
-    // Initialize the hash object
-    CC_MD5_CTX hashObject;
-    CC_MD5_Init(&hashObject);
-    
-    // Make sure chunkSizeForReadingData is valid
-    if (!chunkSizeForReadingData) {
-        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
-    }
-    
-    // Feed the data to the hash object
-    bool hasMoreData = true;
-    while (hasMoreData) {
-        uint8_t buffer[chunkSizeForReadingData];
-        CFIndex readBytesCount = CFReadStreamRead(readStream,
-                                                  (UInt8 *)buffer,
-                                                  (CFIndex)sizeof(buffer));
-        if (readBytesCount == -1) break;
-        if (readBytesCount == 0) {
-            hasMoreData = false;
-            continue;
-        }
-        CC_MD5_Update(&hashObject,
-                      (const void *)buffer,
-                      (CC_LONG)readBytesCount);
-    }
-    
-    // Check if the read operation succeeded
-    didSucceed = !hasMoreData;
-    
-    // Compute the hash digest
-    unsigned char digest[CC_MD5_DIGEST_LENGTH];
-    CC_MD5_Final(digest, &hashObject);
-    
-    // Abort if the read operation failed
-    if (!didSucceed) goto done;
-    
-    // Compute the string result
-    char hash[2 * sizeof(digest) + 1];
-    for (size_t i = 0; i < sizeof(digest); ++i) {
-        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
-    }
-    result = CFStringCreateWithCString(kCFAllocatorDefault,
-                                       (const char *)hash,
-                                       kCFStringEncodingUTF8);
-    
-done:
-    
-    if (readStream) {
-        CFReadStreamClose(readStream);
-        CFRelease(readStream);
-    }
-    if (fileURL) {
-        CFRelease(fileURL);
-    }
-    return result;
-}
+//CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,
+//                                      size_t chunkSizeForReadingData) {
+//
+//    // Declare needed variables
+//    CFStringRef result = NULL;
+//    CFReadStreamRef readStream = NULL;
+//
+//    // Get the file URL
+//    CFURLRef fileURL =
+//    CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
+//                                  (CFStringRef)filePath,
+//                                  kCFURLPOSIXPathStyle,
+//                                  (Boolean)false);
+//    if (!fileURL) goto done;
+//
+//    // Create and open the read stream
+//    readStream = CFReadStreamCreateWithFile(kCFAllocatorDefault,
+//                                            (CFURLRef)fileURL);
+//    if (!readStream) goto done;
+//    bool didSucceed = (bool)CFReadStreamOpen(readStream);
+//    if (!didSucceed) goto done;
+//
+//    // Initialize the hash object
+//    CC_MD5_CTX hashObject;
+//    CC_MD5_Init(&hashObject);
+//
+//    // Make sure chunkSizeForReadingData is valid
+//    if (!chunkSizeForReadingData) {
+//        chunkSizeForReadingData = FileHashDefaultChunkSizeForReadingData;
+//    }
+//
+//    // Feed the data to the hash object
+//    bool hasMoreData = true;
+//    while (hasMoreData) {
+//        uint8_t buffer[chunkSizeForReadingData];
+//        CFIndex readBytesCount = CFReadStreamRead(readStream,
+//                                                  (UInt8 *)buffer,
+//                                                  (CFIndex)sizeof(buffer));
+//        if (readBytesCount == -1) break;
+//        if (readBytesCount == 0) {
+//            hasMoreData = false;
+//            continue;
+//        }
+//        CC_MD5_Update(&hashObject,
+//                      (const void *)buffer,
+//                      (CC_LONG)readBytesCount);
+//    }
+//
+//    // Check if the read operation succeeded
+//    didSucceed = !hasMoreData;
+//
+//    // Compute the hash digest
+//    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+//    CC_MD5_Final(digest, &hashObject);
+//
+//    // Abort if the read operation failed
+//    if (!didSucceed) goto done;
+//
+//    // Compute the string result
+//    char hash[2 * sizeof(digest) + 1];
+//    for (size_t i = 0; i < sizeof(digest); ++i) {
+//        snprintf(hash + (2 * i), 3, "%02x", (int)(digest[i]));
+//    }
+//    result = CFStringCreateWithCString(kCFAllocatorDefault,
+//                                       (const char *)hash,
+//                                       kCFStringEncodingUTF8);
+//
+//done:
+//
+//    if (readStream) {
+//        CFReadStreamClose(readStream);
+//        CFRelease(readStream);
+//    }
+//    if (fileURL) {
+//        CFRelease(fileURL);
+//    }
+//    return result;
+//}
 
 //- (NSString*)getFileMD5WithPath:(NSString*)path {
 //    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
