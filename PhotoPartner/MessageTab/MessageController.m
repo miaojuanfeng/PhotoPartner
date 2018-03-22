@@ -9,7 +9,7 @@
 #import "MacroDefine.h"
 #import "AppDelegate.h"
 #import "MessageController.h"
-//#import <AFNetworking/AFNetworking.h>
+#import <AFNetworking/AFNetworking.h>
 #import <MBProgressHUD.h>
 
 @interface MessageController () <UITableViewDataSource, UITableViewDelegate>
@@ -17,7 +17,7 @@
 
 @property AppDelegate *appDelegate;
 
-@property MBProgressHUD *hudLoading;
+@property NSMutableArray *messageList;
 @end
 
 @implementation MessageController
@@ -35,44 +35,17 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    
-//    NSString *urlString = @"https://well.bsimb.cn/user/user_device?user_id=26";
-//    NSURL *url = [NSURL URLWithString:urlString];
-//    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-//    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-//        //block 参数的解释
-//        //response 响应头的信息
-//        //data 我们所需要的真是的数据
-//        //connectionError 链接服务器的错误信息
-//        NSLog(@"请求到数据了");
-//        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
-//                                                            options:NSJSONReadingAllowFragments error:NULL];
-//        NSLog(@"%@", dic);
-//    }];
-    
-//    NSString *urlString = @"https://well.bsimb.cn/weather/city_name?city_name=shenzhen";
-//    NSURL *url = [NSURL URLWithString:urlString];
-//
-//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-//    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-//    [manager GET:url.absoluteString parameters:nil progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-//
-////        NSLog(@"results: %@", responseObject);
-//        NSLog(@"Data results =======================================================================================>:");
-//        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-//        NSLog(@"results: %@", dic);
-//
-//    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-//
-//        NSLog(@"results: %@", error);
-//
-//    }];
-    
-
-    self.hudLoading = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    self.hudLoading.mode = MBProgressHUDModeAnnularDeterminate;
-    self.hudLoading.removeFromSuperViewOnHide = NO;
-    [self.hudLoading hideAnimated:NO];
+    self.messageList = [[NSMutableArray alloc] init];
+    for(int i=0;i<10;i++){
+        NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+        [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+        [t setObject:@"image" forKey:@"type"];
+        [t setObject:@"Just now" forKey:@"time"];
+        [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
+        [t setObject:@"test desc" forKey:@"desc"];
+        [t setObject:@"uiimage" forKey:@"data"];
+        [self.messageList addObject:t];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -81,20 +54,26 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return self.messageList.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    cell.textLabel.text = @"新消息";
+//    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+//    cell.textLabel.text = @"新消息";
+    
+    UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, GET_LAYOUT_WIDTH(self.tableView)-20, GET_LAYOUT_HEIGHT(cell))];
+    messageView.backgroundColor = [UIColor redColor];
+    
+    [cell.contentView addSubview:messageView];
+    
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
     //    [self.navigationController pushViewController:videoDetailController animated:YES];
-    [self.hudLoading showAnimated:YES];
+    
     
     NSLog(@"sadasdasdasd");
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
