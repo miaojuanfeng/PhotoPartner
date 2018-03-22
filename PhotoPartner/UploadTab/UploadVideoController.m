@@ -417,12 +417,14 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.appDelegate.videos.count;
                 NSNumber *number = [NSNumber numberWithFloat:progress];
-                [self.appDelegate.completedUnitPercent replaceObjectAtIndex:i withObject:number];
                 float total = 0.0f;
-                for (NSNumber *num in self.appDelegate.completedUnitPercent) {
-                    total += [num floatValue];
+                if( self.appDelegate.completedUnitPercent.count > 0 ){
+                    [self.appDelegate.completedUnitPercent replaceObjectAtIndex:i withObject:number];
+                    for (NSNumber *num in self.appDelegate.completedUnitPercent) {
+                        total += [num floatValue];
+                    }
+                    NSLog(@"self.completedUnitPercent: %f", total);
                 }
-                NSLog(@"self.completedUnitPercent: %f", total);
                 HUD_LOADING_PROGRESS(total);
             });
             NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);

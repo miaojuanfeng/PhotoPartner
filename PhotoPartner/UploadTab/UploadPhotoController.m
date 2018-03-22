@@ -326,7 +326,7 @@
                 imageHeight = 750;
             }
             CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
-            NSData *file = UIImagePNGRepresentation([self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]);
+            NSData *file = [self compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
             NSString *fileExt = [self typeForImageData:file];
             if( fileExt == nil ){
                 fileExt = @"jpeg";
@@ -516,6 +516,36 @@
     
     return newImage;
 }
+
+- (NSData *)compressQualityWithMaxLength:(NSInteger)maxLength withSourceImage:(UIImage *)sourceImage{
+    CGFloat compression = 1;
+    NSData *data = UIImageJPEGRepresentation(sourceImage, compression);
+    if (data.length < maxLength) return data;
+    CGFloat max = 1;
+    CGFloat min = 0;
+    for (int i = 0; i < 6; ++i) {
+        compression = (max + min) / 2;
+        data = UIImageJPEGRepresentation(sourceImage, compression);
+        if (data.length < maxLength * 0.9) {
+            min = compression;
+        } else if (data.length > maxLength) {
+            max = compression;
+        } else {
+            break;
+        }
+    }
+    return data;
+}
+
+//- (NSData *)compressQualityWithMaxLength:(NSInteger)maxLength withSourceImage:(UIImage *)sourceImage{
+//    CGFloat compression = 1;
+//    NSData *data = UIImageJPEGRepresentation(sourceImage, compression);
+//    while (data.length > maxLength && compression > 0) {
+//        compression -= 0.02;
+//        data = UIImageJPEGRepresentation(sourceImage, compression); // When compression less than a value, this code dose not work
+//    }
+//    return data;
+//}
 
 @end
 
