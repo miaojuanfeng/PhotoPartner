@@ -44,6 +44,11 @@
 #define VIDEO_CHUNK_SIZE (1024*1024)
 #define VIDEO_MAX_SIZE (50*1024*1024)
 
+#define IMAGE_PER_ROW 5
+#define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
+
+#define FileHashDefaultChunkSizeForReadingData 256
+
 #define HUD_LOADING_SHOW(t) do{ \
                                 [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
                                 self.appDelegate.hudLoading.label.text = t; \

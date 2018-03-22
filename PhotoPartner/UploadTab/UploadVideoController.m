@@ -16,11 +16,6 @@
 //#define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
 
-#define FileHashDefaultChunkSizeForReadingData 256
-
-#define IMAGE_PER_ROW 5
-#define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
-
 @interface UploadVideoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate>
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
@@ -256,8 +251,8 @@
     
     [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
         NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
-//        NSString *md5 = (__bridge NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)outputPath, FileHashDefaultChunkSizeForReadingData);
-//        NSLog(@"MD5: %@", md5);
+        NSString *md5 = (__bridge NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)outputPath, FileHashDefaultChunkSizeForReadingData);
+        NSLog(@"MD5: %@", md5);
         NSURL *videoUrl = [NSURL fileURLWithPath:outputPath];
         NSLog(@"videoUrl: %@", videoUrl);
         NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
@@ -290,7 +285,6 @@
         
     }];
 }
-
 
 - (CGFloat) getFileSize:(NSString *)path
 {
@@ -410,7 +404,7 @@
             NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-            NSString *fileName = [NSString stringWithFormat:@"VID_%@", [dateFormatter stringFromDate:date]];
+            NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
             [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:[NSString stringWithFormat:@"%@.mp4", fileName] mimeType:@"video/mp4"];
 
             NAV_UPLOAD_START;
@@ -484,7 +478,6 @@
 //
 //    return manager;
 //}
-
 
 CFStringRef FileMD5HashCreateWithPath(CFStringRef filePath,
                                       size_t chunkSizeForReadingData) {
@@ -564,7 +557,6 @@ done:
     }
     return result;
 }
-
 
 //- (NSString*)getFileMD5WithPath:(NSString*)path {
 //    return (__bridge_transfer NSString *)FileMD5HashCreateWithPath((__bridge CFStringRef)path, FileHashDefaultChunkSizeForReadingData);
