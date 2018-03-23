@@ -37,14 +37,34 @@
     
     self.messageList = [[NSMutableArray alloc] init];
     for(int i=0;i<10;i++){
-        NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
-        [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
-        [t setObject:@"image" forKey:@"type"];
-        [t setObject:@"Just now" forKey:@"time"];
-        [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
-        [t setObject:@"test desc" forKey:@"desc"];
-        [t setObject:@"uiimage" forKey:@"data"];
-        [self.messageList addObject:t];
+        if( i%3 == 0 ){
+            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+            [t setObject:@"image" forKey:@"type"];
+            [t setObject:@"Just now" forKey:@"time"];
+            [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
+            [t setObject:@"test desc" forKey:@"desc"];
+            [t setObject:@"uiimage" forKey:@"data"];
+            [self.messageList addObject:t];
+        }else if( i%3 == 1 ){
+            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+            [t setObject:@"video" forKey:@"type"];
+            [t setObject:@"Just now" forKey:@"time"];
+            [t setObject:@"Send Video to xxz(asd123123)" forKey:@"title"];
+            [t setObject:@"test desc" forKey:@"desc"];
+            [t setObject:@"uiimage" forKey:@"data"];
+            [self.messageList addObject:t];
+        }else if( i%3 == 2 ){
+            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+            [t setObject:@"text" forKey:@"type"];
+            [t setObject:@"Just now" forKey:@"time"];
+            [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
+            [t setObject:@"test desc" forKey:@"desc"];
+            [t setObject:@"uiimage" forKey:@"data"];
+            [self.messageList addObject:t];
+        }
     }
 }
 
@@ -57,13 +77,45 @@
     return self.messageList.count;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return [self getCellHeight:indexPath.row];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-//    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-//    cell.textLabel.text = @"新消息";
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    NSMutableDictionary *messageItem = self.messageList[indexPath.row];
     
-    UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, GET_LAYOUT_WIDTH(self.tableView)-20, GET_LAYOUT_HEIGHT(cell))];
-    messageView.backgroundColor = [UIColor redColor];
+    UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, GET_LAYOUT_WIDTH(self.tableView)-20, [self getCellHeight:indexPath.row]-20)];
+//    messageView.backgroundColor = [UIColor redColor];
+    
+    UILabel *timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(messageView), 20)];
+    timeLabel.text = [messageItem objectForKey:@"time"];
+//    timeLabel.backgroundColor = [UIColor blueColor];
+    [messageView addSubview:timeLabel];
+    
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(timeLabel)+GET_LAYOUT_HEIGHT(timeLabel), GET_LAYOUT_WIDTH(messageView), 20)];
+    titleLabel.text = [messageItem objectForKey:@"title"];
+//    titleLabel.backgroundColor = [UIColor grayColor];
+    [messageView addSubview:titleLabel];
+    
+    UILabel *descLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(titleLabel)+GET_LAYOUT_HEIGHT(titleLabel), GET_LAYOUT_WIDTH(messageView), 20)];
+    descLabel.text = [messageItem objectForKey:@"desc"];
+//    descLabel.backgroundColor = [UIColor orangeColor];
+    [messageView addSubview:descLabel];
+    
+    if( [[[self.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"image"] ||
+        [[[self.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"video"] ){
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(descLabel)+GET_LAYOUT_HEIGHT(descLabel), 200, 150)];
+        imageView.image = [UIImage imageNamed:@"image"];
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        imageView.clipsToBounds = YES;
+        [messageView addSubview:imageView];
+        
+        NSLog(@"%f", GET_LAYOUT_HEIGHT(timeLabel)+GET_LAYOUT_HEIGHT(titleLabel)+GET_LAYOUT_HEIGHT(descLabel)+GET_LAYOUT_HEIGHT(imageView));
+    }
+    
+    NSLog(@"%f", GET_LAYOUT_HEIGHT(timeLabel)+GET_LAYOUT_HEIGHT(titleLabel)+GET_LAYOUT_HEIGHT(descLabel));
     
     [cell.contentView addSubview:messageView];
     
@@ -74,9 +126,27 @@
     //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
     //    [self.navigationController pushViewController:videoDetailController animated:YES];
     
-    
     NSLog(@"sadasdasdasd");
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (CGFloat)getCellHeight:(long)index {
+    if( [[[self.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"image"] ){
+        return IMAGE_CELL_HEIGHT;
+    }else if( [[[self.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"video"] ){
+        return VIDEO_CELL_HEIGHT;
+    }else{
+        return TEXT_CELL_HEIGHT;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
 }
 
 @end
