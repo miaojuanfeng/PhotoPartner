@@ -32,7 +32,8 @@
  *  For Function
  */
 - (void)clearProperty;
-- (void)saveDeviceList:(NSMutableDictionary *) device;
+- (void)addDeviceList:(NSMutableDictionary *) device;
+- (void)saveDeviceList;
 - (void)loadDeviceList;
 - (bool)doDataToBlock:(NSData *) videoData;
 - (NSString *)md5:(NSString *) string;

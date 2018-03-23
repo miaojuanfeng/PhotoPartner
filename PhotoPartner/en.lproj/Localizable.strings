@@ -38,6 +38,8 @@ deviceListRenameFailed = "Rename Failed";
 
 deviceAddNavigationItemTitle = "Devices Bind";
 deviceAddRightBarButtonItemTitle = "Bind";
+deviceAddBindSuccess = "Bind Success";
+deviceAddBindFailed = "Bind Failed";
 deviceAddDeviceName = "Please enter the device's nickname";
 deviceAddDeviceNumber = "Please enter smart device ID number";
 

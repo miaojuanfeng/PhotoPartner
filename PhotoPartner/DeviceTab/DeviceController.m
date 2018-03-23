@@ -180,6 +180,7 @@
                         break;
                     }
                 }
+                [self.appDelegate saveDeviceList];
                 [self.tableView reloadData];
                 HUD_TOAST_SHOW(NSLocalizedString(@"deviceListRenameSuccess", nil));
             }else{
@@ -241,6 +242,7 @@
                         break;
                     }
                 }
+                [self.appDelegate saveDeviceList];
                 [self isEmptyDeviceList];
                 [self.tableView reloadData];
                 HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindSuccess", nil));

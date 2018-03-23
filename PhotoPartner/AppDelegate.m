@@ -100,7 +100,7 @@
     self.md5 = @"";
 }
 
-- (void)saveDeviceList:(NSMutableDictionary *) device {
+- (void)addDeviceList:(NSMutableDictionary *) device {
     NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsPath = [path objectAtIndex:0];
     NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"deviceList.plist"];
@@ -114,6 +114,19 @@
     }
     [newDic addObject:device];
     [newDic writeToFile:plistPath atomically:YES];
+}
+
+- (void)saveDeviceList {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"deviceList.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:plistPath error:nil];
+    
+    if( self.deviceList.count ){
+        [self.deviceList writeToFile:plistPath atomically:YES];
+    }
 }
 
 - (void)loadDeviceList {

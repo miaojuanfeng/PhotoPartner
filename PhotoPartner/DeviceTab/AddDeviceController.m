@@ -86,6 +86,7 @@
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
     NSDictionary *parameters=@{@"user_id":@"45",@"device_token":self.deviceTokenField.text,@"device_name":self.deviceNameField.text};
+    HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
     [manager POST:BASE_URL(@"device/bind") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
     } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -97,6 +98,7 @@
         
         int status = [[dic objectForKey:@"status"] intValue];
         
+        HUD_WAITING_HIDE;
         if( status == 200 ){
             NSDictionary *data = [dic objectForKey:@"data"];
             NSString *device_id = [data objectForKey:@"device_id"];
@@ -108,13 +110,18 @@
             [self.appDelegate.deviceList addObject:device];
             
             NSLog(@"%@", self.appDelegate.deviceList);
-            [self.appDelegate saveDeviceList:device];
+            [self.appDelegate addDeviceList:device];
             
             [self.navigationController popViewControllerAnimated:YES];
+        }else{
+            HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddBindFailed", nil));
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"失败.%@",error);
         NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+        
+        HUD_WAITING_HIDE;
+        HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddBindFailed", nil));
     }];
 }
 
