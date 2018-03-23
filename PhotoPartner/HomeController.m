@@ -135,7 +135,19 @@
         NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
         
         HUD_WAITING_HIDE;
-        HUD_TOAST_SHOW(NSLocalizedString(@"networkError", nil));
+//        HUD_TOAST_SHOW(NSLocalizedString(@"networkError", nil));
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"networkError", nil)
+                                                                                 message:nil
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self clickQuitButton];
+        }];
+        
+        [alertController addAction:okAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
     }];
     
 }
@@ -386,6 +398,26 @@
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (void)clickQuitButton {
+//    AppDelegate *app = [UIApplication sharedApplication].delegate;
+    
+    UIWindow *window = self.appDelegate.window;
+    
+    [UIView animateWithDuration:1.0f animations:^{
+        
+        window.alpha = 0;
+        
+        window.frame = CGRectMake(0, window.bounds.size.width, 0, 0);
+        
+    } completion:^(BOOL finished) {
+        
+        exit(0);
+        
+    }];
+    
+    //exit(0);
 }
 
 @end

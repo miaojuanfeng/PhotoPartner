@@ -58,7 +58,7 @@
     if( indexPath.row == 0 ){
         self.userNameField = [[UITextField alloc] initWithFrame:CGRectMake(15, 0, GET_LAYOUT_WIDTH(self.tableView)-30, 44)];
         self.userNameField.backgroundColor = [UIColor whiteColor];
-        [self setTextFieldLeftPadding:self.userNameField forWidth:55 forText:NSLocalizedString(@"userInfoUserName", nil)];
+        [self setTextFieldLeftPadding:self.userNameField forWidth:85 forText:NSLocalizedString(@"userInfoUserName", nil)];
         self.userNameField.placeholder = NSLocalizedString(@"userInfoUserNameTextFiledTitle", nil);
         self.userNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
         
@@ -66,7 +66,7 @@
     }else if( indexPath.row == 1 ){
         self.userAccountField = [[UITextField alloc] initWithFrame:CGRectMake(15, 0, GET_LAYOUT_WIDTH(self.tableView)-30, 44)];
         self.userAccountField.backgroundColor = [UIColor whiteColor];
-        [self setTextFieldLeftPadding:self.userAccountField forWidth:55 forText:NSLocalizedString(@"userInfoUserAccount", nil)];
+        [self setTextFieldLeftPadding:self.userAccountField forWidth:85 forText:NSLocalizedString(@"userInfoUserAccount", nil)];
         self.userAccountField.text = [[self.appDelegate.userInfo objectForKey:@"user_account"] stringValue];
         self.userAccountField.enabled = NO;
         
