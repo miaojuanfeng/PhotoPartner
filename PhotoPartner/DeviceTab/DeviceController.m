@@ -150,7 +150,7 @@
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
         manager.requestSerializer.timeoutInterval = 30.0f;
         NSDictionary *parameters=@{
-                                   @"user_id":@"45",
+                                   @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
                                    @"device_id":[NSString stringWithFormat:@"%ld", btn.tag],
                                    @"device_name":deviceName
                                    };
@@ -214,7 +214,7 @@
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
         manager.requestSerializer.timeoutInterval = 30.0f;
         NSDictionary *parameters=@{
-                                   @"user_id":@"45",
+                                   @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
                                    @"device_id":[NSString stringWithFormat:@"%ld", btn.tag],
                                    @"status":@"unbind"
                                    };

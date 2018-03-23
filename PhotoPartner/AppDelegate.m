@@ -42,6 +42,7 @@
         self.deviceList = [[NSMutableArray alloc] init];
     }
     NSLog(@"%@", self.deviceList);
+    self.userInfo = nil;
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     HomeController *homeController = [[HomeController alloc] init];

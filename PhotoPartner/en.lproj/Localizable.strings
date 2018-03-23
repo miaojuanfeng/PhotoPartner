@@ -8,12 +8,14 @@
 hudLoading = "Loading";
 confirmOK = "OK";
 confirmCancel = "Cancel";
+saveButton = "Save";
 
 homeNavigationItemTitle = "Photo Partner";
 
 homeTakePhotoTitle = "Take Photo";
 homePhotoLibTitle = "Local Media";
 homeTakeVodioTitle = "Take Video";
+networkError = "Network Error";
 
 uploadPhotoNavigationItemTitle = "Send Photo";
 uploadVideoNavigationItemTitle = "Send Video";
@@ -44,6 +46,11 @@ deviceAddDeviceName = "Please enter the device's nickname";
 deviceAddDeviceNumber = "Please enter smart device ID number";
 
 settingNavigationItemTitle = "Settings";
+
+userInfoNavigationItemTitle = "User Info";
+userInfoUserName = "Name：";
+userInfoUserAccount = "Account：";
+userInfoUserNameTextFiledTitle = "Please enter the user's nickname";
 
 messageNavigationItemTitle = "Messages";
 

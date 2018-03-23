@@ -395,7 +395,7 @@
     NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d.mp4", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
     for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSDictionary *parameters=@{
-               @"user_id"       :   @"1",
+               @"user_id"       :   [self.appDelegate.userInfo objectForKey:@"user_id"],
                @"file_block"    :   [NSString stringWithFormat:@"%d", i+1],
                @"total_block"   :   totalBlock,
                @"device_id"     :   [self.appDelegate.deviceId copy],

@@ -85,7 +85,7 @@
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
-    NSDictionary *parameters=@{@"user_id":@"45",@"device_token":self.deviceTokenField.text,@"device_name":self.deviceNameField.text};
+    NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_token":self.deviceTokenField.text,@"device_name":self.deviceNameField.text};
     HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
     [manager POST:BASE_URL(@"device/bind") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         

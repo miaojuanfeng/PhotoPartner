@@ -12,8 +12,10 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-
+//
+@property NSMutableDictionary *userInfo;
 @property NSMutableArray *deviceList;
+//
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
 @property NSMutableArray<UIImage *> *photos;
@@ -24,7 +26,9 @@
 @property NSMutableArray<NSData *> *videos;
 @property NSMutableArray *completedUnitPercent;
 @property NSString *md5;
-//
+/*
+ *  For Common UI
+ */
 @property MBProgressHUD *hudLoading;
 @property MBProgressHUD *hudToast;
 @property MBProgressHUD *hudWaiting;

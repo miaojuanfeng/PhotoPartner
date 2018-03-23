@@ -8,6 +8,8 @@
 hudLoading = "加载中";
 confirmOK = "确认";
 confirmCancel = "取消";
+networkError = "网络错误";
+saveButton = "保存";
 
 homeNavigationItemTitle = "照片伴侣";
 
@@ -44,5 +46,10 @@ deviceAddDeviceName = "请输入设备昵称";
 deviceAddDeviceNumber = "请输入设备编号";
 
 settingNavigationItemTitle = "设置";
+
+userInfoNavigationItemTitle = "个人信息";
+userInfoUserName = "名称：";
+userInfoUserAccount = "账号：";
+userInfoUserNameTextFiledTitle = "请输入用户名称";
 
 messageNavigationItemTitle = "消息";

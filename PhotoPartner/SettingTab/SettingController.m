@@ -8,6 +8,7 @@
 
 #import "MacroDefine.h"
 #import "SettingController.h"
+#import "UserInfoController.h"
 
 @interface SettingController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
@@ -34,7 +35,15 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 2;
+    switch( section ){
+        case 0:
+            return 1;
+            break;
+        case 1:
+            return 2;
+            break;
+    }
+    return 0;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -61,9 +70,6 @@
             case 0:
                 cell.textLabel.text = @"个人信息";
                 break;
-            case 1:
-                cell.textLabel.text = @"新消息设置";
-                break;
         }
     }else if( indexPath.section == 1 ){
         switch( indexPath.row ){
@@ -79,8 +85,17 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-//    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
-//    [self.navigationController pushViewController:videoDetailController animated:YES];
+    UserInfoController *userInfoController;
+    
+    switch (indexPath.row) {
+        case 0:
+            userInfoController = [[UserInfoController alloc] init];
+            [self.navigationController pushViewController:userInfoController animated:YES];
+            break;
+            
+        case 1:
+            break;
+    }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
