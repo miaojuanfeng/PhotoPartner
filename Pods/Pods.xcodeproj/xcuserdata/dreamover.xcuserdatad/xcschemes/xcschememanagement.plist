@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>MBProgressHUD.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 		<key>Pods-PhotoPartner.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -37,7 +42,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>586F2DFA9BDCC6675C2546793A69E5CC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>774B23989AE8C5302526F255AEE81A16</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9314B7BBACBF688E80DB192C7708007E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -48,6 +63,11 @@
 			<true/>
 		</dict>
 		<key>ABC5BF9C68BF827226DE05D3ADBDC0FB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>ED326CAF63667CAA90970054CE4A263C</key>
 		<dict>
 			<key>primary</key>
 			<true/>

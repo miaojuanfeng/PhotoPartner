@@ -393,10 +393,13 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
     NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d.mp4", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
+    NSMutableArray *successBlock = [[NSMutableArray alloc] init];
+    NSMutableArray *failedBlock = [[NSMutableArray alloc] init];
     for (int i=0; i< self.appDelegate.videos.count; i++) {
+        NSString *fileBlock = [NSString stringWithFormat:@"%d", i+1];
         NSDictionary *parameters=@{
                @"user_id"       :   [self.appDelegate.userInfo objectForKey:@"user_id"],
-               @"file_block"    :   [NSString stringWithFormat:@"%d", i+1],
+               @"file_block"    :   fileBlock,
                @"total_block"   :   totalBlock,
                @"device_id"     :   [self.appDelegate.deviceId copy],
                @"file_MD5"      :   self.appDelegate.md5,
@@ -439,14 +442,19 @@
                 NAV_UPLOAD_END;
                 HUD_LOADING_HIDE;
                 HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
+            }else{
+                [successBlock addObject:fileBlock];
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"上传失败.%@",error);
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
             // 这里要记录下没有上传成功的块
-            NAV_UPLOAD_END;
-            HUD_LOADING_HIDE;
-            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+            [failedBlock addObject:fileBlock];
+            if( (successBlock.count + failedBlock.count) == self.appDelegate.videos.count ){
+                NAV_UPLOAD_END;
+                HUD_LOADING_HIDE;
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+            }
         }];
     }
 }

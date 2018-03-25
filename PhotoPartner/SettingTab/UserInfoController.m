@@ -9,6 +9,7 @@
 #import "MacroDefine.h"
 #import "AppDelegate.h"
 #import "UserInfoController.h"
+#import <AFNetworking/AFNetworking.h>
 
 @interface UserInfoController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
@@ -57,6 +58,7 @@
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     if( indexPath.row == 0 ){
         self.userNameField = [[UITextField alloc] initWithFrame:CGRectMake(15, 0, GET_LAYOUT_WIDTH(self.tableView)-30, 44)];
+        self.userNameField.text = [self.appDelegate.userInfo objectForKey:@"user_nickname"];
         self.userNameField.backgroundColor = [UIColor whiteColor];
         [self setTextFieldLeftPadding:self.userNameField forWidth:85 forText:NSLocalizedString(@"userInfoUserName", nil)];
         self.userNameField.placeholder = NSLocalizedString(@"userInfoUserNameTextFiledTitle", nil);
@@ -91,7 +93,49 @@
 }
 
 - (void)clickUserSaveButton {
-    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.requestSerializer.timeoutInterval = 30.0f;
+    NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"], @"user_nickname": self.userNameField.text};
+    HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+    [manager POST:BASE_URL(@"user/update_profile") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"成功.%@",responseObject);
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+        NSLog(@"results: %@", dic);
+        
+        int status = [[dic objectForKey:@"status"] intValue];
+        
+        HUD_WAITING_HIDE;
+        if( status == 200 ){
+//            NSDictionary *data = [dic objectForKey:@"data"];
+//            NSString *device_id = [data objectForKey:@"device_id"];
+//            
+//            NSMutableDictionary *device = [[NSMutableDictionary alloc] init];
+//            [device setObject:device_id forKey:@"device_id"];
+//            [device setObject:self.deviceTokenField.text forKey:@"device_token"];
+//            [device setObject:self.deviceNameField.text forKey:@"device_name"];
+//            [self.appDelegate.deviceList addObject:device];
+//            
+//            NSLog(@"%@", self.appDelegate.deviceList);
+//            [self.appDelegate addDeviceList:device];
+
+            [self.appDelegate.userInfo setObject:self.userNameField.text forKey:@"user_nickname"];
+            
+            HUD_TOAST_SHOW(NSLocalizedString(@"saveSuccess", nil));
+        }else{
+            HUD_TOAST_SHOW(NSLocalizedString(@"saveFailed", nil));
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"失败.%@",error);
+        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+        
+        HUD_WAITING_HIDE;
+        HUD_TOAST_SHOW(NSLocalizedString(@"saveFailed", nil));
+    }];
 }
 
 @end

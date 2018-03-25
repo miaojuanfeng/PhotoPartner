@@ -41,8 +41,14 @@
     if( self.deviceList == nil ){
         self.deviceList = [[NSMutableArray alloc] init];
     }
-    NSLog(@"%@", self.deviceList);
     self.userInfo = nil;
+    self.appVersion = 11;
+    
+    [self loadMessageList];
+    if( self.messageList == nil ){
+        self.messageList = [[NSMutableArray alloc] init];
+    }
+    NSLog(@"ms: %@", self.messageList);
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     HomeController *homeController = [[HomeController alloc] init];
@@ -135,6 +141,69 @@
     NSString *path = [pathArray objectAtIndex:0];
     NSString *plistPath = [path stringByAppendingPathComponent:@"deviceList.plist"];
     self.deviceList = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
+}
+
+- (void)addMessageList:(NSString *)type withTime:(NSString *) time withTitle:(NSString *) title withDesc:(NSString *) desc withData:(UIImage *) data {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"messageList.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableArray *newDic = nil;
+    if ([fileManager fileExistsAtPath:plistPath] == NO) {
+        newDic = [[NSMutableArray alloc] init];
+    }else{
+        newDic = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
+    }
+    
+    NSString *encodedImageStr = @"";
+    if( data != nil ){
+        NSData *_data = UIImageJPEGRepresentation(data, 1.0f);
+        encodedImageStr = [_data base64Encoding];
+    }
+    
+    NSMutableDictionary *message = [[NSMutableDictionary alloc] init];
+    [message setObject:type forKey:@"type"];
+    [message setObject:time forKey:@"time"];
+    [message setObject:title forKey:@"title"];
+    [message setObject:desc forKey:@"desc"];
+    [message setObject:encodedImageStr forKey:@"data"];
+    
+    [self.messageList insertObject:message atIndex:0];
+    
+    [newDic insertObject:message atIndex:0];
+    [newDic writeToFile:plistPath atomically:YES];
+}
+
+- (void)saveMessageList {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"messageList.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:plistPath error:nil];
+    
+    if( self.messageList.count ){
+        [self.messageList writeToFile:plistPath atomically:YES];
+    }
+}
+
+- (void)loadMessageList {
+    NSArray *pathArray = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *path = [pathArray objectAtIndex:0];
+    NSString *plistPath = [path stringByAppendingPathComponent:@"messageList.plist"];
+    self.messageList = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
+}
+
+- (void)clearMessageList{
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"messageList.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:plistPath error:nil];
+    
+    self.messageList = [[NSMutableArray alloc] init];
 }
 
 - (bool)doDataToBlock:(NSData *) videoData{

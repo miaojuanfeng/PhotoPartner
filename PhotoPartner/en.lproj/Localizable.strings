@@ -9,6 +9,8 @@ hudLoading = "Loading";
 confirmOK = "OK";
 confirmCancel = "Cancel";
 saveButton = "Save";
+saveSuccess = "Save Success";
+saveFailed = "Save Failed";
 
 homeNavigationItemTitle = "Photo Partner";
 
@@ -19,7 +21,7 @@ networkError = "Network Error";
 
 uploadPhotoNavigationItemTitle = "Send Photo";
 uploadVideoNavigationItemTitle = "Send Video";
-uploadPhotoRightBarButtonItemTitle = "Send";
+uploadSendRightBarButtonItemTitle = "Send";
 uploadSendingRightBarButtonItemTitle = "Sending";
 uploadProcessingRightBarButtonItemTitle = "Processing";
 uploadSendSuccess = "Send Success";
@@ -46,6 +48,19 @@ deviceAddDeviceName = "Please enter the device's nickname";
 deviceAddDeviceNumber = "Please enter smart device ID number";
 
 settingNavigationItemTitle = "Settings";
+settingTableHeaderUserTitle = "User Settings";
+settingTableHeaderSystemTitle = "System Settings";
+settingCellUserInfoTitle = "User Information";
+settingCellClearMessageTitle = "Clear All Messages";
+settingCellVersionTitle = "Version Update";
+
+versionNewTitle = "New Version";
+versionNewDesc = "Go to App Store to Update";
+versionAlreadyLastVersion = "Already last version";
+
+clearMessageListTitle = "Do you confirm that you want to delete all messages";
+clearMessageListSubtitle = "This operation is not recoverable";
+clearMessageListDone = "All messages deleted";
 
 userInfoNavigationItemTitle = "User Info";
 userInfoUserName = "Name：";

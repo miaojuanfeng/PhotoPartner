@@ -9,9 +9,13 @@
 #import "MacroDefine.h"
 #import "SettingController.h"
 #import "UserInfoController.h"
+#import "AppDelegate.h"
+#import <AFNetworking/AFNetworking.h>
 
 @interface SettingController () <UITableViewDataSource, UITableViewDelegate>
 @property UITableView *tableView;
+
+@property AppDelegate *appDelegate;
 @end
 
 @implementation SettingController
@@ -26,6 +30,8 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     [self.view addSubview:self.tableView];
+    
+    self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
 }
 
 
@@ -53,10 +59,10 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch( section ){
         case 0:
-            return @"个人设置";
+            return NSLocalizedString(@"settingTableHeaderUserTitle", nil);;
             break;
         case 1:
-            return @"系统设置";
+            return NSLocalizedString(@"settingTableHeaderSystemTitle", nil);;
             break;
     }
     return nil;
@@ -68,16 +74,16 @@
     if( indexPath.section == 0 ){
         switch( indexPath.row ){
             case 0:
-                cell.textLabel.text = @"个人信息";
+                cell.textLabel.text = NSLocalizedString(@"settingCellUserInfoTitle", nil);;
                 break;
         }
     }else if( indexPath.section == 1 ){
         switch( indexPath.row ){
             case 0:
-                cell.textLabel.text = @"清空全部消息记录";
+                cell.textLabel.text = NSLocalizedString(@"settingCellClearMessageTitle", nil);;
                 break;
             case 1:
-                cell.textLabel.text = @"版本更新";
+                cell.textLabel.text = NSLocalizedString(@"settingCellVersionTitle", nil);;
                 break;
         }
     }
@@ -86,17 +92,88 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     UserInfoController *userInfoController;
-    
-    switch (indexPath.row) {
-        case 0:
-            userInfoController = [[UserInfoController alloc] init];
-            [self.navigationController pushViewController:userInfoController animated:YES];
-            break;
-            
-        case 1:
-            break;
+    if( indexPath.section == 0 ){
+        switch (indexPath.row) {
+            case 0:
+                userInfoController = [[UserInfoController alloc] init];
+                [self.navigationController pushViewController:userInfoController animated:YES];
+                break;
+        }
+    }else if( indexPath.section == 1 ){
+        switch (indexPath.row) {
+            case 0:
+                [self clickClearMessage];
+                break;
+            case 1:
+                [self versionUpdate];
+                break;
+        }
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (void)versionUpdate{
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.requestSerializer.timeoutInterval = 30.0f;
+    NSDictionary *parameters=@{@"apk_id":@"1"};
+    HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+    [manager POST:BASE_URL(@"user/version") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"成功.%@",responseObject);
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+        NSLog(@"results: %@", dic);
+        
+        int status = [[dic objectForKey:@"status"] intValue];
+        
+        HUD_WAITING_HIDE;
+        if( status == 200 ){
+            NSDictionary *data = [dic objectForKey:@"data"];
+            if( [[data objectForKey:@"last_version"] intValue] > self.appDelegate.appVersion ){
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"versionNewTitle", nil) message:NSLocalizedString(@"versionNewDesc", nil) preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmCancel", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                
+                [alertController addAction:okAction];           // A
+                [alertController addAction:cancelAction];       // B
+                
+                [self presentViewController:alertController animated:YES completion:nil];
+            }else{
+                HUD_TOAST_SHOW(NSLocalizedString(@"versionAlreadyLastVersion", nil));
+            }
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"失败.%@",error);
+        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+        
+        HUD_WAITING_HIDE;
+        HUD_TOAST_SHOW(NSLocalizedString(@"networkError", nil));
+    }];
+}
+
+- (void)clickClearMessage {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"clearMessageListTitle", nil) message:NSLocalizedString(@"clearMessageListSubtitle", nil) preferredStyle:UIAlertControllerStyleAlert];
+                
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self.appDelegate clearMessageList];
+        HUD_TOAST_SHOW(NSLocalizedString(@"clearMessageListDone", nil));
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmCancel", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    
+    }];
+                
+    [alertController addAction:okAction];           // A
+    [alertController addAction:cancelAction];       // B
+                
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 @end

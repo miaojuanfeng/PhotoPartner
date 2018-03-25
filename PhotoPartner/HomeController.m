@@ -127,7 +127,7 @@
         
         HUD_WAITING_HIDE;
         if( status == 200 ){
-            self.appDelegate.userInfo = [dic objectForKey:@"data"];
+            self.appDelegate.userInfo =  [NSMutableDictionary dictionaryWithDictionary:[dic objectForKey:@"data"]];
         }
         NSLog(@"userInfo: %@", self.appDelegate.userInfo);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

@@ -10,6 +10,8 @@ confirmOK = "确认";
 confirmCancel = "取消";
 networkError = "网络错误";
 saveButton = "保存";
+saveSuccess = "保存成功";
+saveFailed = "保存失败";
 
 homeNavigationItemTitle = "照片伴侣";
 
@@ -46,6 +48,19 @@ deviceAddDeviceName = "请输入设备昵称";
 deviceAddDeviceNumber = "请输入设备编号";
 
 settingNavigationItemTitle = "设置";
+settingTableHeaderUserTitle = "个人设置";
+settingTableHeaderSystemTitle = "系统设置";
+settingCellUserInfoTitle = "个人信息";
+settingCellClearMessageTitle = "清空全部消息记录";
+settingCellVersionTitle = "版本更新";
+
+versionNewTitle = "版本更新";
+versionNewDesc = "将前往App Store下载";
+versionAlreadyLastVersion = "当前已经是最新版本";
+
+clearMessageListTitle = "确认要清空全部消息记录？";
+clearMessageListSubtitle = "该操作不可恢复";
+clearMessageListDone = "消息记录已清空";
 
 userInfoNavigationItemTitle = "个人信息";
 userInfoUserName = "名称：";

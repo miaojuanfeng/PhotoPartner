@@ -15,6 +15,8 @@
 //
 @property NSMutableDictionary *userInfo;
 @property NSMutableArray *deviceList;
+@property NSMutableArray *messageList;
+@property int appVersion;
 //
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
@@ -39,6 +41,10 @@
 - (void)addDeviceList:(NSMutableDictionary *) device;
 - (void)saveDeviceList;
 - (void)loadDeviceList;
+- (void)addMessageList:(NSString *)type withTime:(NSString *) time withTitle:(NSString *) title withDesc:(NSString *) desc withData:(UIImage *) data;
+- (void)saveMessageList;
+- (void)loadMessageList;
+- (void)clearMessageList;
 - (bool)doDataToBlock:(NSData *) videoData;
 - (NSString *)md5:(NSString *) string;
 

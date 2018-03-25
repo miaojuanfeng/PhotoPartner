@@ -56,10 +56,10 @@
                                 [self.appDelegate.hudLoading showAnimated:YES]; \
                             }while(0)
 #define HUD_LOADING_PROGRESS(p) do{ \
+                                self.appDelegate.hudLoading.progress =  0; \
                                 self.appDelegate.hudLoading.progress = p; \
                              }while(0)
 #define HUD_LOADING_HIDE do{ \
-                                self.appDelegate.hudLoading.progress =  0; \
                                 [self.appDelegate.hudLoading hideAnimated:YES]; \
                             }while(0)
 
@@ -69,7 +69,6 @@
                                 [self.appDelegate.hudWaiting showAnimated:YES]; \
                             }while(0)
 #define HUD_WAITING_HIDE    do{ \
-                                self.appDelegate.hudWaiting.progress =  0; \
                                 [self.appDelegate.hudWaiting hideAnimated:YES]; \
                             }while(0)
 

@@ -16,8 +16,6 @@
 @property UITableView *tableView;
 
 @property AppDelegate *appDelegate;
-
-@property NSMutableArray *messageList;
 @end
 
 @implementation MessageController
@@ -35,37 +33,37 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    self.messageList = [[NSMutableArray alloc] init];
-    for(int i=0;i<10;i++){
-        if( i%3 == 0 ){
-            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
-            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
-            [t setObject:@"image" forKey:@"type"];
-            [t setObject:@"Just now" forKey:@"time"];
-            [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
-            [t setObject:@"test desc" forKey:@"desc"];
-            [t setObject:@"uiimage" forKey:@"data"];
-            [self.messageList addObject:t];
-        }else if( i%3 == 1 ){
-            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
-            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
-            [t setObject:@"video" forKey:@"type"];
-            [t setObject:@"Just now" forKey:@"time"];
-            [t setObject:@"Send Video to xxz(asd123123)" forKey:@"title"];
-            [t setObject:@"test desc" forKey:@"desc"];
-            [t setObject:@"uiimage" forKey:@"data"];
-            [self.messageList addObject:t];
-        }else if( i%3 == 2 ){
-            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
-            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
-            [t setObject:@"text" forKey:@"type"];
-            [t setObject:@"Just now" forKey:@"time"];
-            [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
-            [t setObject:@"test desc" forKey:@"desc"];
-            [t setObject:@"uiimage" forKey:@"data"];
-            [self.messageList addObject:t];
-        }
-    }
+//    self.messageList = [[NSMutableArray alloc] init];
+//    for(int i=0;i<10;i++){
+//        if( i%3 == 0 ){
+//            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+//            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+//            [t setObject:@"image" forKey:@"type"];
+//            [t setObject:@"Just now" forKey:@"time"];
+//            [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
+//            [t setObject:@"test desc" forKey:@"desc"];
+//            [t setObject:@"uiimage" forKey:@"data"];
+//            [self.messageList addObject:t];
+//        }else if( i%3 == 1 ){
+//            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+//            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+//            [t setObject:@"video" forKey:@"type"];
+//            [t setObject:@"Just now" forKey:@"time"];
+//            [t setObject:@"Send Video to xxz(asd123123)" forKey:@"title"];
+//            [t setObject:@"test desc" forKey:@"desc"];
+//            [t setObject:@"uiimage" forKey:@"data"];
+//            [self.messageList addObject:t];
+//        }else if( i%3 == 2 ){
+//            NSMutableDictionary *t = [[NSMutableDictionary alloc] init];
+//            [t setObject:[NSString stringWithFormat:@"%d", i] forKey:@"id"];
+//            [t setObject:@"text" forKey:@"type"];
+//            [t setObject:@"Just now" forKey:@"time"];
+//            [t setObject:@"Send Photo to xxz(asd123123)" forKey:@"title"];
+//            [t setObject:@"test desc" forKey:@"desc"];
+//            [t setObject:@"uiimage" forKey:@"data"];
+//            [self.messageList addObject:t];
+//        }
+//    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -74,7 +72,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.messageList.count;
+    return self.appDelegate.messageList.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -84,7 +82,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    NSMutableDictionary *messageItem = self.messageList[indexPath.row];
+    NSMutableDictionary *messageItem = self.appDelegate.messageList[indexPath.row];
     
     UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, GET_LAYOUT_WIDTH(self.tableView)-20, [self getCellHeight:indexPath.row]-20)];
 //    messageView.backgroundColor = [UIColor redColor];
@@ -104,10 +102,10 @@
 //    descLabel.backgroundColor = [UIColor orangeColor];
     [messageView addSubview:descLabel];
     
-    if( [[[self.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"image"] ||
-        [[[self.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"video"] ){
+    if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"image"] ||
+        [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"video"] ){
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(descLabel)+GET_LAYOUT_HEIGHT(descLabel), 200, 150)];
-        imageView.image = [UIImage imageNamed:@"image"];
+        imageView.image = [UIImage imageWithData:[[NSData alloc] initWithBase64Encoding:[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"data"]]];
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
         [messageView addSubview:imageView];
@@ -125,15 +123,13 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     //    VideoDetailController *videoDetailController = [[VideoDetailController alloc] init];
     //    [self.navigationController pushViewController:videoDetailController animated:YES];
-    
-    NSLog(@"sadasdasdasd");
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 - (CGFloat)getCellHeight:(long)index {
-    if( [[[self.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"image"] ){
+    if( [[[self.appDelegate.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"image"] ){
         return IMAGE_CELL_HEIGHT;
-    }else if( [[[self.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"video"] ){
+    }else if( [[[self.appDelegate.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"video"] ){
         return VIDEO_CELL_HEIGHT;
     }else{
         return TEXT_CELL_HEIGHT;
