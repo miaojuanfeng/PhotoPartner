@@ -34,13 +34,13 @@
     self.navigationController.delegate = self;
     
     VIEW_WIDTH = VIEW_WIDTH - GAP_WIDTH * 2;
-    VIEW_HEIGHT = VIEW_HEIGHT - GAP_HEIGHT * 3;
-    MARGIN_TOP -= GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
-    VIEW_HEIGHT += GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
+    VIEW_HEIGHT = VIEW_HEIGHT - GAP_HEIGHT * 3 -20;
+//    MARGIN_TOP -= GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
+//    VIEW_HEIGHT += GET_LAYOUT_HEIGHT(self.navigationController.navigationBar);
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT/4-20)];
+    UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP+20, VIEW_WIDTH, VIEW_HEIGHT/4-20)];
     UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
 //    [takePhotoButton setTitle:NSLocalizedString(@"homeTakePhotoTitle", nil) forState:UIControlStateNormal];
     [takePhotoButton addTarget:self action:@selector(clickTakePhotoButton) forControlEvents:UIControlEventTouchUpInside];

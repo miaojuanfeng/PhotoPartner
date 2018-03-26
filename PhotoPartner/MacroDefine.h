@@ -16,6 +16,7 @@
                             do{ \
                                 CGRect rectStatus = [[UIApplication sharedApplication] statusBarFrame]; \
                                 MARGIN_TOP = rectStatus.size.height + GET_LAYOUT_HEIGHT(self.navigationController.navigationBar); \
+                                MARGIN_TOP = 0; \
                                 if(IS_IPHONE_X){ \
                                     MARGIN_BOTTOM = 34; \
                                 } \
