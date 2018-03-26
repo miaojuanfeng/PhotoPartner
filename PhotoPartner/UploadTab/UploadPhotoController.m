@@ -287,6 +287,11 @@
 
 - (void)clickSubmitButton {
     [self.view endEditing:YES];
+    
+    if( self.appDelegate.deviceId.count == 0 ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+        return;
+    }
     //创建会话管理者
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     /*

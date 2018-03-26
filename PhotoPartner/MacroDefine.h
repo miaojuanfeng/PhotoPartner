@@ -43,7 +43,7 @@
 
 #define VIDEO_CHUNK_SIZE (1024*1024)
 #define VIDEO_MAX_SIZE (50*1024*1024)
-#define PHOTO_MAX_SIZE (500*1024)
+#define PHOTO_MAX_SIZE (300*1024)
 
 #define IMAGE_PER_ROW 5
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
@@ -78,6 +78,8 @@
                                 self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
                                 self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
                                 self.appDelegate.hudToast.label.text = t; \
+                                self.appDelegate.hudToast.bezelView.backgroundColor = [UIColor blackColor]; \
+                                self.appDelegate.hudToast.contentColor = [UIColor whiteColor]; \
                                 [self.appDelegate.hudToast showAnimated:YES whileExecutingBlock:^{ \
                                     sleep(2); \
                                 } \

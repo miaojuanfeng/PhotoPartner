@@ -8,16 +8,17 @@
 hudLoading = "Loading";
 confirmOK = "OK";
 confirmCancel = "Cancel";
+networkError = "Network Error";
 saveButton = "Save";
 saveSuccess = "Save Success";
 saveFailed = "Save Failed";
 
 homeNavigationItemTitle = "Photo Partner";
 
-homeTakePhotoTitle = "Take Photo";
-homePhotoLibTitle = "Local Media";
-homeTakeVodioTitle = "Take Video";
-networkError = "Network Error";
+homeTakePhotoTitle = "Pictures";
+homePhotoLibTitle = "Local Picture";
+homeTakeVodioTitle = "Video Recording";
+homeVideoLibTitle = "Local Video";
 
 uploadPhotoNavigationItemTitle = "Send Photo";
 uploadVideoNavigationItemTitle = "Send Video";
@@ -27,6 +28,7 @@ uploadProcessingRightBarButtonItemTitle = "Processing";
 uploadSendSuccess = "Send Success";
 uploadSendFailed = "Send Failed";
 uploadVideoMaxSizeError = "File size can not exceed 50M";
+uploadDeviceEmptyError = "Please select at least one device";
 
 deviceListNavigationItemTitle = "Device Manage";
 deviceListRename = "Rename";
