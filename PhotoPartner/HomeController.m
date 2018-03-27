@@ -18,6 +18,8 @@
 //#import <MobileCoreServices/MobileCoreServices.h>
 #import "GSKeyChainDataManager.h"
 #import <AFNetworking/AFNetworking.h>
+#import <TZImageManager.h>
+#import <Photos/Photos.h>
 
 @interface HomeController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 @property UIAlertController *actionSheet;
@@ -280,7 +282,7 @@
         UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
         pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
         pickerController.mediaTypes = @[(NSString *)kUTTypeMovie];
-        pickerController.videoQuality = UIImagePickerControllerQualityTypeIFrame1280x720;
+        pickerController.videoQuality = UIImagePickerControllerQualityType640x480;
         pickerController.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
         //            pickerController.allowsEditing = YES;
         pickerController.delegate = self;
@@ -356,6 +358,9 @@
         player = nil;
         NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
         NSLog(@"Total bytes %ld", [videoData length]);
+        
+        self.appDelegate.md5 =  [self.appDelegate md5:[videoURL absoluteString]];
+        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
         
         if( ![self.appDelegate doDataToBlock:videoData] ){
             [self.appDelegate clearProperty];
