@@ -102,12 +102,17 @@
                             self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil); \
                        }while(0)
 
+#define DO_CLEAR_MEDIA_VIEW do{ \
+                                NSArray *views = [self.mediaView subviews]; \
+                                for(UIView *view in views){ \
+                                    [view removeFromSuperview]; \
+                                } \
+                                self.mediaView.frame = CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT); \
+                            }while(0)
+
 #define DO_FINISH_UPLOAD do{ \
                             [self.appDelegate clearProperty];   \
-                            NSArray *views = [self.mediaView subviews]; \
-                            for(UIView *view in views){ \
-                                [view removeFromSuperview]; \
-                            }   \
+                            DO_CLEAR_MEDIA_VIEW; \
                             self.textView.text = @"";   \
                             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];   \
                             UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];   \

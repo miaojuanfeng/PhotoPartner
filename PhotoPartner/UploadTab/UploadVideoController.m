@@ -70,6 +70,7 @@
     
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     self.imagePickerVc.allowPickingImage = NO;
+    self.imagePickerVc.allowPickingOriginalPhoto = NO;
    
     
     if( self.appDelegate.photos.count == 0 ){
@@ -135,7 +136,9 @@
 }
 
 - (void)getMediaView:(UITableViewCell *)cell {
-//    mediaView.backgroundColor = [UIColor blueColor];
+
+    DO_CLEAR_MEDIA_VIEW;
+    
     long imageTotal = self.appDelegate.photos.count;
     float imageViewSize = IMAGE_VIEW_SIZE;
     float x = GAP_WIDTH;
@@ -400,6 +403,9 @@
     NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d.mp4", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
     NSMutableArray *successBlock = [[NSMutableArray alloc] init];
     NSMutableArray *failedBlock = [[NSMutableArray alloc] init];
+    if( self.appDelegate.fileDesc.count == 1 && [[self.appDelegate.fileDesc objectAtIndex:0] isEqualToString:@""] ){
+        [self.appDelegate.fileDesc replaceObjectAtIndex:0 withObject:@" "];
+    }
     for (int i=0; i< self.appDelegate.videos.count; i++) {
         NSString *fileBlock = [NSString stringWithFormat:@"%d", i+1];
         NSDictionary *parameters=@{

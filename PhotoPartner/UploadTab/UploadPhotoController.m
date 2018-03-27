@@ -66,6 +66,7 @@
 
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     self.imagePickerVc.allowPickingVideo = NO;
+    self.imagePickerVc.allowPickingOriginalPhoto = NO;
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
 
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
@@ -167,10 +168,9 @@
 }
 
 - (void)getMediaView:(UITableViewCell *)cell {
-//    mediaView.backgroundColor = [UIColor blueColor];
-    if( self.appDelegate.photos.count == 0 ){
-        self.mediaView.frame = CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT);
-    }
+
+    DO_CLEAR_MEDIA_VIEW;
+    
     long imageTotal = self.appDelegate.photos.count;
     float imageViewSize = IMAGE_VIEW_SIZE;
     float x = GAP_WIDTH;
@@ -255,6 +255,8 @@
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
+    NSLog(@"%@", photos);
+    
     self.appDelegate.focusImageIndex = self.appDelegate.fileDesc.count;
     for (int i=0; i<photos.count; i++) {
         [self.appDelegate.photos addObject:photos[i]];
@@ -311,6 +313,9 @@
      */
     NSLog(@"%ld", self.appDelegate.photos.count);
     HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+    if( self.appDelegate.fileDesc.count == 1 && [[self.appDelegate.fileDesc objectAtIndex:0] isEqualToString:@""] ){
+        [self.appDelegate.fileDesc replaceObjectAtIndex:0 withObject:@" "];
+    }
     NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
     [manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         /*
