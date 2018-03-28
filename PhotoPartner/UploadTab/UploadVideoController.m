@@ -678,8 +678,10 @@
     }
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [self.appDelegate clearProperty];
+- (void)didMoveToParentViewController:(UIViewController*)parent {
+    if( !parent ){
+        [self.appDelegate clearProperty];
+    }
 }
 
 // 因为我在scrollView加了手势 点击tableView didSelectRowAtIndexPath不执行 导致手势冲突 可以用此方法解决

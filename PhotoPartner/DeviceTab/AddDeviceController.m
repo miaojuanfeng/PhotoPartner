@@ -11,7 +11,7 @@
 #import "AppDelegate.h"
 #import "AddDeviceController.h"
 
-@interface AddDeviceController () <UITextFieldDelegate>
+@interface AddDeviceController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
 @property AppDelegate *appDelegate;
 @property UITextField *deviceNameField;
 @property UITextField *deviceTokenField;
@@ -66,6 +66,11 @@
     [deviceView addSubview:deviceAddButton];
     
     [self.view addSubview:deviceView];
+    
+    self.view.userInteractionEnabled = YES;
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
+    singleTap.delegate = self;
+    [self.view addGestureRecognizer:singleTap];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -148,6 +153,10 @@
 {
     [textField resignFirstResponder];
     return YES;
+}
+
+-(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    [self.view endEditing:YES];
 }
 
 @end

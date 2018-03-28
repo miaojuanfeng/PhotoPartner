@@ -54,10 +54,10 @@
 #define HUD_LOADING_SHOW(t) do{ \
                                 [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
                                 self.appDelegate.hudLoading.label.text = t; \
+                                self.appDelegate.hudLoading.progress =  0; \
                                 [self.appDelegate.hudLoading showAnimated:YES]; \
                             }while(0)
 #define HUD_LOADING_PROGRESS(p) do{ \
-                                self.appDelegate.hudLoading.progress =  0; \
                                 self.appDelegate.hudLoading.progress = p; \
                              }while(0)
 #define HUD_LOADING_HIDE do{ \

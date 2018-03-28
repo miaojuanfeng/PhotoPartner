@@ -67,6 +67,7 @@
     self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     self.imagePickerVc.allowPickingVideo = NO;
     self.imagePickerVc.allowPickingOriginalPhoto = NO;
+    self.imagePickerVc.allowTakePicture = NO;
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
 
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
@@ -115,45 +116,14 @@
     if( indexPath.section == 0 ){
         if( indexPath.row == 0 ){
             self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView);
-            NSLog(@"%f",GET_LAYOUT_HEIGHT(self.textView));
-//            self.textView.backgroundColor = [UIColor redColor];
             self.textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
             
             [cell.contentView addSubview:self.textView];
             cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            
-            
         }else if( indexPath.row == 1 ){
-//            mediaView.backgroundColor = [UIColor blueColor];
-//            int imagePerRow = 5;
-//            int imageTotal = 10;
-//            float imageViewSize = (GET_LAYOUT_WIDTH(mediaView)-GAP_WIDTH*(imagePerRow+1))/imagePerRow;
-//            float x = GAP_WIDTH;
-//            float y = GAP_HEIGHT;
-//            for(int i=0;i<imageTotal;i++){
-//                if( i%imagePerRow == 0 ){
-//                    x = GAP_WIDTH;
-//                }else{
-//                    x += imageViewSize + GAP_HEIGHT;
-//                }
-//                if( i > 0 && i%imagePerRow == 0 ){
-//                    y += imageViewSize + GAP_HEIGHT;
-//                    mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(mediaView), 0, GET_LAYOUT_WIDTH(mediaView), y+imageViewSize+GAP_HEIGHT);
-//                }
-//                UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-//        //        imageView.backgroundColor = [UIColor orangeColor];
-//                imageView.image = [UIImage imageNamed:@"image"];
-//                [mediaView addSubview:imageView];
-//            }
-            NSLog(@"mediaView HEight: %f", GET_LAYOUT_HEIGHT(self.mediaView));
-//            CGRect rect = cell.frame;
-//            rect.size.height = [self getMediaView:cell];
-//            cell.frame = rect;
-//            NSLog(@"%f", GET_LAYOUT_HEIGHT(cell));
             self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.mediaView);
             [self getMediaView:cell];
-//            cell.backgroundColor = [UIColor blueColor];
         }
     }else{
         self.tableView.rowHeight = 44;
@@ -161,7 +131,6 @@
         NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
         cell.textLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
         
-//        cell.accessoryType = UITableViewCellAccessoryCheckmark;
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     }
     return cell;
@@ -221,12 +190,6 @@
     [cell.contentView addSubview:self.mediaView];
     cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-//    self.tableView.rowHeight = GET_LAYOUT_HEIGHT(mediaView);
-//    cell.frame = CGRectMake(GET_LAYOUT_OFFSET_X(cell), GET_LAYOUT_OFFSET_Y(cell), GET_LAYOUT_WIDTH(cell), GET_LAYOUT_HEIGHT(mediaView));
-//    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-//    [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:indexPath,nil] withRowAnimation:UITableViewRowAnimationNone];
-    NSLog(@"self.tableView.rowHeight: %f", GET_LAYOUT_HEIGHT(cell));
-    NSLog(@"mediaView Height: %f", GET_LAYOUT_HEIGHT(self.mediaView));
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -255,14 +218,11 @@
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
-    NSLog(@"%@", photos);
-    
     self.appDelegate.focusImageIndex = self.appDelegate.fileDesc.count;
     for (int i=0; i<photos.count; i++) {
         [self.appDelegate.photos addObject:photos[i]];
         [self.appDelegate.fileDesc addObject:@""];
     }
-    NSLog(@"self.photos: %@", self.appDelegate.photos);
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
@@ -450,12 +410,10 @@
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     [self setTextViewToFileDesc];
-    NSLog(@"%@", self.appDelegate.fileDesc);
 }
 
 - (void)setTextViewToFileDesc {
     if( self.appDelegate.focusImageIndex > -1 ){
-        NSLog(@"sds");
         [self.appDelegate.fileDesc replaceObjectAtIndex:self.appDelegate.focusImageIndex withObject:self.textView.text];
     }
 }
@@ -478,8 +436,10 @@
     return nil;
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [self.appDelegate clearProperty];
+- (void)didMoveToParentViewController:(UIViewController*)parent {
+    if( !parent ){
+        [self.appDelegate clearProperty];
+    }
 }
 
 // 因为我在scrollView加了手势 点击tableView didSelectRowAtIndexPath不执行 导致手势冲突 可以用此方法解决
@@ -492,10 +452,6 @@
         return YES;
     }
 }
-
-
-
-
 
 /**
  *  图片压缩到指定大小

@@ -61,6 +61,7 @@
     self.hudLoading.removeFromSuperViewOnHide = NO;
     self.hudLoading.bezelView.backgroundColor = [UIColor blackColor];
     self.hudLoading.contentColor = [UIColor whiteColor];
+    self.hudLoading.progress = 0.0f;
     [self.hudLoading hideAnimated:NO];
     
     self.hudWaiting = [MBProgressHUD showHUDAddedTo:self.window.rootViewController.view animated:YES];

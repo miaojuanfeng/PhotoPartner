@@ -11,7 +11,7 @@
 #import "UserInfoController.h"
 #import <AFNetworking/AFNetworking.h>
 
-@interface UserInfoController () <UITableViewDataSource, UITableViewDelegate>
+@interface UserInfoController () <UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate>
 @property UITableView *tableView;
 
 @property UITextField *userNameField;
@@ -37,6 +37,11 @@
     [self.view addSubview:self.tableView];
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    self.view.userInteractionEnabled = YES;
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
+    singleTap.delegate = self;
+    [self.view addGestureRecognizer:singleTap];
 }
 
 
@@ -136,6 +141,10 @@
         HUD_WAITING_HIDE;
         HUD_TOAST_SHOW(NSLocalizedString(@"saveFailed", nil));
     }];
+}
+
+-(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
+    [self.view endEditing:YES];
 }
 
 @end
