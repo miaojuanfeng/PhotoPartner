@@ -218,12 +218,16 @@
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
+    [self.appDelegate clearPickerProperty];
+    
     self.appDelegate.focusImageIndex = self.appDelegate.fileDesc.count;
     for (int i=0; i<photos.count; i++) {
         [self.appDelegate.photos addObject:photos[i]];
+        [self.appDelegate.isTakePhoto addObject:[NSString stringWithFormat:@"%d", false]];
         [self.appDelegate.fileDesc addObject:@""];
     }
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
+    
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     [self getMediaView:cell];

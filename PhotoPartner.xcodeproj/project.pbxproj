@@ -329,7 +329,7 @@
 				TargetAttributes = {
 					CEC978E5204E38F800AE8CB3 = {
 						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 					CEC978FD204E38F800AE8CB3 = {
 						CreatedOnToolsVersion = 9.2;
@@ -725,14 +725,17 @@
 			baseConfigurationReference = BE1067612D2D71EEF032F5F2 /* Pods-PhotoPartner.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = R4M5UMCGE9;
 				INFOPLIST_FILE = PhotoPartner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dreamover.PhotoPartner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dreamover.pp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PROVISIONING_PROFILE = "88b9bf76-1cf5-4893-b3a9-8ad395c8fcf6";
+				PROVISIONING_PROFILE_SPECIFIER = PhotoPartner_Dev;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -741,14 +744,17 @@
 			baseConfigurationReference = 11B149A8280D7912B6A7FE0F /* Pods-PhotoPartner.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = R4M5UMCGE9;
 				INFOPLIST_FILE = PhotoPartner/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dreamover.PhotoPartner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dreamover.pp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				PROVISIONING_PROFILE = "5535bcea-f2af-43e7-9ae5-01a523f5ceff";
+				PROVISIONING_PROFILE_SPECIFIER = PhotoPartner_Dis;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

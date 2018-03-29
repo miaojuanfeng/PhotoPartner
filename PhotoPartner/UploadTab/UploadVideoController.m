@@ -449,6 +449,32 @@
             
             NSDictionary *data = [dic objectForKey:@"data"];
             if( [[data objectForKey:@"complete"] intValue] ){
+                
+                NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                for(int i=0;i<self.appDelegate.photos.count;i++){
+                    NSString *time = [dateFormatter stringFromDate:date];
+                    NSString *device = @"";
+                    for(int j=0;j<self.appDelegate.deviceId.count;j++){
+                        NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
+                        for(int k=0;k<self.appDelegate.deviceList.count;k++){
+                            //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+                            //                    NSLog(@"%@", device_id);
+                            if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
+                                NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                                NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
+                                device = [NSString stringWithFormat:@"%@ %@(%@)", device, device_name, device_token];
+                                break;
+                            }
+                        }
+                    }
+                    NSString *title = [NSString stringWithFormat:@"Send to%@", device];
+                    NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
+                    UIImage *data = self.appDelegate.photos[i];
+                    [self.appDelegate addMessageList:@"video" withTime:time withTitle:title withDesc:desc withData:data];
+                }
+                
                 DO_FINISH_UPLOAD;
                 NAV_UPLOAD_END;
                 HUD_LOADING_HIDE;

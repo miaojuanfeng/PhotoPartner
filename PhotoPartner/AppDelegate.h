@@ -21,6 +21,7 @@
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
 @property NSMutableArray<UIImage *> *photos;
+@property NSMutableArray *isTakePhoto;
 @property long focusImageIndex;
 /*
  *  For Video
@@ -38,6 +39,7 @@
  *  For Function
  */
 - (void)clearProperty;
+- (void)clearPickerProperty;
 - (void)addDeviceList:(NSMutableDictionary *) device;
 - (void)saveDeviceList;
 - (void)loadDeviceList;

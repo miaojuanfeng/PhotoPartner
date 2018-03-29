@@ -102,10 +102,10 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [self isEmptyDeviceList];
-    [self.tableView reloadData];
 }
 
 - (void)isEmptyDeviceList{
+    NSLog(@"self.appDelegate.deviceList: %@", self.appDelegate.deviceList);
     if( self.appDelegate.deviceList.count == 0 ){
         self.emptyLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, self.view.frame.size.width-40, 95)];
         self.emptyLabel.numberOfLines = 0;
@@ -126,6 +126,7 @@
     }else{
         [self.emptyLabel removeFromSuperview];
     }
+    [self.tableView reloadData];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
@@ -236,6 +237,28 @@
             
             HUD_WAITING_HIDE;
             if( status == 200 ){
+                NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                NSString *time = [dateFormatter stringFromDate:date];
+                long device_id = btn.tag;
+                NSString *deviceName = @"";
+                for(int k=0;k<self.appDelegate.deviceList.count;k++){
+                                        NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+                                        NSLog(@"%ld", device_id);
+                                        NSLog(@"%d", [[[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] longValue] == device_id);
+                    if( [[[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] longValue] == device_id ){
+                        NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                        NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
+                        deviceName = [NSString stringWithFormat:@"%@(%@)", device_name, device_token];
+                        break;
+                    }
+                }
+                NSString *title = [NSString stringWithFormat:@"Unbind device %@", deviceName];
+                NSString *desc = @"";
+                [self.appDelegate addMessageList:@"text" withTime:time withTitle:title withDesc:desc withData:nil];
+                
+                
                 for (NSDictionary *device in self.appDelegate.deviceList) {
                     if( [[device objectForKey:@"device_id"] intValue] == btn.tag ){
                         [self.appDelegate.deviceList removeObject:device];
@@ -245,6 +268,7 @@
                 [self.appDelegate saveDeviceList];
                 [self isEmptyDeviceList];
                 [self.tableView reloadData];
+                
                 HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindSuccess", nil));
             }else{
                 HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindFailed", nil));

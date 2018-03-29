@@ -117,6 +117,19 @@
             NSLog(@"%@", self.appDelegate.deviceList);
             [self.appDelegate addDeviceList:device];
             
+            
+            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            NSString *time = [dateFormatter stringFromDate:date];
+            NSString *device_name = self.deviceNameField.text;
+            NSString *device_token = self.deviceTokenField.text;
+            NSString *deviceName = [NSString stringWithFormat:@"%@(%@)", device_name, device_token];
+            NSString *title = [NSString stringWithFormat:@"Bind device %@", deviceName];
+            NSString *desc = @"";
+            [self.appDelegate addMessageList:@"text" withTime:time withTitle:title withDesc:desc withData:nil];
+            
+            
             [self.navigationController popViewControllerAnimated:YES];
         }else{
             HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddBindFailed", nil));
