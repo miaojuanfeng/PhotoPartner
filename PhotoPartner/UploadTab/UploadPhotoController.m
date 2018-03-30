@@ -254,6 +254,10 @@
 - (void)clickSubmitButton {
     [self.view endEditing:YES];
     
+    if( self.appDelegate.photos.count == 0 ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadPhotoEmptyError", nil));
+        return;
+    }
     if( self.appDelegate.deviceId.count == 0 ){
         HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
         return;

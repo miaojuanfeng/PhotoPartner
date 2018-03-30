@@ -28,6 +28,8 @@ uploadProcessingRightBarButtonItemTitle = "Processing";
 uploadSendSuccess = "Send Success";
 uploadSendFailed = "Send Failed";
 uploadVideoMaxSizeError = "File size can not exceed 50M";
+uploadPhotoEmptyError = "Please select at least one photo";
+uploadVideoEmptyError = "Please select a video";
 uploadDeviceEmptyError = "Please select at least one device";
 
 deviceListNavigationItemTitle = "Device Manage";

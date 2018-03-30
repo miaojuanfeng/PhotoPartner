@@ -28,6 +28,8 @@ uploadProcessingRightBarButtonItemTitle = "处理中";
 uploadSendSuccess = "发送成功";
 uploadSendFailed = "发送失败";
 uploadVideoMaxSizeError = "视频大小不能超过50M";
+uploadPhotoEmptyError = "请选择至少一张图片";
+uploadVideoEmptyError = "请选择一个视频";
 uploadDeviceEmptyError = "请选择至少一个设备";
 
 deviceListNavigationItemTitle = "设备管理";
