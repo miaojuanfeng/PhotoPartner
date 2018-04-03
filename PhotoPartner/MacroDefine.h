@@ -46,7 +46,7 @@
 #define VIDEO_MAX_SIZE (50*1024*1024)
 #define PHOTO_MAX_SIZE (300*1024)
 
-#define IMAGE_PER_ROW 5
+#define IMAGE_PER_ROW 3
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
 
 #define FileHashDefaultChunkSizeForReadingData 256

@@ -32,7 +32,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     COMMON_MACRO;
-    self.navigationItem.title = NSLocalizedString(@"homeNavigationItemTitle", nil);
+//    self.navigationItem.title = NSLocalizedString(@"homeNavigationItemTitle", nil);
     self.navigationController.delegate = self;
     
     VIEW_WIDTH = VIEW_WIDTH - GAP_WIDTH * 2;
@@ -42,110 +42,139 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP+20, VIEW_WIDTH, VIEW_HEIGHT/4-20)];
-    UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
-//    [takePhotoButton setTitle:NSLocalizedString(@"homeTakePhotoTitle", nil) forState:UIControlStateNormal];
-    [takePhotoButton addTarget:self action:@selector(clickTakePhotoButton) forControlEvents:UIControlEventTouchUpInside];
-    
-    [takePhotoButton setImage:[UIImage imageNamed:@"pictures_bg"] forState:UIControlStateNormal];
-    takePhotoButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    
-    UIView *takePhotoIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(topBoxView)-80)/2, (GET_LAYOUT_HEIGHT(topBoxView)-80)/2, 80, 80)];
-    takePhotoIcon.userInteractionEnabled = NO;
-    
-    UIImageView *takePhotoIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(takePhotoIcon), GET_LAYOUT_HEIGHT(takePhotoIcon))];
-    takePhotoIconImage.image = [UIImage imageNamed:@"pictures"];
-    [takePhotoIcon addSubview:takePhotoIconImage];
-    UILabel *takePhotoIconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 45, GET_LAYOUT_WIDTH(takePhotoIcon), 20)];
-    takePhotoIconLabel.textAlignment = NSTextAlignmentCenter;
-    takePhotoIconLabel.textColor = [UIColor whiteColor];
-    takePhotoIconLabel.text = NSLocalizedString(@"homeTakePhotoTitle", nil);
-    [takePhotoIcon addSubview:takePhotoIconLabel];
-    
-    [takePhotoButton addSubview:takePhotoIcon];
-    
-    [topBoxView addSubview:takePhotoButton];
+    UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP+20, VIEW_WIDTH, VIEW_HEIGHT/4)];
+        UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
+        [takePhotoButton addTarget:self action:@selector(clickTakePhotoButton) forControlEvents:UIControlEventTouchUpInside];
+        [takePhotoButton setImage:[UIImage imageNamed:@"pictures_bg"] forState:UIControlStateNormal];
+        takePhotoButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
+            UIView *takePhotoIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(topBoxView)-80)/2, (GET_LAYOUT_HEIGHT(topBoxView)-80)/2, 80, 80)];
+            takePhotoIcon.userInteractionEnabled = NO;
+                UIImageView *takePhotoIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(takePhotoIcon), GET_LAYOUT_HEIGHT(takePhotoIcon))];
+                takePhotoIconImage.image = [UIImage imageNamed:@"pictures"];
+                [takePhotoIcon addSubview:takePhotoIconImage];
+                UILabel *takePhotoIconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 45, GET_LAYOUT_WIDTH(takePhotoIcon), 20)];
+                takePhotoIconLabel.textAlignment = NSTextAlignmentCenter;
+                takePhotoIconLabel.textColor = [UIColor whiteColor];
+                takePhotoIconLabel.text = NSLocalizedString(@"homeTakePhotoTitle", nil);
+                [takePhotoIcon addSubview:takePhotoIconLabel];
+            [takePhotoButton addSubview:takePhotoIcon];
+        [topBoxView addSubview:takePhotoButton];
     [self.view addSubview:topBoxView];
     
-    UIView *centerBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(topBoxView)+GET_LAYOUT_HEIGHT(topBoxView)+GAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT / 2)];
-//    centerBoxView.backgroundColor = [UIColor redColor];
-    UIView *centerLeftBoxView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, (GET_LAYOUT_WIDTH(centerBoxView)-GAP_WIDTH)/2, GET_LAYOUT_HEIGHT(centerBoxView))];
-//    centerLeftBoxView.backgroundColor = [UIColor lightGrayColor];
-    UIButton *takeVideoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerLeftBoxView), (GET_LAYOUT_HEIGHT(centerLeftBoxView)-GAP_HEIGHT)/3*2)];
-//    takeVideoButton.backgroundColor = [UIColor redColor];
-//    [takeVideoButton setTitle:NSLocalizedString(@"homeTakeVodioTitle", nil) forState:UIControlStateNormal];
-    [takeVideoButton addTarget:self action:@selector(clickTakeVideoButton) forControlEvents:UIControlEventTouchUpInside];
+    UIView *centerBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(topBoxView)+GET_LAYOUT_HEIGHT(topBoxView)+GAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT / 8 * 3 )];
+        UIView *centerLeftBoxView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, (GET_LAYOUT_WIDTH(centerBoxView)-GAP_WIDTH)/2, GET_LAYOUT_HEIGHT(centerBoxView))];
+            UIButton *takeVideoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerLeftBoxView), GET_LAYOUT_HEIGHT(centerLeftBoxView))];
+            [takeVideoButton addTarget:self action:@selector(clickTakeVideoButton) forControlEvents:UIControlEventTouchUpInside];
+            [takeVideoButton setImage:[UIImage imageNamed:@"video_recording_bg"] forState:UIControlStateNormal];
+            takeVideoButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
+                UIView *takeVideoIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(takeVideoButton)-80)/2, (GET_LAYOUT_HEIGHT(takeVideoButton)-80)/2, 80, 80)];
+                takeVideoIcon.userInteractionEnabled = NO;
+                    UIImageView *takeVideoIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(takePhotoIcon), GET_LAYOUT_HEIGHT(takePhotoIcon))];
+                    takeVideoIconImage.image = [UIImage imageNamed:@"video_recording"];
+                    [takeVideoIcon addSubview:takeVideoIconImage];
+                    [takeVideoButton addSubview:takeVideoIcon];
     
-    [takeVideoButton setImage:[UIImage imageNamed:@"video_recording_bg"] forState:UIControlStateNormal];
-    takeVideoButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
+                UILabel *takeVideoIconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(takeVideoIcon)+GET_LAYOUT_HEIGHT(takeVideoIcon)+10, GET_LAYOUT_WIDTH(takeVideoButton), 20)];
+                takeVideoIconLabel.textAlignment = NSTextAlignmentCenter;
+                takeVideoIconLabel.textColor = [UIColor whiteColor];
+                takeVideoIconLabel.text = NSLocalizedString(@"homeTakeVodioTitle", nil);
+                [takeVideoButton addSubview:takeVideoIconLabel];
+            [centerLeftBoxView addSubview:takeVideoButton];
+        [centerBoxView addSubview:centerLeftBoxView];
     
-    UIView *takeVideoIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(takeVideoButton)-80)/2, (GET_LAYOUT_HEIGHT(takeVideoButton)-80)/2, 80, 80)];
-    takeVideoIcon.userInteractionEnabled = NO;
+        UIView *centerRightBoxView = [[UIView alloc] initWithFrame:CGRectMake(GET_LAYOUT_WIDTH(centerLeftBoxView)+GAP_WIDTH, 0, (GET_LAYOUT_WIDTH(centerBoxView)-GAP_WIDTH)/2, centerBoxView.frame.size.height)];
+            UIButton *photoLibButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/2)];
+            photoLibButton.backgroundColor = [UIColor orangeColor];
+//            [photoLibButton setTitle:NSLocalizedString(@"homePhotoLibTitle", nil) forState:UIControlStateNormal];
+            [photoLibButton addTarget:self action:@selector(clickPhotoLibButton) forControlEvents:UIControlEventTouchUpInside];
     
-    UIImageView *takeVideoIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(takePhotoIcon), GET_LAYOUT_HEIGHT(takePhotoIcon))];
-    takeVideoIconImage.image = [UIImage imageNamed:@"video_recording"];
-    [takeVideoIcon addSubview:takeVideoIconImage];
-    UILabel *takeVideoIconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(takeVideoIcon)+GET_LAYOUT_HEIGHT(takeVideoIcon)+10, GET_LAYOUT_WIDTH(takeVideoButton), 20)];
-    takeVideoIconLabel.textAlignment = NSTextAlignmentCenter;
-    takeVideoIconLabel.textColor = [UIColor whiteColor];
-    takeVideoIconLabel.text = NSLocalizedString(@"homeTakeVodioTitle", nil);
-    [takeVideoButton addSubview:takeVideoIconLabel];
+            UIView *photoLibIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(photoLibButton)-70)/2, (GET_LAYOUT_HEIGHT(photoLibButton)-70)/2-10, 70, 70)];
+            photoLibIcon.userInteractionEnabled = NO;
     
-    [takeVideoButton addSubview:takeVideoIcon];
+                UIImageView *photoLibImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(photoLibIcon), GET_LAYOUT_HEIGHT(photoLibIcon))];
+                photoLibImage.image = [UIImage imageNamed:@"message"];
+                [photoLibIcon addSubview:photoLibImage];
     
+            [photoLibButton addSubview:photoLibIcon];
     
-    [centerLeftBoxView addSubview:takeVideoButton];
-    UIButton *deviceManageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(takeVideoButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerLeftBoxView), (GET_LAYOUT_HEIGHT(centerLeftBoxView)-GAP_HEIGHT)/3)];
-    deviceManageButton.backgroundColor = [UIColor darkGrayColor];
-    [deviceManageButton setTitle:NSLocalizedString(@"homeVideoLibTitle", nil) forState:UIControlStateNormal];
-    [deviceManageButton addTarget:self action:@selector(clickVideoLibButton) forControlEvents:UIControlEventTouchUpInside];
-    [centerLeftBoxView addSubview:deviceManageButton];
-    [centerBoxView addSubview:centerLeftBoxView];
-    UIView *centerRightBoxView = [[UIView alloc] initWithFrame:CGRectMake(GET_LAYOUT_WIDTH(centerLeftBoxView)+GAP_WIDTH, 0, (GET_LAYOUT_WIDTH(centerBoxView)-GAP_WIDTH)/2, centerBoxView.frame.size.height)];
-//    centerRightBoxView.backgroundColor = [UIColor yellowColor];
-    UIButton *photoLibButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/3)];
-    photoLibButton.backgroundColor = [UIColor orangeColor];
-    [photoLibButton setTitle:NSLocalizedString(@"homePhotoLibTitle", nil) forState:UIControlStateNormal];
-    [photoLibButton addTarget:self action:@selector(clickPhotoLibButton) forControlEvents:UIControlEventTouchUpInside];
-    [centerRightBoxView addSubview:photoLibButton];
-    UIButton *messageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(photoLibButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/3*2)];
-    messageButton.backgroundColor = [UIColor greenColor];
-//    [messageButton setTitle:NSLocalizedString(@"messageNavigationItemTitle", nil) forState:UIControlStateNormal];
-    [messageButton addTarget:self action:@selector(clickMessageButton) forControlEvents:UIControlEventTouchUpInside];
+            UILabel *photoLibLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(photoLibIcon)+GET_LAYOUT_HEIGHT(photoLibIcon)+5, GET_LAYOUT_WIDTH(photoLibButton), 20)];
+            photoLibLabel.textAlignment = NSTextAlignmentCenter;
+            photoLibLabel.textColor = [UIColor whiteColor];
+            photoLibLabel.text = NSLocalizedString(@"homePhotoLibTitle", nil);
+            [photoLibButton addSubview:photoLibLabel];
     
-    UIView *messageIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(takeVideoButton)-80)/2, (GET_LAYOUT_HEIGHT(takeVideoButton)-80)/2, 80, 80)];
-    messageIcon.userInteractionEnabled = NO;
+            [centerRightBoxView addSubview:photoLibButton];
     
-    UIImageView *messageIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(messageIcon), GET_LAYOUT_HEIGHT(messageIcon))];
-    messageIconImage.image = [UIImage imageNamed:@"message"];
-    [messageIcon addSubview:messageIconImage];
-    UILabel *messageIconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(messageIcon)+GET_LAYOUT_HEIGHT(messageIcon)+10, GET_LAYOUT_WIDTH(messageButton), 20)];
-    messageIconLabel.textAlignment = NSTextAlignmentCenter;
-    messageIconLabel.textColor = [UIColor whiteColor];
-    messageIconLabel.text = NSLocalizedString(@"messageNavigationItemTitle", nil);
-    [messageButton addSubview:messageIconLabel];
+            UIButton *messageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(photoLibButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/2)];
+            messageButton.backgroundColor = [UIColor greenColor];
+            [messageButton addTarget:self action:@selector(clickMessageButton) forControlEvents:UIControlEventTouchUpInside];
+
+                UIView *messageIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(messageButton)-70)/2, (GET_LAYOUT_HEIGHT(messageButton)-70)/2-10, 70, 70)];
+                messageIcon.userInteractionEnabled = NO;
+
+                    UIImageView *messageIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(messageIcon), GET_LAYOUT_HEIGHT(messageIcon))];
+                    messageIconImage.image = [UIImage imageNamed:@"message"];
+                    [messageIcon addSubview:messageIconImage];
+
+                [messageButton addSubview:messageIcon];
+
+                UILabel *messageIconLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(messageIcon)+GET_LAYOUT_HEIGHT(messageIcon)+5, GET_LAYOUT_WIDTH(messageButton), 20)];
+                messageIconLabel.textAlignment = NSTextAlignmentCenter;
+                messageIconLabel.textColor = [UIColor whiteColor];
+                messageIconLabel.text = NSLocalizedString(@"messageNavigationItemTitle", nil);
+                [messageButton addSubview:messageIconLabel];
+
+            [centerRightBoxView addSubview:messageButton];
     
-    [messageButton addSubview:messageIcon];
+        [centerBoxView addSubview:centerRightBoxView];
     
-    
-    
-    [centerRightBoxView addSubview:messageButton];
-    [centerBoxView addSubview:centerRightBoxView];
     [self.view addSubview:centerBoxView];
     
-    UIView *bottomBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(centerBoxView)+GET_LAYOUT_HEIGHT(centerBoxView)+GAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT/4+20)];
-//    bottomBoxView.backgroundColor = [UIColor yellowColor];
-    UIButton *bindDeviceButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
-    bindDeviceButton.backgroundColor = [UIColor redColor];
-    [bindDeviceButton setTitle:NSLocalizedString(@"deviceListNavigationItemTitle", nil) forState:UIControlStateNormal];
-    [bindDeviceButton addTarget:self action:@selector(clickDeviceManageButton) forControlEvents:UIControlEventTouchUpInside];
-    [bottomBoxView addSubview:bindDeviceButton];
+    UIView *bottomBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(centerBoxView)+GET_LAYOUT_HEIGHT(centerBoxView)+GAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT / 8 * 3 )];
+        UIButton *bindDeviceButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
+        bindDeviceButton.backgroundColor = [UIColor redColor];
+//        [bindDeviceButton setTitle:NSLocalizedString(@"deviceListNavigationItemTitle", nil) forState:UIControlStateNormal];
+        [bindDeviceButton addTarget:self action:@selector(clickDeviceManageButton) forControlEvents:UIControlEventTouchUpInside];
+        [bottomBoxView addSubview:bindDeviceButton];
+    
+        UIView *bindDevicIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(bindDeviceButton)-70)/2, (GET_LAYOUT_HEIGHT(bindDeviceButton)-70)/2-10, 70, 70)];
+        messageIcon.userInteractionEnabled = NO;
+    
+        UIImageView *bindDevicIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bindDevicIcon), GET_LAYOUT_HEIGHT(bindDevicIcon))];
+        bindDevicIconImage.image = [UIImage imageNamed:@"message"];
+        [bindDevicIcon addSubview:bindDevicIconImage];
+    
+        [bindDeviceButton addSubview:bindDevicIcon];
+    
+        UILabel *bindDeviceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(bindDevicIcon)+GET_LAYOUT_HEIGHT(bindDevicIcon)+5, GET_LAYOUT_WIDTH(bindDeviceButton), 20)];
+        bindDeviceLabel.textAlignment = NSTextAlignmentCenter;
+        bindDeviceLabel.textColor = [UIColor whiteColor];
+        bindDeviceLabel.text = NSLocalizedString(@"deviceListNavigationItemTitle", nil);
+        [bindDeviceButton addSubview:bindDeviceLabel];
+    
+    
     UIButton *settingButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(bindDeviceButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
-    settingButton.backgroundColor = [UIColor blueColor];
-    [settingButton setTitle:NSLocalizedString(@"settingNavigationItemTitle", nil) forState:UIControlStateNormal];
-    [settingButton addTarget:self action:@selector(clickSettingButton) forControlEvents:UIControlEventTouchUpInside];
-    [bottomBoxView addSubview:settingButton];
-    [self.view addSubview:bottomBoxView];
+        settingButton.backgroundColor = [UIColor blueColor];
+//        [settingButton setTitle:NSLocalizedString(@"settingNavigationItemTitle", nil) forState:UIControlStateNormal];
+        [settingButton addTarget:self action:@selector(clickSettingButton) forControlEvents:UIControlEventTouchUpInside];
+        [bottomBoxView addSubview:settingButton];
+        [self.view addSubview:bottomBoxView];
+    
+    
+        UIView *settingIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(settingButton)-70)/2, (GET_LAYOUT_HEIGHT(settingButton)-70)/2-10, 70, 70)];
+        settingIcon.userInteractionEnabled = NO;
+    
+        UIImageView *settingIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(settingIcon), GET_LAYOUT_HEIGHT(settingIcon))];
+        settingIconImage.image = [UIImage imageNamed:@"message"];
+        [settingIcon addSubview:settingIconImage];
+    
+        [settingButton addSubview:settingIcon];
+    
+        UILabel *settingLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(settingIcon)+GET_LAYOUT_HEIGHT(settingIcon)+5, GET_LAYOUT_WIDTH(settingButton), 20)];
+        settingLabel.textAlignment = NSTextAlignmentCenter;
+        settingLabel.textColor = [UIColor whiteColor];
+        settingLabel.text = NSLocalizedString(@"settingNavigationItemTitle", nil);
+        [settingButton addSubview:settingLabel];
     
     
     
@@ -248,27 +277,27 @@
 }
 
 - (void)clickPhotoLibButton {
-//    self.actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-//    UIAlertAction *photoAction = [UIAlertAction actionWithTitle:@"照片" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-//        UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
-//        [self.navigationController pushViewController:uploadPhotoController animated:YES];
-//    }];
-//    UIAlertAction *videoAction = [UIAlertAction actionWithTitle:@"视频" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-//        UploadVideoController *uploadVideoController = [[UploadVideoController alloc] init];
-//        [self.navigationController pushViewController:uploadVideoController animated:YES];
-//    }];
-//    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-//
-//    }];
-//    [cancelAction setValue:[UIColor redColor] forKey:@"_titleTextColor"];
-//    [self.actionSheet addAction:photoAction];
-//    [self.actionSheet addAction:videoAction];
-//    [self.actionSheet addAction:cancelAction];
-//    [self presentViewController:self.actionSheet animated:YES completion:^{
-//
-//    }];
-    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
-    [self.navigationController pushViewController:uploadPhotoController animated:YES];
+    self.actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction *photoAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"homeAlartPhotoLibTitle", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+        [self.navigationController pushViewController:uploadPhotoController animated:YES];
+    }];
+    UIAlertAction *videoAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"homeAlartVideoLibTitle", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UploadVideoController *uploadVideoController = [[UploadVideoController alloc] init];
+        [self.navigationController pushViewController:uploadVideoController animated:YES];
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"homeAlartCancelTitle", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+
+    }];
+    [cancelAction setValue:[UIColor redColor] forKey:@"_titleTextColor"];
+    [self.actionSheet addAction:photoAction];
+    [self.actionSheet addAction:videoAction];
+    [self.actionSheet addAction:cancelAction];
+    [self presentViewController:self.actionSheet animated:YES completion:^{
+
+    }];
+//    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
+//    [self.navigationController pushViewController:uploadPhotoController animated:YES];
 }
 
 - (void)clickVideoLibButton {

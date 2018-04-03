@@ -19,6 +19,9 @@ homeTakePhotoTitle = "Pictures";
 homePhotoLibTitle = "Local Picture";
 homeTakeVodioTitle = "Video Recording";
 homeVideoLibTitle = "Local Video";
+homeAlartPhotoLibTitle = "Photo";
+homeAlartVideoLibTitle = "Video";
+homeAlartCancelTitle = "Cancel";
 
 uploadPhotoNavigationItemTitle = "Send Photo";
 uploadVideoNavigationItemTitle = "Send Video";
