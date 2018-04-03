@@ -16,9 +16,8 @@ saveFailed = "保存失败";
 homeNavigationItemTitle = "照片伴侣";
 
 homeTakePhotoTitle = "拍照";
-homePhotoLibTitle = "本地图片";
+homePhotoLibTitle = "本地图库";
 homeTakeVodioTitle = "录制视频";
-homeVideoLibTitle = "本地视频";
 homeAlartPhotoLibTitle = "照片";
 homeAlartVideoLibTitle = "视频";
 homeAlartCancelTitle = "取消";

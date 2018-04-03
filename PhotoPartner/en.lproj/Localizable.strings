@@ -18,7 +18,6 @@ homeNavigationItemTitle = "Photo Partner";
 homeTakePhotoTitle = "Photo";
 homePhotoLibTitle = "Local Photo & Video";
 homeTakeVodioTitle = "Video Recording";
-homeVideoLibTitle = "Local Video";
 homeAlartPhotoLibTitle = "Photo";
 homeAlartVideoLibTitle = "Video";
 homeAlartCancelTitle = "Cancel";
