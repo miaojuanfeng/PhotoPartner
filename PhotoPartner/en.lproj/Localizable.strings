@@ -15,8 +15,8 @@ saveFailed = "Save Failed";
 
 homeNavigationItemTitle = "Photo Partner";
 
-homeTakePhotoTitle = "Pictures";
-homePhotoLibTitle = "Local Picture";
+homeTakePhotoTitle = "Photo";
+homePhotoLibTitle = "Local Photo & Video";
 homeTakeVodioTitle = "Video Recording";
 homeVideoLibTitle = "Local Video";
 homeAlartPhotoLibTitle = "Photo";
@@ -35,7 +35,7 @@ uploadPhotoEmptyError = "Please select at least one photo";
 uploadVideoEmptyError = "Please select a video";
 uploadDeviceEmptyError = "Please select at least one device";
 
-deviceListNavigationItemTitle = "Device Manage";
+deviceListNavigationItemTitle = "Device Manager";
 deviceListRename = "Rename";
 deviceListUnbind = "Unbind";
 deviceListEmpty = "No device is currently bound, please click the binding button in the upper right corner to enter the device binding interface";
@@ -74,5 +74,5 @@ userInfoUserName = "Name：";
 userInfoUserAccount = "Account：";
 userInfoUserNameTextFiledTitle = "Please enter the user's nickname";
 
-messageNavigationItemTitle = "Messages";
+messageNavigationItemTitle = "Message";
 

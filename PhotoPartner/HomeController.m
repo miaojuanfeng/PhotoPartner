@@ -42,6 +42,10 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
+    UIImageView *bgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), GET_LAYOUT_HEIGHT(self.view)+GAP_HEIGHT*2)];
+    bgView.image = [UIImage imageNamed:@"bg_main"];
+    [self.view addSubview:bgView];
+    
     UIView *topBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, MARGIN_TOP+20, VIEW_WIDTH, VIEW_HEIGHT/4)];
         UIButton *takePhotoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(topBoxView), GET_LAYOUT_HEIGHT(topBoxView))];
         [takePhotoButton addTarget:self action:@selector(clickTakePhotoButton) forControlEvents:UIControlEventTouchUpInside];
@@ -66,6 +70,8 @@
             UIButton *takeVideoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerLeftBoxView), GET_LAYOUT_HEIGHT(centerLeftBoxView))];
             [takeVideoButton addTarget:self action:@selector(clickTakeVideoButton) forControlEvents:UIControlEventTouchUpInside];
             [takeVideoButton setImage:[UIImage imageNamed:@"video_recording_bg"] forState:UIControlStateNormal];
+            takeVideoButton.clipsToBounds = YES;
+            takeVideoButton.layer.cornerRadius = 10;
             takeVideoButton.imageView.contentMode = UIViewContentModeScaleAspectFill;
                 UIView *takeVideoIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(takeVideoButton)-80)/2, (GET_LAYOUT_HEIGHT(takeVideoButton)-80)/2, 80, 80)];
                 takeVideoIcon.userInteractionEnabled = NO;
@@ -84,20 +90,22 @@
     
         UIView *centerRightBoxView = [[UIView alloc] initWithFrame:CGRectMake(GET_LAYOUT_WIDTH(centerLeftBoxView)+GAP_WIDTH, 0, (GET_LAYOUT_WIDTH(centerBoxView)-GAP_WIDTH)/2, centerBoxView.frame.size.height)];
             UIButton *photoLibButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/2)];
-            photoLibButton.backgroundColor = [UIColor orangeColor];
+            photoLibButton.backgroundColor = RGBA_COLOR(31, 193, 203, 1);
+            photoLibButton.clipsToBounds = YES;
+            photoLibButton.layer.cornerRadius = 10;
 //            [photoLibButton setTitle:NSLocalizedString(@"homePhotoLibTitle", nil) forState:UIControlStateNormal];
             [photoLibButton addTarget:self action:@selector(clickPhotoLibButton) forControlEvents:UIControlEventTouchUpInside];
     
-            UIView *photoLibIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(photoLibButton)-70)/2, (GET_LAYOUT_HEIGHT(photoLibButton)-70)/2-10, 70, 70)];
+            UIView *photoLibIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(photoLibButton)-70)/2, (GET_LAYOUT_HEIGHT(photoLibButton)-50)/2-10, 70, 50)];
             photoLibIcon.userInteractionEnabled = NO;
     
                 UIImageView *photoLibImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(photoLibIcon), GET_LAYOUT_HEIGHT(photoLibIcon))];
-                photoLibImage.image = [UIImage imageNamed:@"message"];
+                photoLibImage.image = [UIImage imageNamed:@"photos_videos"];
                 [photoLibIcon addSubview:photoLibImage];
     
             [photoLibButton addSubview:photoLibIcon];
     
-            UILabel *photoLibLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(photoLibIcon)+GET_LAYOUT_HEIGHT(photoLibIcon)+5, GET_LAYOUT_WIDTH(photoLibButton), 20)];
+            UILabel *photoLibLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(photoLibIcon)+GET_LAYOUT_HEIGHT(photoLibIcon)+10, GET_LAYOUT_WIDTH(photoLibButton), 20)];
             photoLibLabel.textAlignment = NSTextAlignmentCenter;
             photoLibLabel.textColor = [UIColor whiteColor];
             photoLibLabel.text = NSLocalizedString(@"homePhotoLibTitle", nil);
@@ -106,10 +114,12 @@
             [centerRightBoxView addSubview:photoLibButton];
     
             UIButton *messageButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(photoLibButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(centerRightBoxView), (GET_LAYOUT_HEIGHT(centerRightBoxView)-GAP_HEIGHT)/2)];
-            messageButton.backgroundColor = [UIColor greenColor];
+            messageButton.backgroundColor = RGBA_COLOR(122, 144, 218, 1);
+            messageButton.clipsToBounds = YES;
+            messageButton.layer.cornerRadius = 10;
             [messageButton addTarget:self action:@selector(clickMessageButton) forControlEvents:UIControlEventTouchUpInside];
 
-                UIView *messageIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(messageButton)-70)/2, (GET_LAYOUT_HEIGHT(messageButton)-70)/2-10, 70, 70)];
+                UIView *messageIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(messageButton)-70)/2, (GET_LAYOUT_HEIGHT(messageButton)-60)/2-10, 70, 60)];
                 messageIcon.userInteractionEnabled = NO;
 
                     UIImageView *messageIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(messageIcon), GET_LAYOUT_HEIGHT(messageIcon))];
@@ -132,16 +142,18 @@
     
     UIView *bottomBoxView = [[UIView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(centerBoxView)+GET_LAYOUT_HEIGHT(centerBoxView)+GAP_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT / 8 * 3 )];
         UIButton *bindDeviceButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
-        bindDeviceButton.backgroundColor = [UIColor redColor];
+        bindDeviceButton.backgroundColor = RGBA_COLOR(36, 218, 170, 1);
+        bindDeviceButton.clipsToBounds = YES;
+        bindDeviceButton.layer.cornerRadius = 10;
 //        [bindDeviceButton setTitle:NSLocalizedString(@"deviceListNavigationItemTitle", nil) forState:UIControlStateNormal];
         [bindDeviceButton addTarget:self action:@selector(clickDeviceManageButton) forControlEvents:UIControlEventTouchUpInside];
         [bottomBoxView addSubview:bindDeviceButton];
     
-        UIView *bindDevicIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(bindDeviceButton)-70)/2, (GET_LAYOUT_HEIGHT(bindDeviceButton)-70)/2-10, 70, 70)];
+        UIView *bindDevicIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(bindDeviceButton)-90)/2, (GET_LAYOUT_HEIGHT(bindDeviceButton)-60)/2-10, 90, 60)];
         messageIcon.userInteractionEnabled = NO;
     
         UIImageView *bindDevicIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bindDevicIcon), GET_LAYOUT_HEIGHT(bindDevicIcon))];
-        bindDevicIconImage.image = [UIImage imageNamed:@"message"];
+        bindDevicIconImage.image = [UIImage imageNamed:@"connecting_devices"];
         [bindDevicIcon addSubview:bindDevicIconImage];
     
         [bindDeviceButton addSubview:bindDevicIcon];
@@ -154,18 +166,20 @@
     
     
     UIButton *settingButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(bindDeviceButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
-        settingButton.backgroundColor = [UIColor blueColor];
+    settingButton.backgroundColor = RGBA_COLOR(235, 182, 67, 1);
+        settingButton.clipsToBounds = YES;
+        settingButton.layer.cornerRadius = 10;
 //        [settingButton setTitle:NSLocalizedString(@"settingNavigationItemTitle", nil) forState:UIControlStateNormal];
         [settingButton addTarget:self action:@selector(clickSettingButton) forControlEvents:UIControlEventTouchUpInside];
         [bottomBoxView addSubview:settingButton];
         [self.view addSubview:bottomBoxView];
     
     
-        UIView *settingIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(settingButton)-70)/2, (GET_LAYOUT_HEIGHT(settingButton)-70)/2-10, 70, 70)];
+        UIView *settingIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(settingButton)-70)/2, (GET_LAYOUT_HEIGHT(settingButton)-60)/2-10, 70, 60)];
         settingIcon.userInteractionEnabled = NO;
     
         UIImageView *settingIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(settingIcon), GET_LAYOUT_HEIGHT(settingIcon))];
-        settingIconImage.image = [UIImage imageNamed:@"message"];
+        settingIconImage.image = [UIImage imageNamed:@"settings"];
         [settingIcon addSubview:settingIconImage];
     
         [settingButton addSubview:settingIcon];

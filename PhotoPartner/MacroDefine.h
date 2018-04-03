@@ -18,14 +18,15 @@
                                 MARGIN_TOP = rectStatus.size.height + GET_LAYOUT_HEIGHT(self.navigationController.navigationBar); \
                                 MARGIN_TOP = 0; \
                                 if(IS_IPHONE_X){ \
+                                    MARGIN_TOP = 20; \
                                     MARGIN_BOTTOM = 34; \
                                 } \
                             }while(0)
 #define GET_VIEW_WIDTH   float VIEW_WIDTH  = GET_LAYOUT_WIDTH(self.view)
 #define GET_VIEW_HEIGHT  float VIEW_HEIGHT = GET_LAYOUT_HEIGHT(self.view) - MARGIN_TOP - MARGIN_BOTTOM
 #define GET_VIEW_SIZE GET_VIEW_WIDTH;GET_VIEW_HEIGHT
-#define GAP_WIDTH 5
-#define GAP_HEIGHT 5
+#define GAP_WIDTH 8
+#define GAP_HEIGHT GAP_WIDTH
 #define GET_LAYOUT_WIDTH(v) v.frame.size.width
 #define GET_LAYOUT_HEIGHT(v) v.frame.size.height
 #define GET_BOUNDS_WIDTH(v) v.bounds.size.width
