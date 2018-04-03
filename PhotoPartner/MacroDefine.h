@@ -49,6 +49,7 @@
 
 #define IMAGE_PER_ROW 3
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
+#define PHOTO_NUM_HEIGHT 20
 
 #define FileHashDefaultChunkSizeForReadingData 256
 
