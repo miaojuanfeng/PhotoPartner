@@ -72,7 +72,7 @@
 
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
-    self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+2*GAP_HEIGHT)];
+    self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     if( self.appDelegate.photos.count == 0 ){
         [self presentViewController:self.imagePickerVc animated:YES completion:nil];
     }
@@ -115,10 +115,14 @@
     cell.frame = CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.tableView), tableView.rowHeight);
     if( indexPath.section == 0 ){
         if( indexPath.row == 0 ){
-            self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView);
+            self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView)+PHOTO_NUM_HEIGHT;
             self.textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
-            
             [cell.contentView addSubview:self.textView];
+            
+            UILabel *textCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(self.textView)+GET_LAYOUT_HEIGHT(self.textView), GET_LAYOUT_WIDTH(self.textView), PHOTO_NUM_HEIGHT)];
+            textCountLabel.backgroundColor = [UIColor redColor];
+            [cell.contentView addSubview:textCountLabel];
+            
             cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
         }else if( indexPath.row == 1 ){
@@ -152,7 +156,7 @@
         }
         if( i > 0 && i%IMAGE_PER_ROW == 0 ){
             y += imageViewSize + GAP_HEIGHT;
-            self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT+PHOTO_NUM_HEIGHT);
+            self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT);
         }
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
         //        imageView.backgroundColor = [UIColor orangeColor];
@@ -174,7 +178,7 @@
     }
     if( imageTotal > 0 && imageTotal%IMAGE_PER_ROW == 0 ){
         y += imageViewSize + GAP_HEIGHT;
-        self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT+PHOTO_NUM_HEIGHT);
+        self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT);
     }
     /*
      *  移除旧的CGRect可点击区域
@@ -186,6 +190,15 @@
     self.addImageButton.layer.borderColor = BORDER_COLOR;
     self.addImageButton.layer.borderWidth = BORDER_WIDTH;
     [self.mediaView addSubview:self.addImageButton];
+    
+    UILabel *photoNumLabel = [[UILabel alloc] initWithFrame:CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), GET_LAYOUT_OFFSET_Y(self.mediaView)+GET_LAYOUT_HEIGHT(self.mediaView), GET_LAYOUT_WIDTH(self.mediaView), PHOTO_NUM_HEIGHT)];
+    photoNumLabel.text = [NSString stringWithFormat:@"%ld/9", self.appDelegate.photos.count];
+    photoNumLabel.textColor = [UIColor lightGrayColor];
+    photoNumLabel.font = [UIFont systemFontOfSize:14.0f];
+    photoNumLabel.textAlignment = NSTextAlignmentCenter;
+    [self.mediaView addSubview:photoNumLabel];
+//    photoNumLabel.backgroundColor = [UIColor blueColor];
+    self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), GET_LAYOUT_HEIGHT(self.mediaView)+PHOTO_NUM_HEIGHT+GAP_HEIGHT);
     
     [cell.contentView addSubview:self.mediaView];
     cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
