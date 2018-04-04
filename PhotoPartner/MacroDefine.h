@@ -50,6 +50,7 @@
 #define IMAGE_PER_ROW 3
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
 #define PHOTO_NUM_HEIGHT 20
+#define MAX_LIMIT_NUMS 50
 
 #define FileHashDefaultChunkSizeForReadingData 256
 
@@ -116,6 +117,7 @@
                             [self.appDelegate clearProperty];   \
                             DO_CLEAR_MEDIA_VIEW; \
                             self.textView.text = @"";   \
+                            self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS]; \
                             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];   \
                             UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];   \
                             [self getMediaView:cell];   \

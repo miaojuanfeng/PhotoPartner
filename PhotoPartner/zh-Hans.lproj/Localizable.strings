@@ -33,6 +33,7 @@ uploadVideoMaxSizeError = "视频大小不能超过50M";
 uploadPhotoEmptyError = "请选择至少一张图片";
 uploadVideoEmptyError = "请选择一个视频";
 uploadDeviceEmptyError = "请选择至少一个设备";
+uploadTextViewPlaceHolderText = "点击图片为每张图片添加描述";
 
 deviceListNavigationItemTitle = "设备管理";
 deviceListRename = "重命名";

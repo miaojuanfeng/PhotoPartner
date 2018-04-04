@@ -21,7 +21,7 @@
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
 @property NSMutableArray<UIImage *> *photos;
-@property NSMutableArray *isTakePhoto;
+//@property NSMutableArray *isTakePhoto;
 @property long focusImageIndex;
 /*
  *  For Video

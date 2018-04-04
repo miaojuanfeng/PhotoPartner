@@ -373,7 +373,7 @@
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         image = [self fixOrientation:image];
         [self.appDelegate.photos addObject:image];
-        [self.appDelegate.isTakePhoto addObject:[NSString stringWithFormat:@"%d", true]];
+//        [self.appDelegate.isTakePhoto addObject:[NSString stringWithFormat:@"%d", true]];
         [self.appDelegate.fileDesc addObject:@""];
         self.appDelegate.focusImageIndex = 0;
 //        //设置一个图片的存储路径

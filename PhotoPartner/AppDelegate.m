@@ -31,7 +31,7 @@
     self.deviceId = [[NSMutableArray alloc] init];
     self.fileDesc = [[NSMutableArray alloc] init];
     self.photos = [[NSMutableArray alloc] init];
-    self.isTakePhoto = [[NSMutableArray alloc] init];
+//    self.isTakePhoto = [[NSMutableArray alloc] init];
     self.focusImageIndex = -1;
     
     self.videos = [[NSMutableArray alloc] init];
@@ -106,7 +106,7 @@
     [self.deviceId removeAllObjects];
     [self.fileDesc removeAllObjects];
     [self.photos removeAllObjects];
-    [self.isTakePhoto removeAllObjects];
+//    [self.isTakePhoto removeAllObjects];
     self.focusImageIndex = -1;
     // Video
     [self.videos removeAllObjects];
@@ -114,19 +114,19 @@
     self.md5 = @"";
 }
 
-- (void)clearPickerProperty {
-    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    for (int i=0;i<self.photos.count;i++) {
-        if ( ![[self.isTakePhoto objectAtIndex:i] boolValue] ){
-            [indexSet addIndex:i];
-        }else{
-             self.focusImageIndex = i;
-        }
-    }
-    [self.photos removeObjectsAtIndexes:indexSet];
-    [self.isTakePhoto removeObjectsAtIndexes:indexSet];
-    [self.fileDesc removeObjectsAtIndexes:indexSet];
-}
+//- (void)clearPickerProperty {
+//    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+//    for (int i=0;i<self.photos.count;i++) {
+//        if ( ![[self.isTakePhoto objectAtIndex:i] boolValue] ){
+//            [indexSet addIndex:i];
+//        }else{
+//             self.focusImageIndex = i;
+//        }
+//    }
+//    [self.photos removeObjectsAtIndexes:indexSet];
+//    [self.isTakePhoto removeObjectsAtIndexes:indexSet];
+//    [self.fileDesc removeObjectsAtIndexes:indexSet];
+//}
 
 - (void)addDeviceList:(NSMutableDictionary *) device {
     NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);

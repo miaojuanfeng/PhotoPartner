@@ -21,6 +21,7 @@
 @property TZImagePickerController *imagePickerVc;
 
 @property UITextView *textView;
+@property UILabel *textCountLabel;
 @property UIView *mediaView;
 @property UIButton *addImageButton;
 
@@ -211,14 +212,17 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
-    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    if( [self.appDelegate.deviceId containsObject:device_id] ){
-        [self.appDelegate.deviceId removeObject:device_id];
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }else{
-        [self.appDelegate.deviceId addObject:device_id];
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    [self.view endEditing:YES];
+    if( indexPath.section == 1 ){
+        NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
+        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+        if( [self.appDelegate.deviceId containsObject:device_id] ){
+            [self.appDelegate.deviceId removeObject:device_id];
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }else{
+            [self.appDelegate.deviceId addObject:device_id];
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        }
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

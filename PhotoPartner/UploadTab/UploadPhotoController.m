@@ -12,14 +12,16 @@
 #import "MacroDefine.h"
 #import "AppDelegate.h"
 #import "UploadPhotoController.h"
+#import "UITextView+WJPlaceholder.h"
 
-@interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate>
+@interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate>
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
 
 @property AppDelegate *appDelegate;
 
 @property UITextView *textView;
+@property UILabel *textCountLabel;
 @property UIView *mediaView;
 @property UIButton *addImageButton;
 @end
@@ -62,18 +64,27 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
-
-
-    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    self.imagePickerVc.allowPickingVideo = NO;
-    self.imagePickerVc.allowPickingOriginalPhoto = NO;
-    self.imagePickerVc.allowTakePicture = NO;
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
+    
+    self.textCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(GAP_WIDTH, 0, GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, PHOTO_NUM_HEIGHT)];
+    self.textCountLabel.textColor = [UIColor lightGrayColor];
+    self.textCountLabel.font = [UIFont systemFontOfSize:14.0f];
+    self.textCountLabel.textAlignment = NSTextAlignmentRight;
+    self.textCountLabel.text = @"50";
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(self.textCountLabel)+GET_LAYOUT_HEIGHT(self.textCountLabel), GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, 100)];
+    self.textView.textContainer.lineFragmentPadding = 0;
+    self.textView.textContainerInset = UIEdgeInsetsZero;
+    self.textView.placeholder = NSLocalizedString(@"uploadTextViewPlaceHolderText", nil);
+    self.textView.delegate = self;
 
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
+    
     if( self.appDelegate.photos.count == 0 ){
+        self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+        self.imagePickerVc.allowPickingVideo = NO;
+        self.imagePickerVc.allowPickingOriginalPhoto = NO;
+        self.imagePickerVc.allowTakePicture = NO;
         [self presentViewController:self.imagePickerVc animated:YES completion:nil];
     }
 }
@@ -115,13 +126,12 @@
     cell.frame = CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.tableView), tableView.rowHeight);
     if( indexPath.section == 0 ){
         if( indexPath.row == 0 ){
-            self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView)+PHOTO_NUM_HEIGHT;
-            self.textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
-            [cell.contentView addSubview:self.textView];
+            self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView)+GET_LAYOUT_HEIGHT(self.textCountLabel);
             
-            UILabel *textCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(self.textView)+GET_LAYOUT_HEIGHT(self.textView), GET_LAYOUT_WIDTH(self.textView), PHOTO_NUM_HEIGHT)];
-            textCountLabel.backgroundColor = [UIColor redColor];
-            [cell.contentView addSubview:textCountLabel];
+            [cell.contentView addSubview:self.textCountLabel];
+            
+            self.textView.font = [UIFont systemFontOfSize:16.0f];
+            [cell.contentView addSubview:self.textView];
             
             cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -218,28 +228,33 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     [self.view endEditing:YES];
-    NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
-    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    if( [self.appDelegate.deviceId containsObject:device_id] ){
-        [self.appDelegate.deviceId removeObject:device_id];
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }else{
-        [self.appDelegate.deviceId addObject:device_id];
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    if( indexPath.section == 1 ){
+        NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
+        UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+        if( [self.appDelegate.deviceId containsObject:device_id] ){
+            [self.appDelegate.deviceId removeObject:device_id];
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }else{
+            [self.appDelegate.deviceId addObject:device_id];
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        }
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto{
-    [self.appDelegate clearPickerProperty];
-    
+//    NSLog(@"%@", self.appDelegate.fileDesc);
+//    [self.appDelegate clearPickerProperty];
+//    NSLog(@"%@", self.appDelegate.fileDesc);
     self.appDelegate.focusImageIndex = self.appDelegate.fileDesc.count;
     for (int i=0; i<photos.count; i++) {
         [self.appDelegate.photos addObject:photos[i]];
-        [self.appDelegate.isTakePhoto addObject:[NSString stringWithFormat:@"%d", false]];
+//        [self.appDelegate.isTakePhoto addObject:[NSString stringWithFormat:@"%d", false]];
         [self.appDelegate.fileDesc addObject:@""];
     }
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
+    
+    NSLog(@"%@", self.appDelegate.fileDesc);
     
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
@@ -416,6 +431,10 @@
 //}
 
 - (void)clickAddMediaButton {
+    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    self.imagePickerVc.allowPickingVideo = NO;
+    self.imagePickerVc.allowPickingOriginalPhoto = NO;
+    self.imagePickerVc.allowTakePicture = NO;
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
 }
 
@@ -423,6 +442,9 @@
     [self setTextViewToFileDesc];
     self.appDelegate.focusImageIndex = sender.view.tag;
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:sender.view.tag];
+    [self.textView becomeFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"UITextViewTextDidChangeNotification" object:nil];
+    self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
 }
 
 -(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
@@ -558,6 +580,36 @@
 //    }
 //    return data;
 //}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    NSString *comcatstr = [textView.text stringByReplacingCharactersInRange:range withString:text];
+    NSInteger caninputlen = MAX_LIMIT_NUMS - comcatstr.length;
+    
+    if (caninputlen >= 0){
+        return YES;
+    }else{
+        NSInteger len = text.length + caninputlen;
+        //防止当text.length + caninputlen < 0时，使得rg.length为一个非法最大正数出错
+        NSRange rg = {0,MAX(len,0)};
+        
+        if (rg.length > 0){
+            NSString *s = [text substringWithRange:rg];
+            [textView setText:[textView.text stringByReplacingCharactersInRange:range withString:s]];
+        }
+        return NO;
+    }
+}
+
+- (void)textViewDidChange:(UITextView *)textView{
+    NSString  *nsTextContent = textView.text;
+    NSInteger existTextNum = nsTextContent.length;
+    
+    if (existTextNum > MAX_LIMIT_NUMS){
+        NSString *s = [nsTextContent substringToIndex:MAX_LIMIT_NUMS];
+        [textView setText:s];
+    }
+    self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - existTextNum)];
+}
 
 @end
 
