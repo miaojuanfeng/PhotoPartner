@@ -39,7 +39,8 @@
  *  For Function
  */
 - (void)clearProperty;
-- (void)clearPickerProperty;
+//- (void)clearPickerProperty;
+- (void)clearIndexProperty:(long)index;
 - (void)addDeviceList:(NSMutableDictionary *) device;
 - (void)saveDeviceList;
 - (void)loadDeviceList;

@@ -51,6 +51,7 @@
 #define IMAGE_VIEW_SIZE (GET_LAYOUT_WIDTH(self.view)-GAP_WIDTH*(IMAGE_PER_ROW+1))/IMAGE_PER_ROW
 #define PHOTO_NUM_HEIGHT 20
 #define MAX_LIMIT_NUMS 50
+#define MAX_PHOTO_COUNT 9
 
 #define FileHashDefaultChunkSizeForReadingData 256
 

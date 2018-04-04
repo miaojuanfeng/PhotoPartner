@@ -240,7 +240,7 @@
                                                                           preferredStyle:UIAlertControllerStyleAlert];
         
         UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self clickQuitButton];
+//            [self clickQuitButton];
         }];
         
         [alertController addAction:okAction];

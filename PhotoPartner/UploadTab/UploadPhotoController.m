@@ -24,6 +24,9 @@
 @property UILabel *textCountLabel;
 @property UIView *mediaView;
 @property UIButton *addImageButton;
+
+@property UILabel *tLabel;
+@property Boolean isDeleteSignals;
 @end
 
 @implementation UploadPhotoController
@@ -87,6 +90,8 @@
         self.imagePickerVc.allowTakePicture = NO;
         [self presentViewController:self.imagePickerVc animated:YES completion:nil];
     }
+    
+    self.isDeleteSignals = false;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -179,6 +184,23 @@
         [imageView setTag:i];
         [imageView addGestureRecognizer:singleTap];
         [self.mediaView addSubview:imageView];
+        
+        UILabel *descLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(imageView)-20, GET_LAYOUT_WIDTH(imageView), 20)];
+        descLabel.backgroundColor = RGBA_COLOR(0, 0, 0, 0.8);
+        descLabel.textColor = [UIColor whiteColor];
+        if( [self.appDelegate.fileDesc[i] isEqualToString:@""] ){
+            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
+        }else{
+            descLabel.text = self.appDelegate.fileDesc[i];
+        }
+        descLabel.font = [UIFont systemFontOfSize:12.0f];
+        [imageView addSubview:descLabel];
+        
+        UIButton *rmButton = [[UIButton alloc] initWithFrame:CGRectMake(GET_LAYOUT_WIDTH(imageView)-26, 0, 26, 26)];
+        [rmButton setImage:[UIImage imageNamed:@"cancel_button"] forState:UIControlStateNormal];
+        rmButton.tag = i;
+        [rmButton addTarget:self action:@selector(clickRmButton:) forControlEvents:UIControlEventTouchUpInside];
+        [imageView addSubview:rmButton];
     }
     
     if( imageTotal%IMAGE_PER_ROW == 0 ){
@@ -186,7 +208,7 @@
     }else{
         x += imageViewSize + GAP_HEIGHT;
     }
-    if( imageTotal > 0 && imageTotal%IMAGE_PER_ROW == 0 ){
+    if( imageTotal > 0 && imageTotal%IMAGE_PER_ROW == 0 && self.appDelegate.photos.count < MAX_PHOTO_COUNT ){
         y += imageViewSize + GAP_HEIGHT;
         self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT);
     }
@@ -194,12 +216,14 @@
      *  移除旧的CGRect可点击区域
      */
     [self.addImageButton removeFromSuperview];
-    self.addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
-    [self.addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
-    [self.addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
-    self.addImageButton.layer.borderColor = BORDER_COLOR;
-    self.addImageButton.layer.borderWidth = BORDER_WIDTH;
-    [self.mediaView addSubview:self.addImageButton];
+    if( self.appDelegate.photos.count < MAX_PHOTO_COUNT ){
+        self.addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
+        [self.addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
+        [self.addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
+        self.addImageButton.layer.borderColor = BORDER_COLOR;
+        self.addImageButton.layer.borderWidth = BORDER_WIDTH;
+        [self.mediaView addSubview:self.addImageButton];
+    }
     
     UILabel *photoNumLabel = [[UILabel alloc] initWithFrame:CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), GET_LAYOUT_OFFSET_Y(self.mediaView)+GET_LAYOUT_HEIGHT(self.mediaView), GET_LAYOUT_WIDTH(self.mediaView), PHOTO_NUM_HEIGHT)];
     photoNumLabel.text = [NSString stringWithFormat:@"%ld/9", self.appDelegate.photos.count];
@@ -253,8 +277,6 @@
         [self.appDelegate.fileDesc addObject:@""];
     }
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
-    
-    NSLog(@"%@", self.appDelegate.fileDesc);
     
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
@@ -431,7 +453,7 @@
 //}
 
 - (void)clickAddMediaButton {
-    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:(MAX_PHOTO_COUNT-self.appDelegate.photos.count) delegate:self];
     self.imagePickerVc.allowPickingVideo = NO;
     self.imagePickerVc.allowPickingOriginalPhoto = NO;
     self.imagePickerVc.allowTakePicture = NO;
@@ -439,9 +461,13 @@
 }
 
 - (void)clickImageView:(UIGestureRecognizer *) sender{
+    self.isDeleteSignals = false;
     [self setTextViewToFileDesc];
     self.appDelegate.focusImageIndex = sender.view.tag;
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:sender.view.tag];
+    //
+    [self addTLabel];
+    //
     [self.textView becomeFirstResponder];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"UITextViewTextDidChangeNotification" object:nil];
     self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
@@ -456,7 +482,7 @@
 }
 
 - (void)setTextViewToFileDesc {
-    if( self.appDelegate.focusImageIndex > -1 ){
+    if( self.appDelegate.focusImageIndex > -1 && !self.isDeleteSignals ){
         [self.appDelegate.fileDesc replaceObjectAtIndex:self.appDelegate.focusImageIndex withObject:self.textView.text];
     }
 }
@@ -608,7 +634,59 @@
         NSString *s = [nsTextContent substringToIndex:MAX_LIMIT_NUMS];
         [textView setText:s];
     }
+    if( self.appDelegate.photos.count > 0 ){
+        UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
+        UILabel *descLabel = imageView.subviews[0];
+        if( textView.text.length == 0 ){
+            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
+        }else{
+            descLabel.text = textView.text;
+        }
+    }
     self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - existTextNum)];
+}
+
+- (void)clickRmButton:(UIButton *)btn{
+    self.isDeleteSignals = true;
+    [self.appDelegate clearIndexProperty:btn.tag];
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    [self getMediaView:cell];
+    [self.tableView reloadData];
+    
+    if( self.appDelegate.photos.count > 0 ){
+        self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
+        self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
+    }else{
+        self.textView.text = @"";
+        self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS];
+    }
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView{
+    self.isDeleteSignals = false;
+    if( self.appDelegate.photos.count > 0 ){
+        [self addTLabel];
+    }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView{
+    if( self.appDelegate.photos.count > 0 ){
+        [self.tLabel removeFromSuperview];
+    }
+}
+
+- (void)addTLabel{
+    [self.tLabel removeFromSuperview];
+    UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
+    self.tLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(imageView), GET_LAYOUT_HEIGHT(imageView)-20)];
+    self.tLabel.backgroundColor = RGBA_COLOR(0, 0, 0, 0.4);
+    self.tLabel.textColor = [UIColor whiteColor];
+    self.tLabel.font = [UIFont systemFontOfSize:48.0f];
+    self.tLabel.textAlignment = NSTextAlignmentCenter;
+    self.tLabel.text = @"T";
+    [imageView addSubview:self.tLabel];
 }
 
 @end

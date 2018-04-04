@@ -34,6 +34,7 @@ uploadPhotoEmptyError = "Please select at least one photo";
 uploadVideoEmptyError = "Please select a video";
 uploadDeviceEmptyError = "Please select at least one device";
 uploadTextViewPlaceHolderText = "Click on the photo to add a describe for each photo";
+uploadDescLabelPlaceHolderText = "Add a text describe";
 
 deviceListNavigationItemTitle = "Device Manager";
 deviceListRename = "Rename";

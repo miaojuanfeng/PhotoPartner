@@ -128,6 +128,16 @@
 //    [self.fileDesc removeObjectsAtIndexes:indexSet];
 //}
 
+- (void)clearIndexProperty:(long)index {
+    [self.photos removeObjectAtIndex:index];
+    [self.fileDesc removeObjectAtIndex:index];
+    if( self.photos.count > 0 ){
+        self.focusImageIndex = 0;
+    }else{
+        self.focusImageIndex = -1;
+    }
+}
+
 - (void)addDeviceList:(NSMutableDictionary *) device {
     NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsPath = [path objectAtIndex:0];
