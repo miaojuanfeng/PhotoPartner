@@ -72,7 +72,7 @@
     self.textCountLabel.textColor = [UIColor lightGrayColor];
     self.textCountLabel.font = [UIFont systemFontOfSize:14.0f];
     self.textCountLabel.textAlignment = NSTextAlignmentRight;
-    self.textCountLabel.text = @"50";
+    self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(self.textCountLabel)+GET_LAYOUT_HEIGHT(self.textCountLabel), GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, 100)];
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
@@ -84,7 +84,7 @@
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     
     if( self.appDelegate.photos.count == 0 ){
-        self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+        self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:MAX_PHOTO_COUNT delegate:self];
         self.imagePickerVc.allowPickingVideo = NO;
         self.imagePickerVc.allowPickingOriginalPhoto = NO;
         self.imagePickerVc.allowTakePicture = NO;
@@ -226,7 +226,7 @@
     }
     
     UILabel *photoNumLabel = [[UILabel alloc] initWithFrame:CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), GET_LAYOUT_OFFSET_Y(self.mediaView)+GET_LAYOUT_HEIGHT(self.mediaView), GET_LAYOUT_WIDTH(self.mediaView), PHOTO_NUM_HEIGHT)];
-    photoNumLabel.text = [NSString stringWithFormat:@"%ld/9", self.appDelegate.photos.count];
+    photoNumLabel.text = [NSString stringWithFormat:@"%ld/%d", self.appDelegate.photos.count, MAX_PHOTO_COUNT];
     photoNumLabel.textColor = [UIColor lightGrayColor];
     photoNumLabel.font = [UIFont systemFontOfSize:14.0f];
     photoNumLabel.textAlignment = NSTextAlignmentCenter;

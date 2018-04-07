@@ -12,11 +12,12 @@
 #import <AFNetworking/AFNetworking.h>
 #import <TZImagePickerController.h>
 #import <TZImageManager.h>
+#import "UITextView+WJPlaceholder.h"
 
 //#define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
 
-@interface UploadVideoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate>
+@interface UploadVideoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate>
 @property UITableView *tableView;
 @property TZImagePickerController *imagePickerVc;
 
@@ -26,6 +27,9 @@
 @property UIButton *addImageButton;
 
 @property AppDelegate *appDelegate;
+
+@property UILabel *tLabel;
+@property Boolean isDeleteSignals;
 @end
 
 @implementation UploadVideoController
@@ -42,7 +46,7 @@
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
     self.navigationItem.rightBarButtonItem = submitButton;
     
-    self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+2*GAP_HEIGHT)];
+    self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
 
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT) style:UITableViewStyleGrouped];
@@ -67,15 +71,23 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
-
     
-    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    self.imagePickerVc.allowPickingImage = NO;
-    self.imagePickerVc.allowPickingOriginalPhoto = NO;
-   
+    self.textCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(GAP_WIDTH, 0, GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, PHOTO_NUM_HEIGHT)];
+    self.textCountLabel.textColor = [UIColor lightGrayColor];
+    self.textCountLabel.font = [UIFont systemFontOfSize:14.0f];
+    self.textCountLabel.textAlignment = NSTextAlignmentRight;
+    self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS];
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(self.textCountLabel)+GET_LAYOUT_HEIGHT(self.textCountLabel), GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, 100)];
+    self.textView.textContainer.lineFragmentPadding = 0;
+    self.textView.textContainerInset = UIEdgeInsetsZero;
+    self.textView.placeholder = NSLocalizedString(@"uploadTextViewPlaceHolderText", nil);
+    self.textView.delegate = self;
     
     if( self.appDelegate.photos.count == 0 ){
-         [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+        self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:MAX_VIDEO_COUNT delegate:self];
+        self.imagePickerVc.allowPickingImage = NO;
+        self.imagePickerVc.allowPickingOriginalPhoto = NO;
+        [self presentViewController:self.imagePickerVc animated:YES completion:nil];
     }
 }
 
@@ -115,9 +127,13 @@
     cell.frame = CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.tableView), tableView.rowHeight);
     if( indexPath.section == 0 ){
         if( indexPath.row == 0 ){
-            self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView);
-            self.textView.font = [UIFont fontWithName:@"AppleGothic" size:16.0];
+            self.tableView.rowHeight = GET_LAYOUT_HEIGHT(self.textView)+GET_LAYOUT_HEIGHT(self.textCountLabel);
+            
+            [cell.contentView addSubview:self.textCountLabel];
+            
+            self.textView.font = [UIFont systemFontOfSize:16.0f];
             [cell.contentView addSubview:self.textView];
+            
             cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
         }else if( indexPath.row == 1 ){
@@ -165,6 +181,23 @@
         [imageView setTag:i];
         [imageView addGestureRecognizer:singleTap];
         [self.mediaView addSubview:imageView];
+        
+        UILabel *descLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(imageView)-20, GET_LAYOUT_WIDTH(imageView), 20)];
+        descLabel.backgroundColor = RGBA_COLOR(0, 0, 0, 0.8);
+        descLabel.textColor = [UIColor whiteColor];
+        if( [self.appDelegate.fileDesc[i] isEqualToString:@""] ){
+            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
+        }else{
+            descLabel.text = self.appDelegate.fileDesc[i];
+        }
+        descLabel.font = [UIFont systemFontOfSize:12.0f];
+        [imageView addSubview:descLabel];
+        
+        UIButton *rmButton = [[UIButton alloc] initWithFrame:CGRectMake(GET_LAYOUT_WIDTH(imageView)-26, 0, 26, 26)];
+        [rmButton setImage:[UIImage imageNamed:@"cancel_button"] forState:UIControlStateNormal];
+        rmButton.tag = i;
+        [rmButton addTarget:self action:@selector(clickRmButton:) forControlEvents:UIControlEventTouchUpInside];
+        [imageView addSubview:rmButton];
     }
     
     if( imageTotal%IMAGE_PER_ROW == 0 ){
@@ -172,7 +205,7 @@
     }else{
         x += imageViewSize + GAP_HEIGHT;
     }
-    if( imageTotal > 0 && imageTotal%IMAGE_PER_ROW == 0 ){
+    if( imageTotal > 0 && imageTotal%IMAGE_PER_ROW == 0 && self.appDelegate.photos.count < MAX_VIDEO_COUNT ){
         y += imageViewSize + GAP_HEIGHT;
         self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), y+imageViewSize+GAP_HEIGHT);
     }
@@ -180,7 +213,7 @@
      *  移除旧的CGRect可点击区域
      */
     [self.addImageButton removeFromSuperview];
-    if( self.appDelegate.photos.count == 0 ){
+    if( self.appDelegate.photos.count < MAX_VIDEO_COUNT ){
         self.addImageButton = [[UIButton alloc] initWithFrame:CGRectMake(x, y, imageViewSize, imageViewSize)];
         [self.addImageButton setImage:[UIImage imageNamed:@"iv_upload"] forState:UIControlStateNormal];
         [self.addImageButton addTarget:self action:@selector(clickAddMediaButton) forControlEvents:UIControlEventTouchUpInside];
@@ -189,15 +222,18 @@
         [self.mediaView addSubview:self.addImageButton];
     }
     
+    UILabel *photoNumLabel = [[UILabel alloc] initWithFrame:CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), GET_LAYOUT_OFFSET_Y(self.mediaView)+GET_LAYOUT_HEIGHT(self.mediaView), GET_LAYOUT_WIDTH(self.mediaView), PHOTO_NUM_HEIGHT)];
+    photoNumLabel.text = [NSString stringWithFormat:@"%ld/%d", self.appDelegate.photos.count, MAX_VIDEO_COUNT];
+    photoNumLabel.textColor = [UIColor lightGrayColor];
+    photoNumLabel.font = [UIFont systemFontOfSize:14.0f];
+    photoNumLabel.textAlignment = NSTextAlignmentCenter;
+    [self.mediaView addSubview:photoNumLabel];
+    //    photoNumLabel.backgroundColor = [UIColor blueColor];
+    self.mediaView.frame = CGRectMake(GET_LAYOUT_OFFSET_X(self.mediaView), 0, GET_LAYOUT_WIDTH(self.mediaView), GET_LAYOUT_HEIGHT(self.mediaView)+PHOTO_NUM_HEIGHT+GAP_HEIGHT);
+    
     [cell.contentView addSubview:self.mediaView];
     cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, GET_BOUNDS_WIDTH(cell));
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-//    self.tableView.rowHeight = GET_LAYOUT_HEIGHT(mediaView);
-//    cell.frame = CGRectMake(GET_LAYOUT_OFFSET_X(cell), GET_LAYOUT_OFFSET_Y(cell), GET_LAYOUT_WIDTH(cell), GET_LAYOUT_HEIGHT(mediaView));
-//    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-//    [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObjects:indexPath,nil] withRowAnimation:UITableViewRowAnimationNone];
-    NSLog(@"self.tableView.rowHeight: %f", GET_LAYOUT_HEIGHT(cell));
-    NSLog(@"mediaView Height: %f", GET_LAYOUT_HEIGHT(self.mediaView));
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -684,16 +720,23 @@
 //}
 
 - (void)clickAddMediaButton {
-    if( self.appDelegate.photos.count > 0 ){
-        return;
-    }
+    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:(MAX_VIDEO_COUNT-self.appDelegate.photos.count) delegate:self];
+    self.imagePickerVc.allowPickingImage = NO;
+    self.imagePickerVc.allowPickingOriginalPhoto = NO;
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
 }
 
 - (void)clickImageView:(UIGestureRecognizer *) sender{
+    self.isDeleteSignals = false;
     [self setTextViewToFileDesc];
     self.appDelegate.focusImageIndex = sender.view.tag;
     self.textView.text = [self.appDelegate.fileDesc objectAtIndex:sender.view.tag];
+    //
+    [self addTLabel];
+    //
+    [self.textView becomeFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"UITextViewTextDidChangeNotification" object:nil];
+    self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
 }
 
 -(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
@@ -727,6 +770,92 @@
     } else {
         return YES;
     }
+}
+
+
+
+
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    NSString *comcatstr = [textView.text stringByReplacingCharactersInRange:range withString:text];
+    NSInteger caninputlen = MAX_LIMIT_NUMS - comcatstr.length;
+    
+    if (caninputlen >= 0){
+        return YES;
+    }else{
+        NSInteger len = text.length + caninputlen;
+        //防止当text.length + caninputlen < 0时，使得rg.length为一个非法最大正数出错
+        NSRange rg = {0,MAX(len,0)};
+        
+        if (rg.length > 0){
+            NSString *s = [text substringWithRange:rg];
+            [textView setText:[textView.text stringByReplacingCharactersInRange:range withString:s]];
+        }
+        return NO;
+    }
+}
+
+- (void)textViewDidChange:(UITextView *)textView{
+    NSString  *nsTextContent = textView.text;
+    NSInteger existTextNum = nsTextContent.length;
+    
+    if (existTextNum > MAX_LIMIT_NUMS){
+        NSString *s = [nsTextContent substringToIndex:MAX_LIMIT_NUMS];
+        [textView setText:s];
+    }
+    if( self.appDelegate.photos.count > 0 ){
+        UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
+        UILabel *descLabel = imageView.subviews[0];
+        if( textView.text.length == 0 ){
+            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
+        }else{
+            descLabel.text = textView.text;
+        }
+    }
+    self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - existTextNum)];
+}
+
+- (void)clickRmButton:(UIButton *)btn{
+    self.isDeleteSignals = true;
+    [self.appDelegate clearIndexProperty:btn.tag];
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    [self getMediaView:cell];
+    [self.tableView reloadData];
+    
+    if( self.appDelegate.photos.count > 0 ){
+        self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
+        self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
+    }else{
+        self.textView.text = @"";
+        self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS];
+    }
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView{
+    self.isDeleteSignals = false;
+    if( self.appDelegate.photos.count > 0 ){
+        [self addTLabel];
+    }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView{
+    if( self.appDelegate.photos.count > 0 ){
+        [self.tLabel removeFromSuperview];
+    }
+}
+
+- (void)addTLabel{
+    [self.tLabel removeFromSuperview];
+    UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
+    self.tLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(imageView), GET_LAYOUT_HEIGHT(imageView)-20)];
+    self.tLabel.backgroundColor = RGBA_COLOR(0, 0, 0, 0.4);
+    self.tLabel.textColor = [UIColor whiteColor];
+    self.tLabel.font = [UIFont systemFontOfSize:48.0f];
+    self.tLabel.textAlignment = NSTextAlignmentCenter;
+    self.tLabel.text = @"T";
+    [imageView addSubview:self.tLabel];
 }
 
 @end

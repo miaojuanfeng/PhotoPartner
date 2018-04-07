@@ -52,6 +52,7 @@
 #define PHOTO_NUM_HEIGHT 20
 #define MAX_LIMIT_NUMS 50
 #define MAX_PHOTO_COUNT 9
+#define MAX_VIDEO_COUNT 1
 
 #define FileHashDefaultChunkSizeForReadingData 256
 
