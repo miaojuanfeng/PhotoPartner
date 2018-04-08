@@ -44,6 +44,7 @@
     }
     self.userInfo = nil;
     self.appVersion = 11;
+    self.isSending = false;
     
     [self loadMessageList];
     if( self.messageList == nil ){

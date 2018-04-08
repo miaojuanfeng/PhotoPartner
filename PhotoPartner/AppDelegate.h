@@ -23,6 +23,7 @@
 @property NSMutableArray<UIImage *> *photos;
 //@property NSMutableArray *isTakePhoto;
 @property long focusImageIndex;
+@property Boolean isSending;
 /*
  *  For Video
  */

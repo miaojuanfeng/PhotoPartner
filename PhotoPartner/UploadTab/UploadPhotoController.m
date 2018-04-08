@@ -304,119 +304,130 @@
  */
 
 - (void)clickSubmitButton {
-    [self.view endEditing:YES];
-    
-    if( self.appDelegate.photos.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadPhotoEmptyError", nil));
-        return;
-    }
-    if( self.appDelegate.deviceId.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
-        return;
-    }
-    //创建会话管理者
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    /*
-     *  返回json格式数据时，如果没有下面代码，会提示上传失败，实际上已经成功。
-     *  加上下面这句才会提示成功
-     */
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    manager.requestSerializer.timeoutInterval = 30.0f;
-    //发送post请求上传路径
-    /*
-     第一个参数:请求路径
-     第二个参数:字典(非文件参数)
-     第三个参数:constructingBodyWithBlock 处理要上传的文件数据
-     第四个参数:进度回调
-     第五个参数:成功回调 responseObject响应体信息
-     第六个参数:失败回调
-     */
-    NSLog(@"%ld", self.appDelegate.photos.count);
-    HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
-    if( self.appDelegate.fileDesc.count == 1 && [[self.appDelegate.fileDesc objectAtIndex:0] isEqualToString:@""] ){
-        [self.appDelegate.fileDesc replaceObjectAtIndex:0 withObject:@" "];
-    }
-    NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
-    [manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+    if( !self.appDelegate.isSending ){
+        [self.view endEditing:YES];
+        
+        if( self.appDelegate.photos.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadPhotoEmptyError", nil));
+            return;
+        }
+        if( self.appDelegate.deviceId.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+            return;
+        }
+        //创建会话管理者
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
         /*
-        *   使用formData拼接数据
-        *   方法一:
-        *   第一个参数:二进制数据 要上传的文件参数
-        *   第二个参数:服务器规定的
-        *   第三个参数:文件上传到服务器以什么名称保存
-        */
-        for (int i=0; i< self.appDelegate.photos.count; i++) {
-            int imageWidth = 0;
-            int imageHeight = 0;
-            if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
-                imageWidth = 750;
-                imageHeight = 750 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
-            }else{
-                imageWidth = 750 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
-                imageHeight = 750;
+         *  返回json格式数据时，如果没有下面代码，会提示上传失败，实际上已经成功。
+         *  加上下面这句才会提示成功
+         */
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        manager.requestSerializer.timeoutInterval = 30.0f;
+        //发送post请求上传路径
+        /*
+         第一个参数:请求路径
+         第二个参数:字典(非文件参数)
+         第三个参数:constructingBodyWithBlock 处理要上传的文件数据
+         第四个参数:进度回调
+         第五个参数:成功回调 responseObject响应体信息
+         第六个参数:失败回调
+         */
+        NSLog(@"%ld", self.appDelegate.photos.count);
+        HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+        if( self.appDelegate.fileDesc.count == 1 && [[self.appDelegate.fileDesc objectAtIndex:0] isEqualToString:@""] ){
+            [self.appDelegate.fileDesc replaceObjectAtIndex:0 withObject:@" "];
+        }
+        NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
+        NAV_UPLOAD_START;
+        [manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+            /*
+            *   使用formData拼接数据
+            *   方法一:
+            *   第一个参数:二进制数据 要上传的文件参数
+            *   第二个参数:服务器规定的
+            *   第三个参数:文件上传到服务器以什么名称保存
+            */
+            for (int i=0; i< self.appDelegate.photos.count; i++) {
+                int imageWidth = 0;
+                int imageHeight = 0;
+                if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+                    imageWidth = 750;
+                    imageHeight = 750 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+                }else{
+                    imageWidth = 750 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+                    imageHeight = 750;
+                }
+                CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+                NSData *file = [self compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
+                NSString *fileExt = [self typeForImageData:file];
+                if( fileExt == nil ){
+                    fileExt = @"jpeg";
+                }
+                NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+                NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
+                [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
             }
-            CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
-            NSData *file = [self compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
-            NSString *fileExt = [self typeForImageData:file];
-            if( fileExt == nil ){
-                fileExt = @"jpeg";
-            }
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+                
+                HUD_LOADING_PROGRESS(progress);
+            });
+            NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"上传成功.%@",responseObject);
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+            NSLog(@"results: %@", dic);
+            
             NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-            NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
-            [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
-        }
-        NAV_UPLOAD_START;
-    } progress:^(NSProgress * _Nonnull uploadProgress) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
-            
-            HUD_LOADING_PROGRESS(progress);
-        });
-        NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"上传成功.%@",responseObject);
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-        NSLog(@"results: %@", dic);
-        
-        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-        for(int i=0;i<self.appDelegate.photos.count;i++){
-            NSString *time = [dateFormatter stringFromDate:date];
-            NSString *device = @"";
-            for(int j=0;j<self.appDelegate.deviceId.count;j++){
-                NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
-                for(int k=0;k<self.appDelegate.deviceList.count;k++){
-//                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
-//                    NSLog(@"%@", device_id);
-                    if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
-                        NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
-                        NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
-                        device = [NSString stringWithFormat:@"%@ %@(%@)", device, device_name, device_token];
-                        break;
+            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            for(int i=0;i<self.appDelegate.photos.count;i++){
+                NSString *time = [dateFormatter stringFromDate:date];
+                NSString *device = @"";
+                for(int j=0;j<self.appDelegate.deviceId.count;j++){
+                    NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
+                    for(int k=0;k<self.appDelegate.deviceList.count;k++){
+    //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+    //                    NSLog(@"%@", device_id);
+                        if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
+                            NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                            NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
+                            device = [NSString stringWithFormat:@"%@ %@(%@)", device, device_name, device_token];
+                            break;
+                        }
                     }
                 }
+                NSString *title = [NSString stringWithFormat:@"Send to%@", device];
+                NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
+                UIImage *data = self.appDelegate.photos[i];
+                [self.appDelegate addMessageList:@"image" withTime:time withTitle:title withDesc:desc withData:data];
             }
-            NSString *title = [NSString stringWithFormat:@"Send to%@", device];
-            NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
-            UIImage *data = self.appDelegate.photos[i];
-            [self.appDelegate addMessageList:@"image" withTime:time withTitle:title withDesc:desc withData:data];
-        }
-        
-        DO_FINISH_UPLOAD;
-        NAV_UPLOAD_END;
-        HUD_LOADING_HIDE;
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"上传失败.%@",error);
-        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+            
+            DO_FINISH_UPLOAD;
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"上传失败.%@",error);
+            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
 
+            if( self.appDelegate.isSending ){
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+            }else{
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
+            }
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+        }];
+    }else{
+        NSLog(@"Cancel sending");
+        [manager.session invalidateAndCancel];
         NAV_UPLOAD_END;
         HUD_LOADING_HIDE;
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
-    }];
+    }
 }
 
 //- (AFHTTPSessionManager *)sharedManager {

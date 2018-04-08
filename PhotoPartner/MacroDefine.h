@@ -96,14 +96,12 @@
                             }while(0)
 
 #define NAV_UPLOAD_START do{ \
-                            self.view.window.userInteractionEnabled = NO;  \
-                            self.navigationItem.rightBarButtonItem.enabled = NO; \
-                            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil); \
+                            self.appDelegate.isSending = true; \
+                            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadCancelRightBarButtonItemTitle", nil); \
                          }while(0)
 
 #define NAV_UPLOAD_END do{ \
-                            self.view.window.userInteractionEnabled = YES; \
-                            self.navigationItem.rightBarButtonItem.enabled = YES; \
+                            self.appDelegate.isSending = false; \
                             self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil); \
                        }while(0)
 
