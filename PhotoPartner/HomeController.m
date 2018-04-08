@@ -236,7 +236,7 @@
 //        HUD_TOAST_SHOW(NSLocalizedString(@"networkError", nil));
         
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"networkError", nil)
-                                                                                 message:nil
+                                                                                 message:NSLocalizedString(@"willCloseApp", nil)
                                                                           preferredStyle:UIAlertControllerStyleAlert];
         
         UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {

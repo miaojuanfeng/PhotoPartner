@@ -149,6 +149,9 @@
             }else{
                 HUD_TOAST_SHOW(NSLocalizedString(@"versionAlreadyLastVersion", nil));
             }
+        }else{
+            NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+            HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"失败.%@",error);

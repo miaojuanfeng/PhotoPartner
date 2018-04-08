@@ -116,23 +116,11 @@
         
         HUD_WAITING_HIDE;
         if( status == 200 ){
-//            NSDictionary *data = [dic objectForKey:@"data"];
-//            NSString *device_id = [data objectForKey:@"device_id"];
-//            
-//            NSMutableDictionary *device = [[NSMutableDictionary alloc] init];
-//            [device setObject:device_id forKey:@"device_id"];
-//            [device setObject:self.deviceTokenField.text forKey:@"device_token"];
-//            [device setObject:self.deviceNameField.text forKey:@"device_name"];
-//            [self.appDelegate.deviceList addObject:device];
-//            
-//            NSLog(@"%@", self.appDelegate.deviceList);
-//            [self.appDelegate addDeviceList:device];
-
             [self.appDelegate.userInfo setObject:self.userNameField.text forKey:@"user_nickname"];
-            
             HUD_TOAST_SHOW(NSLocalizedString(@"saveSuccess", nil));
         }else{
-            HUD_TOAST_SHOW(NSLocalizedString(@"saveFailed", nil));
+            NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+            HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"失败.%@",error);

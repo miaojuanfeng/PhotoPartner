@@ -185,7 +185,8 @@
                 [self.tableView reloadData];
                 HUD_TOAST_SHOW(NSLocalizedString(@"deviceListRenameSuccess", nil));
             }else{
-                HUD_TOAST_SHOW(NSLocalizedString(@"deviceListRenameFailed", nil));
+                NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+                HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"失败.%@",error);
@@ -271,7 +272,8 @@
                 
                 HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindSuccess", nil));
             }else{
-                HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindFailed", nil));
+                NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+                HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"失败.%@",error);

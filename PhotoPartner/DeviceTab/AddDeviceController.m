@@ -136,7 +136,8 @@
             
             [self.navigationController popViewControllerAnimated:YES];
         }else{
-            HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddBindFailed", nil));
+            NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+            HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"失败.%@",error);

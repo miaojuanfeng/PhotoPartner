@@ -9,6 +9,7 @@ hudLoading = "Loading";
 confirmOK = "OK";
 confirmCancel = "Cancel";
 networkError = "Network Error";
+willCloseApp = "The application will be closed";
 saveButton = "Save";
 saveSuccess = "Save Success";
 saveFailed = "Save Failed";
@@ -84,3 +85,49 @@ userInfoUserNameTextFiledTitle = "Please enter the user's nickname";
 
 messageNavigationItemTitle = "Message";
 
+
+
+/*
+ *  从服务器返回的错误码
+ */
+e101 = "Unable to find the device";
+e103 = "Unable to find the relationship between user and device";
+e104 = "Update user status failed, please try again later";
+e105 = "The user has been deleted";
+e106 = "Unknow action";
+e107 = "Update user device relationship failed, please try again later";
+e108 = "The device already been bound";
+e109 = "Unable to find the user";
+e110 = "Update device name failed, please try again later";
+e301 = "File-MD5 property is not set or format error";
+e302 = "File-Size property format error";
+e303 = "File-Size property is not set";
+e304 = "Start bytes is not set or format error";
+e305 = "End bytes is not set or format error";
+e306 = "File-Range property is not set or format error";
+e307 = "The start bytes must be more than 0";
+e308 = "The end bytes must be more or equal than start bytes";
+e309 = "The end bytes must be less or equal than file size";
+e310 = "Content-Disposition property format error";
+e311 = "Content-Disposition property is not set";
+e312 = "The size of the Body is not equal to the size of the File-Range";
+e313 = "User-Id property format error";
+e314 = "User-Id property is not set";
+e315 = "Device-Id property format error";
+e316 = "Device-Id property is not set";
+e317 = "File-Desc property is not set";
+e318 = "Save file url to database failed, please try again later";
+e319 = "The length of the file_desc is not equal to the length of the file";
+e320 = "Current block is not set or format error";
+e321 = "Total block is not set or format error";
+e322 = "File-Block property is not set or format error";
+e323 = "The current block must be more than 0";
+e324 = "The total block must be more than 0";
+e325 = "The total block must be more or equal than current block";
+e326 = "Block file not exists";
+e403 = "User registration failed, please try again later";
+e404 = "Update user profile failed, please try again later";
+e405 = "Unable to find the user";
+e406 = "Unable to find the app by apk_id";
+e901 = "file not exists";
+e902 = "file already exists";
