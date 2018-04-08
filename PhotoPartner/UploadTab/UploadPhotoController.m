@@ -73,7 +73,7 @@
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(self.textCountLabel)+GET_LAYOUT_HEIGHT(self.textCountLabel), GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, 100)];
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
-    self.textView.font = [UIFont systemFontOfSize:14.0f];
+    self.textView.font = [UIFont systemFontOfSize:16.0f];
     self.textView.placeholder = NSLocalizedString(@"uploadTextViewPhotoPlaceHolderText", nil);
     self.textView.delegate = self;
 
