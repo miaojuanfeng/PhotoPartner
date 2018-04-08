@@ -46,7 +46,7 @@
             return 1;
             break;
         case 1:
-            return 2;
+            return 1;
             break;
     }
     return 0;
