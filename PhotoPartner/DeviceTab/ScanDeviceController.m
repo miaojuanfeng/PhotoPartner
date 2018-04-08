@@ -154,6 +154,7 @@
     botView.alpha = alpha;
     UILabel *botLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, botView.frame.size.width, 20)];
     botLabel.textColor = [UIColor whiteColor];
+    botLabel.font = [UIFont systemFontOfSize:14.0f];
     botLabel.text = NSLocalizedString(@"deviceScanNoticeText", nil);
     botLabel.textAlignment = NSTextAlignmentCenter;
     [botView addSubview:botLabel];
