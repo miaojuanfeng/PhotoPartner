@@ -152,6 +152,11 @@
     botView.frame = CGRectMake(0, 64+QRCodeWidth+topView.frame.size.height,SCREENWidth,SCREENHeight-64-QRCodeWidth-topView.frame.size.height);
     botView.backgroundColor = color;
     botView.alpha = alpha;
+    UILabel *botLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, botView.frame.size.width, 20)];
+    botLabel.textColor = [UIColor whiteColor];
+    botLabel.text = NSLocalizedString(@"deviceScanNoticeText", nil);
+    botLabel.textAlignment = NSTextAlignmentCenter;
+    [botView addSubview:botLabel];
     //将设置好的扫描二维码区域之外的视图添加到视图图层上
     [self.view addSubview:topView];
     [self.view addSubview:leftView];
@@ -167,28 +172,28 @@
     //设置扫描区域的动画效果
     CGFloat scanNetImageViewH = 241;
     CGFloat scanNetImageViewW = scanWindow.frame.size.width;
-    UIImageView *scanNetImageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"scan_net"]];
+    UIImageView *scanNetImageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"QR_Scan_Line"]];
     scanNetImageView.frame = CGRectMake(0, -scanNetImageViewH, scanNetImageViewW, scanNetImageViewH);
     CABasicAnimation *scanNetAnimation = [CABasicAnimation animation];
     scanNetAnimation.keyPath =@"transform.translation.y";
     scanNetAnimation.byValue = @(QRCodeWidth);
-    scanNetAnimation.duration = 1.0;
+    scanNetAnimation.duration = 2.0;
     scanNetAnimation.repeatCount = MAXFLOAT;
     [scanNetImageView.layer addAnimation:scanNetAnimation forKey:nil];
     [scanWindow addSubview:scanNetImageView];
     //设置扫描区域的四个角的边框
     CGFloat buttonWH = 18;
     UIButton *topLeft = [[UIButton alloc] initWithFrame:CGRectMake(0,0, buttonWH, buttonWH)];
-    [topLeft setImage:[UIImage imageNamed:@"scan_1"]forState:UIControlStateNormal];
+    [topLeft setImage:[UIImage imageNamed:@"QR_Left_Top"]forState:UIControlStateNormal];
     [scanWindow addSubview:topLeft];
     UIButton *topRight = [[UIButton alloc]initWithFrame:CGRectMake(QRCodeWidth - buttonWH,0, buttonWH, buttonWH)];
-    [topRight setImage:[UIImage imageNamed:@"scan_2"]forState:UIControlStateNormal];
+    [topRight setImage:[UIImage imageNamed:@"QR_Right_Top"]forState:UIControlStateNormal];
     [scanWindow addSubview:topRight];
     UIButton *bottomLeft = [[UIButton alloc]initWithFrame:CGRectMake(0,QRCodeWidth - buttonWH, buttonWH, buttonWH)];
-    [bottomLeft setImage:[UIImage imageNamed:@"scan_3"]forState:UIControlStateNormal];
+    [bottomLeft setImage:[UIImage imageNamed:@"QR_Left_Bottom"]forState:UIControlStateNormal];
     [scanWindow addSubview:bottomLeft];
     UIButton *bottomRight = [[UIButton alloc]initWithFrame:CGRectMake(QRCodeWidth-buttonWH,QRCodeWidth-buttonWH, buttonWH, buttonWH)];
-    [bottomRight setImage:[UIImage imageNamed:@"scan_4"]forState:UIControlStateNormal];
+    [bottomRight setImage:[UIImage imageNamed:@"QR_Right_Bottom"]forState:UIControlStateNormal];
     [scanWindow addSubview:bottomRight];
 }
 

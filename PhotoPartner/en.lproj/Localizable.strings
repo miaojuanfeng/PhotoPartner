@@ -60,6 +60,7 @@ deviceAddBindFailed = "Bind Failed";
 deviceAddDeviceName = "Please enter the device's nickname";
 deviceAddDeviceNumber = "Please enter smart device ID number";
 deviceScanNavigationItemTitle = "QR Code";
+deviceScanNoticeText = "Please put the QR code in the lens range for scanning";
 
 settingNavigationItemTitle = "Settings";
 settingTableHeaderUserTitle = "User Settings";

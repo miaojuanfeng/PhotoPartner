@@ -60,6 +60,7 @@ deviceAddBindFailed = "绑定失败";
 deviceAddDeviceName = "请输入设备昵称";
 deviceAddDeviceNumber = "请输入设备编号";
 deviceScanNavigationItemTitle = "二维码";
+deviceScanNoticeText = "请把二维码放在镜头范围内进行扫描";
 
 settingNavigationItemTitle = "设置";
 settingTableHeaderUserTitle = "个人设置";
