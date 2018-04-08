@@ -9,6 +9,7 @@
 #import "MacroDefine.h"
 #import "SettingController.h"
 #import "UserInfoController.h"
+#import "AboutUsController.h"
 #import "AppDelegate.h"
 #import <AFNetworking/AFNetworking.h>
 
@@ -46,7 +47,7 @@
             return 1;
             break;
         case 1:
-            return 1;
+            return 2;
             break;
     }
     return 0;
@@ -74,16 +75,17 @@
     if( indexPath.section == 0 ){
         switch( indexPath.row ){
             case 0:
-                cell.textLabel.text = NSLocalizedString(@"settingCellUserInfoTitle", nil);;
+                cell.textLabel.text = NSLocalizedString(@"settingCellUserInfoTitle", nil);
                 break;
         }
     }else if( indexPath.section == 1 ){
         switch( indexPath.row ){
             case 0:
-                cell.textLabel.text = NSLocalizedString(@"settingCellClearMessageTitle", nil);;
+                cell.textLabel.text = NSLocalizedString(@"settingCellClearMessageTitle", nil);
                 break;
             case 1:
-                cell.textLabel.text = NSLocalizedString(@"settingCellVersionTitle", nil);;
+//                cell.textLabel.text = NSLocalizedString(@"settingCellVersionTitle", nil);;
+                cell.textLabel.text = NSLocalizedString(@"aboutUsTitle", nil);
                 break;
         }
     }
@@ -92,6 +94,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     UserInfoController *userInfoController;
+    AboutUsController *aboutUsController;
     if( indexPath.section == 0 ){
         switch (indexPath.row) {
             case 0:
@@ -105,7 +108,9 @@
                 [self clickClearMessage];
                 break;
             case 1:
-                [self versionUpdate];
+//                [self versionUpdate];
+                aboutUsController = [[AboutUsController alloc] init];
+                [self.navigationController pushViewController:aboutUsController animated:YES];
                 break;
         }
     }

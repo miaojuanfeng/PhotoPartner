@@ -27,6 +27,7 @@
     self.navigationItem.title = NSLocalizedString(@"deviceListNavigationItemTitle", nil);
     
     UIBarButtonItem *deviceAddButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"deviceAddRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickDeviceAddButton)];
+//    UIBarButtonItem *deviceAddButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"plus"] style:UIBarButtonItemStylePlain target:self action:@selector(clickDeviceAddButton)];
     self.navigationItem.rightBarButtonItem = deviceAddButton;
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT)];
