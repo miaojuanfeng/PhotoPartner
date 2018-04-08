@@ -54,10 +54,12 @@ deviceListRenameFailed = "Rename Failed";
 
 deviceAddNavigationItemTitle = "Devices Bind";
 deviceAddRightBarButtonItemTitle = "Bind";
+deviceScanRightBarButtonItemTitle = "Scan";
 deviceAddBindSuccess = "Bind Success";
 deviceAddBindFailed = "Bind Failed";
 deviceAddDeviceName = "Please enter the device's nickname";
 deviceAddDeviceNumber = "Please enter smart device ID number";
+deviceScanNavigationItemTitle = "QR Code";
 
 settingNavigationItemTitle = "Settings";
 settingTableHeaderUserTitle = "User Settings";

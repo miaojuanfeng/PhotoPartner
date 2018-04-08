@@ -10,8 +10,9 @@
 #import <AFNetworking/AFNetworking.h>
 #import "AppDelegate.h"
 #import "AddDeviceController.h"
+#import "ScanDeviceController.h"
 
-@interface AddDeviceController () <UITextFieldDelegate, UIGestureRecognizerDelegate>
+@interface AddDeviceController () <UITextFieldDelegate, UIGestureRecognizerDelegate, ScanDeviceControllerDelegate>
 @property AppDelegate *appDelegate;
 @property UITextField *deviceNameField;
 @property UITextField *deviceTokenField;
@@ -25,6 +26,9 @@
     COMMON_MACRO;
     self.view.backgroundColor = RGBA_COLOR(239, 239, 239, 1);
     self.navigationItem.title = NSLocalizedString(@"deviceAddNavigationItemTitle", nil);
+    
+    UIBarButtonItem *deviceScanButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"deviceScanRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickDeviceScanButton)];
+    self.navigationItem.rightBarButtonItem = deviceScanButton;
     
 //    UIBarButtonItem *deviceAddButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"deviceAddRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickDeviceAddButtonButton)];
 //    self.navigationItem.rightBarButtonItem = deviceAddButton;
@@ -170,6 +174,16 @@
 
 -(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
     [self.view endEditing:YES];
+}
+
+- (void)clickDeviceScanButton {
+    ScanDeviceController *scanDeviceController = [[ScanDeviceController alloc] init];
+    scanDeviceController.delegate = self;
+    [self.navigationController pushViewController:scanDeviceController animated:YES];
+}
+
+- (void)license:(NSString *)license {
+    self.deviceTokenField.text = license;
 }
 
 @end

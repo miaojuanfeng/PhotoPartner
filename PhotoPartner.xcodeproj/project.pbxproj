@@ -20,6 +20,7 @@
 		CEB8E2C12050E1A900655887 /* UploadPhotoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEB8E2C02050E1A900655887 /* UploadPhotoController.m */; };
 		CEB8E2C7205117C400655887 /* DeviceController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEB8E2C6205117C400655887 /* DeviceController.m */; };
 		CEB8E2C92051229000655887 /* AddDeviceController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEB8E2C82051229000655887 /* AddDeviceController.m */; };
+		CEB95ED0207A08750012DB52 /* ScanDeviceController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEB95ECF207A08750012DB52 /* ScanDeviceController.m */; };
 		CEC978EB204E38F800AE8CB3 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC978EA204E38F800AE8CB3 /* AppDelegate.m */; };
 		CEC978EE204E38F800AE8CB3 /* HomeController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC978ED204E38F800AE8CB3 /* HomeController.m */; };
 		CEC978F3204E38F800AE8CB3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEC978F2204E38F800AE8CB3 /* Assets.xcassets */; };
@@ -78,6 +79,8 @@
 		CEB8E2C6205117C400655887 /* DeviceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DeviceController.m; sourceTree = "<group>"; };
 		CEB8E2C82051229000655887 /* AddDeviceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddDeviceController.m; sourceTree = "<group>"; };
 		CEB8E2CA2051229F00655887 /* AddDeviceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddDeviceController.h; sourceTree = "<group>"; };
+		CEB95ECF207A08750012DB52 /* ScanDeviceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScanDeviceController.m; sourceTree = "<group>"; };
+		CEB95ED3207A088C0012DB52 /* ScanDeviceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScanDeviceController.h; sourceTree = "<group>"; };
 		CEC978E6204E38F800AE8CB3 /* PhotoPartner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoPartner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEC978E9204E38F800AE8CB3 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		CEC978EA204E38F800AE8CB3 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -186,6 +189,8 @@
 				CEB8E2C6205117C400655887 /* DeviceController.m */,
 				CEB8E2CA2051229F00655887 /* AddDeviceController.h */,
 				CEB8E2C82051229000655887 /* AddDeviceController.m */,
+				CEB95ECF207A08750012DB52 /* ScanDeviceController.m */,
+				CEB95ED3207A088C0012DB52 /* ScanDeviceController.h */,
 			);
 			path = DeviceTab;
 			sourceTree = "<group>";
@@ -557,6 +562,7 @@
 				CE759CF52064E0910034EA46 /* GSKeyChainDataManager.m in Sources */,
 				CEB8E2C7205117C400655887 /* DeviceController.m in Sources */,
 				CEB8E2C12050E1A900655887 /* UploadPhotoController.m in Sources */,
+				CEB95ED0207A08750012DB52 /* ScanDeviceController.m in Sources */,
 				CEC978EE204E38F800AE8CB3 /* HomeController.m in Sources */,
 				CE70A468204FC3CD00470A16 /* MessageController.m in Sources */,
 				CEB8E2C92051229000655887 /* AddDeviceController.m in Sources */,

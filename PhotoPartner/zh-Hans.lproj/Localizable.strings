@@ -54,10 +54,12 @@ deviceListRenameFailed = "重命名设备失败";
 
 deviceAddNavigationItemTitle = "设备绑定";
 deviceAddRightBarButtonItemTitle = "绑定";
+deviceScanRightBarButtonItemTitle = "扫描";
 deviceAddBindSuccess = "绑定成功";
 deviceAddBindFailed = "绑定失败";
 deviceAddDeviceName = "请输入设备昵称";
 deviceAddDeviceNumber = "请输入设备编号";
+deviceScanNavigationItemTitle = "二维码";
 
 settingNavigationItemTitle = "设置";
 settingTableHeaderUserTitle = "个人设置";
