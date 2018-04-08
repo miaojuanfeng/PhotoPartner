@@ -27,6 +27,8 @@
 
 @property UILabel *tLabel;
 @property Boolean isDeleteSignals;
+
+@property AFHTTPSessionManager *manager;
 @end
 
 @implementation UploadPhotoController
@@ -103,7 +105,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if( section == 0 ){
-        return @"";
+        return @" ";
     }else{
         return NSLocalizedString(@"uploadPushDeviceTitle", nil);
     }
@@ -316,13 +318,13 @@
             return;
         }
         //创建会话管理者
-        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        self.manager = [AFHTTPSessionManager manager];
         /*
          *  返回json格式数据时，如果没有下面代码，会提示上传失败，实际上已经成功。
          *  加上下面这句才会提示成功
          */
-        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-        manager.requestSerializer.timeoutInterval = 30.0f;
+        self.manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        self.manager.requestSerializer.timeoutInterval = 30.0f;
         //发送post请求上传路径
         /*
          第一个参数:请求路径
@@ -339,7 +341,7 @@
         }
         NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_id":[self.appDelegate.deviceId copy],@"file_desc":[self.appDelegate.fileDesc copy]};
         NAV_UPLOAD_START;
-        [manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        [self.manager POST:BASE_URL(@"upload/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             /*
             *   使用formData拼接数据
             *   方法一:
@@ -424,7 +426,7 @@
         }];
     }else{
         NSLog(@"Cancel sending");
-        [manager.session invalidateAndCancel];
+        [self.manager.session invalidateAndCancel];
         NAV_UPLOAD_END;
         HUD_LOADING_HIDE;
     }
@@ -520,6 +522,12 @@
 
 - (void)didMoveToParentViewController:(UIViewController*)parent {
     if( !parent ){
+        if( self.appDelegate.isSending ){
+            NSLog(@"Cancel sending");
+            [self.manager.session invalidateAndCancel];
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+        }
         [self.appDelegate clearProperty];
     }
 }
