@@ -30,6 +30,8 @@
 
 @property UILabel *tLabel;
 @property Boolean isDeleteSignals;
+
+@property AFHTTPSessionManager *manager;
 @end
 
 @implementation UploadVideoController
@@ -419,132 +421,143 @@
  */
 
 - (void)clickSubmitButton {
-    [self.view endEditing:YES];
-    
-    if( self.appDelegate.photos.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
-        return;
-    }
-    if( self.appDelegate.deviceId.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
-        return;
-    }
-    //创建会话管理者
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    /*
-     *  返回json格式数据时，如果没有下面代码，会提示上传失败，实际上已经成功。
-     *  加上下面这句才会提示成功
-     */
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-//    manager.requestSerializer.timeoutInterval = 30.0f;
-    //发送post请求上传路径
-    /*
-     第一个参数:请求路径
-     第二个参数:字典(非文件参数)
-     第三个参数:constructingBodyWithBlock 处理要上传的文件数据
-     第四个参数:进度回调
-     第五个参数:成功回调 responseObject响应体信息
-     第六个参数:失败回调
-     */
-    NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
-    HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
-    NSString *totalBlock = [NSString stringWithFormat:@"%ld", self.appDelegate.videos.count];
-    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-    NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d.mp4", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
-    NSMutableArray *successBlock = [[NSMutableArray alloc] init];
-    NSMutableArray *failedBlock = [[NSMutableArray alloc] init];
-    if( self.appDelegate.fileDesc.count == 1 && [[self.appDelegate.fileDesc objectAtIndex:0] isEqualToString:@""] ){
-        [self.appDelegate.fileDesc replaceObjectAtIndex:0 withObject:@" "];
-    }
-    for (int i=0; i< self.appDelegate.videos.count; i++) {
-        NSString *fileBlock = [NSString stringWithFormat:@"%d", i+1];
-        NSDictionary *parameters=@{
-               @"user_id"       :   [self.appDelegate.userInfo objectForKey:@"user_id"],
-               @"file_block"    :   fileBlock,
-               @"total_block"   :   totalBlock,
-               @"device_id"     :   [self.appDelegate.deviceId copy],
-               @"file_MD5"      :   self.appDelegate.md5,
-               @"file_desc"     :   [self.appDelegate.fileDesc copy]
-        };
-        [manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
-            /*
-            *   使用formData拼接数据
-            *   方法一:
-            *   第一个参数:二进制数据 要上传的文件参数
-            *   第二个参数:服务器规定的
-            *   第三个参数:文件上传到服务器以什么名称保存
-            */
-            [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:fileName mimeType:@"video/mp4"];
+    if( !self.appDelegate.isSending ){
+        [self.view endEditing:YES];
+        
+        if( self.appDelegate.photos.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
+            return;
+        }
+        if( self.appDelegate.deviceId.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+            return;
+        }
+        //创建会话管理者
+        self.manager = [AFHTTPSessionManager manager];
+        /*
+         *  返回json格式数据时，如果没有下面代码，会提示上传失败，实际上已经成功。
+         *  加上下面这句才会提示成功
+         */
+        self.manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    //    manager.requestSerializer.timeoutInterval = 30.0f;
+        //发送post请求上传路径
+        /*
+         第一个参数:请求路径
+         第二个参数:字典(非文件参数)
+         第三个参数:constructingBodyWithBlock 处理要上传的文件数据
+         第四个参数:进度回调
+         第五个参数:成功回调 responseObject响应体信息
+         第六个参数:失败回调
+         */
+        NSLog(@"videos.count: %ld", self.appDelegate.videos.count);
+        HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+        NSString *totalBlock = [NSString stringWithFormat:@"%ld", self.appDelegate.videos.count];
+        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+        NSString *fileName = [NSString stringWithFormat:@"VID_%@_%d.mp4", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
+        NSMutableArray *successBlock = [[NSMutableArray alloc] init];
+        NSMutableArray *failedBlock = [[NSMutableArray alloc] init];
+        if( self.appDelegate.fileDesc.count == 1 && [[self.appDelegate.fileDesc objectAtIndex:0] isEqualToString:@""] ){
+            [self.appDelegate.fileDesc replaceObjectAtIndex:0 withObject:@" "];
+        }
+        for (int i=0; i< self.appDelegate.videos.count; i++) {
+            NSString *fileBlock = [NSString stringWithFormat:@"%d", i+1];
+            NSDictionary *parameters=@{
+                   @"user_id"       :   [self.appDelegate.userInfo objectForKey:@"user_id"],
+                   @"file_block"    :   fileBlock,
+                   @"total_block"   :   totalBlock,
+                   @"device_id"     :   [self.appDelegate.deviceId copy],
+                   @"file_MD5"      :   self.appDelegate.md5,
+                   @"file_desc"     :   [self.appDelegate.fileDesc copy]
+            };
+            [self.manager POST:BASE_URL(@"upload/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+                /*
+                *   使用formData拼接数据
+                *   方法一:
+                *   第一个参数:二进制数据 要上传的文件参数
+                *   第二个参数:服务器规定的
+                *   第三个参数:文件上传到服务器以什么名称保存
+                */
+                [formData appendPartWithFileData:self.appDelegate.videos[i] name:@"file" fileName:fileName mimeType:@"video/mp4"];
 
-            NAV_UPLOAD_START;
-        } progress:^(NSProgress * _Nonnull uploadProgress) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.appDelegate.videos.count;
-                NSNumber *number = [NSNumber numberWithFloat:progress];
-                float total = 0.0f;
-                if( self.appDelegate.completedUnitPercent.count > 0 ){
-                    [self.appDelegate.completedUnitPercent replaceObjectAtIndex:i withObject:number];
-                    for (NSNumber *num in self.appDelegate.completedUnitPercent) {
-                        total += [num floatValue];
+                NAV_UPLOAD_START;
+            } progress:^(NSProgress * _Nonnull uploadProgress) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount / self.appDelegate.videos.count;
+                    NSNumber *number = [NSNumber numberWithFloat:progress];
+                    float total = 0.0f;
+                    if( self.appDelegate.completedUnitPercent.count > 0 ){
+                        [self.appDelegate.completedUnitPercent replaceObjectAtIndex:i withObject:number];
+                        for (NSNumber *num in self.appDelegate.completedUnitPercent) {
+                            total += [num floatValue];
+                        }
+                        NSLog(@"self.completedUnitPercent: %f", total);
                     }
-                    NSLog(@"self.completedUnitPercent: %f", total);
-                }
-                HUD_LOADING_PROGRESS(total);
-            });
-            NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            NSLog(@"上传成功.%@",responseObject);
-            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-            NSLog(@"results: %@", dic);
-            
-            NSDictionary *data = [dic objectForKey:@"data"];
-            if( [[data objectForKey:@"complete"] intValue] ){
+                    HUD_LOADING_PROGRESS(total);
+                });
+                NSLog(@"%f",1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"上传成功.%@",responseObject);
+                NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+                NSLog(@"results: %@", dic);
                 
-                NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-                for(int i=0;i<self.appDelegate.photos.count;i++){
-                    NSString *time = [dateFormatter stringFromDate:date];
-                    NSString *device = @"";
-                    for(int j=0;j<self.appDelegate.deviceId.count;j++){
-                        NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
-                        for(int k=0;k<self.appDelegate.deviceList.count;k++){
-                            //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
-                            //                    NSLog(@"%@", device_id);
-                            if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
-                                NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
-                                NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
-                                device = [NSString stringWithFormat:@"%@ %@(%@)", device, device_name, device_token];
-                                break;
+                NSDictionary *data = [dic objectForKey:@"data"];
+                if( [[data objectForKey:@"complete"] intValue] ){
+                    
+                    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                    for(int i=0;i<self.appDelegate.photos.count;i++){
+                        NSString *time = [dateFormatter stringFromDate:date];
+                        NSString *device = @"";
+                        for(int j=0;j<self.appDelegate.deviceId.count;j++){
+                            NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
+                            for(int k=0;k<self.appDelegate.deviceList.count;k++){
+                                //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+                                //                    NSLog(@"%@", device_id);
+                                if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
+                                    NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                                    NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
+                                    device = [NSString stringWithFormat:@"%@ %@(%@)", device, device_name, device_token];
+                                    break;
+                                }
                             }
                         }
+                        NSString *title = [NSString stringWithFormat:@"Send to%@", device];
+                        NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
+                        UIImage *data = self.appDelegate.photos[i];
+                        [self.appDelegate addMessageList:@"video" withTime:time withTitle:title withDesc:desc withData:data];
                     }
-                    NSString *title = [NSString stringWithFormat:@"Send to%@", device];
-                    NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
-                    UIImage *data = self.appDelegate.photos[i];
-                    [self.appDelegate addMessageList:@"video" withTime:time withTitle:title withDesc:desc withData:data];
+                    
+                    DO_FINISH_UPLOAD;
+                    NAV_UPLOAD_END;
+                    HUD_LOADING_HIDE;
+                    HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
+                }else{
+                    [successBlock addObject:fileBlock];
                 }
-                
-                DO_FINISH_UPLOAD;
-                NAV_UPLOAD_END;
-                HUD_LOADING_HIDE;
-                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
-            }else{
-                [successBlock addObject:fileBlock];
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"上传失败.%@",error);
-            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
-            // 这里要记录下没有上传成功的块
-            [failedBlock addObject:fileBlock];
-            if( (successBlock.count + failedBlock.count) == self.appDelegate.videos.count ){
-                NAV_UPLOAD_END;
-                HUD_LOADING_HIDE;
-                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
-            }
-        }];
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                NSLog(@"上传失败.%@",error);
+                NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+                // 这里要记录下没有上传成功的块
+                [failedBlock addObject:fileBlock];
+                if( (successBlock.count + failedBlock.count) == self.appDelegate.videos.count ){
+                    if( self.appDelegate.isSending ){
+                        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+                    }else{
+                        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
+                    }
+                    NAV_UPLOAD_END;
+                    HUD_LOADING_HIDE;
+                }
+            }];
+        }
+    }else{
+        NSLog(@"Cancel sending");
+        [self.manager.session invalidateAndCancel];
+        NAV_UPLOAD_END;
+        HUD_LOADING_HIDE;
     }
 }
 
@@ -765,6 +778,12 @@
 
 - (void)didMoveToParentViewController:(UIViewController*)parent {
     if( !parent ){
+        if( self.appDelegate.isSending ){
+            NSLog(@"Cancel sending");
+            [self.manager.session invalidateAndCancel];
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+        }
         [self.appDelegate clearProperty];
     }
 }
