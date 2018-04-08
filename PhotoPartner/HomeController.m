@@ -403,7 +403,7 @@
         NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
         NSLog(@"Total bytes %ld", [videoData length]);
         
-        self.appDelegate.md5 =  [self.appDelegate md5:[videoURL absoluteString]];
+        self.appDelegate.md5 =  [self.appDelegate fileMD5:UIImagePNGRepresentation(thumbnail)];
         NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
         
         if( ![self.appDelegate doDataToBlock:videoData] ){
@@ -511,21 +511,13 @@
 
 - (void)clickQuitButton {
 //    AppDelegate *app = [UIApplication sharedApplication].delegate;
-    
     UIWindow *window = self.appDelegate.window;
-    
     [UIView animateWithDuration:1.0f animations:^{
-        
         window.alpha = 0;
-        
         window.frame = CGRectMake(0, window.bounds.size.width, 0, 0);
-        
     } completion:^(BOOL finished) {
-        
         exit(0);
-        
     }];
-    
     //exit(0);
 }
 

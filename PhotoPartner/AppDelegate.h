@@ -49,7 +49,7 @@
 - (void)loadMessageList;
 - (void)clearMessageList;
 - (bool)doDataToBlock:(NSData *) videoData;
-- (NSString *)md5:(NSString *) string;
+//- (NSString *)md5:(NSString *) string;
 - (NSString*)fileMD5:(NSData*)data;
 
 @end
