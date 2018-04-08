@@ -12,6 +12,7 @@ target 'PhotoPartner' do
   pod 'AFNetworking', '~> 3.0'
   pod 'TZImagePickerController'
   pod 'MBProgressHUD', '~> 1.1.0'
+  pod 'ZWPlaceHolder'
 
   target 'PhotoPartnerTests' do
     inherit! :search_paths

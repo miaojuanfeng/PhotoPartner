@@ -12,7 +12,7 @@
 #import <AFNetworking/AFNetworking.h>
 #import <TZImagePickerController.h>
 #import <TZImageManager.h>
-#import "UITextView+WJPlaceholder.h"
+#import "UITextView+ZWPlaceHolder.h"
 
 //#define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
@@ -67,10 +67,7 @@
     [self.view addGestureRecognizer:singleTap];
     
     //监听当键将要退出时
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillHide:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     
     self.textCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(GAP_WIDTH, 0, GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, PHOTO_NUM_HEIGHT)];
     self.textCountLabel.textColor = [UIColor lightGrayColor];
@@ -80,7 +77,8 @@
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(self.textCountLabel)+GET_LAYOUT_HEIGHT(self.textCountLabel), GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, 100)];
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
-    self.textView.placeholder = NSLocalizedString(@"uploadTextViewPlaceHolderText", nil);
+    self.textView.font = [UIFont systemFontOfSize:14.0f];
+    self.textView.placeholder = NSLocalizedString(@"uploadTextViewVideoPlaceHolderText", nil);
     self.textView.delegate = self;
     
     if( self.appDelegate.photos.count == 0 ){
@@ -101,7 +99,11 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return @"推送设备";
+    if( section == 0 ){
+        return @"";
+    }else{
+        return NSLocalizedString(@"uploadPushDeviceTitle", nil);
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -292,18 +294,24 @@
     self.navigationItem.rightBarButtonItem.enabled = NO;
     self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadProcessingRightBarButtonItemTitle", nil);
     
-    [[TZImageManager manager] getVideoWithAsset:asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
-        NSString *PHImageFileSandboxExtensionTokenKey = [info objectForKey:@"PHImageFileSandboxExtensionTokenKey"];
-        self.appDelegate.md5 =  [self.appDelegate md5:PHImageFileSandboxExtensionTokenKey];
-        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+    //    NSLog(@"视频fileMD5计算完成,md5值为:%@", [self.appDelegate fileMD5:UIImagePNGRepresentation(coverImage)]);
+    self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation(coverImage)];
+    NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+    
+//    [[TZImageManager manager] getVideoWithAsset:asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
+//        NSString *PHImageFileSandboxExtensionTokenKey = [info objectForKey:@"PHImageFileSandboxExtensionTokenKey"];
+//        self.appDelegate.md5 =  [self.appDelegate md5:PHImageFileSandboxExtensionTokenKey];
         
+//        self.appDelegate.md5 = [self.appDelegate md5:@"s" ];
+//        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+    
         [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath){
-            NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+//            NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
             NSURL *videoUrl = [NSURL fileURLWithPath:outputPath];
-            NSLog(@"videoUrl: %@", videoUrl);
+//            NSLog(@"videoUrl: %@", videoUrl);
             NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
-            //        NSLog(@"***%@",videoData);
-            NSLog(@"***%ld",videoData.length);
+//            NSLog(@"***%@",videoData);
+//            NSLog(@"***%ld",videoData.length);
             
             if( ![self.appDelegate doDataToBlock:videoData] ){
                 [self.appDelegate clearProperty];
@@ -330,7 +338,7 @@
         } failure:^(NSString *errorMessage, NSError *error) {
             
         }];
-    }];
+//    }];
 }
 
 - (CGFloat) getFileSize:(NSString *)path

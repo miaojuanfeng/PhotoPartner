@@ -12,7 +12,7 @@
 #import "MacroDefine.h"
 #import "AppDelegate.h"
 #import "UploadPhotoController.h"
-#import "UITextView+WJPlaceholder.h"
+#import "UITextView+ZWPlaceHolder.h"
 
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate>
 @property UITableView *tableView;
@@ -63,10 +63,7 @@
     [self.view addGestureRecognizer:singleTap];
     
     //监听当键将要退出时
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillHide:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     
     self.textCountLabel = [[UILabel alloc] initWithFrame:CGRectMake(GAP_WIDTH, 0, GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, PHOTO_NUM_HEIGHT)];
     self.textCountLabel.textColor = [UIColor lightGrayColor];
@@ -76,7 +73,8 @@
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(GAP_WIDTH, GET_LAYOUT_OFFSET_Y(self.textCountLabel)+GET_LAYOUT_HEIGHT(self.textCountLabel), GET_LAYOUT_WIDTH(self.view)-2*GAP_WIDTH, 100)];
     self.textView.textContainer.lineFragmentPadding = 0;
     self.textView.textContainerInset = UIEdgeInsetsZero;
-    self.textView.placeholder = NSLocalizedString(@"uploadTextViewPlaceHolderText", nil);
+    self.textView.font = [UIFont systemFontOfSize:14.0f];
+    self.textView.placeholder = NSLocalizedString(@"uploadTextViewPhotoPlaceHolderText", nil);
     self.textView.delegate = self;
 
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
@@ -104,7 +102,11 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return @"推送设备";
+    if( section == 0 ){
+        return @"";
+    }else{
+        return NSLocalizedString(@"uploadPushDeviceTitle", nil);
+    }
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

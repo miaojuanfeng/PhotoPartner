@@ -33,8 +33,10 @@ uploadVideoMaxSizeError = "File size can not exceed 50M";
 uploadPhotoEmptyError = "Please select at least one photo";
 uploadVideoEmptyError = "Please select a video";
 uploadDeviceEmptyError = "Please select at least one device";
-uploadTextViewPlaceHolderText = "Click on the photo to add a describe for each photo";
+uploadTextViewPhotoPlaceHolderText = "Click on the photo to add a describe for each photo";
+uploadTextViewVideoPlaceHolderText = "Click on the photo to add a describe for video";
 uploadDescLabelPlaceHolderText = "Add a text describe";
+uploadPushDeviceTitle = "Push Device";
 
 deviceListNavigationItemTitle = "Device Manager";
 deviceListRename = "Rename";
