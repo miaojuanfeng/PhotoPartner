@@ -45,8 +45,7 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
-    self.navigationItem.rightBarButtonItem = submitButton;
+    INIT_RightBarButtonItem(@"\U0000e6eb", clickSubmitButton);
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];

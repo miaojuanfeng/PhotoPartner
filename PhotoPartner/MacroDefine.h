@@ -97,12 +97,12 @@
 
 #define NAV_UPLOAD_START do{ \
                             self.appDelegate.isSending = true; \
-                            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadCancelRightBarButtonItemTitle", nil); \
+                            UPDATE_RightBarButtonItem(@"\U0000e646"); \
                          }while(0)
 
 #define NAV_UPLOAD_END do{ \
                             self.appDelegate.isSending = false; \
-                            self.navigationItem.rightBarButtonItem.title = NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil); \
+                            UPDATE_RightBarButtonItem(@"\U0000e6eb"); \
                        }while(0)
 
 #define DO_CLEAR_MEDIA_VIEW do{ \
@@ -124,10 +124,28 @@
                             [self.tableView reloadData];    \
                          }while(0)
 
+#define INIT_RightBarButtonItem(t,s) do{  \
+                                    UIButton *rightBarButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];    \
+                                    rightBarButton.frame = CGRectMake(0, 0, 20, 20); \
+                                    rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:26.0f]; \
+                                    [rightBarButton setTitle:t forState:UIControlStateNormal];   \
+                                    [rightBarButton addTarget:self action:@selector(s) forControlEvents:UIControlEventTouchUpInside]; \
+                                    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightBarButton];  \
+                                }while(0)
+
+#define UPDATE_RightBarButtonItem(t) do{ \
+                                        UIButton *rightBarButton = self.navigationItem.rightBarButtonItem.customView;   \
+                                        [rightBarButton setTitle:t forState:UIControlStateNormal];   \
+                                    }while(0)
+
 #define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
 
 #define IMAGE_CELL_HEIGHT 230
 #define VIDEO_CELL_HEIGHT 230
 #define TEXT_CELL_HEIGHT 80
+
+#define ICON_ADD 
+#define ICON_SCAN 3
+#define ICON_FORWARD 4
 
 #endif /* MacroDefine_h */

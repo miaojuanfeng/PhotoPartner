@@ -73,6 +73,14 @@
     self.hudWaiting.contentColor = [UIColor whiteColor];
     [self.hudWaiting hideAnimated:NO];
     
+    
+//    for (NSString * family in [UIFont familyNames]) {
+//        NSLog(@"familyNames:%@", family);
+//        for (NSString * name in [UIFont fontNamesForFamilyName:family]) {
+//            NSLog(@"  name: %@",name);
+//        }
+//    }
+    
     return YES;
 }
 

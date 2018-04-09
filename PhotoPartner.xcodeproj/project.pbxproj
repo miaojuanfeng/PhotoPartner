@@ -13,6 +13,7 @@
 		CE70A468204FC3CD00470A16 /* MessageController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE70A467204FC3CD00470A16 /* MessageController.m */; };
 		CE70A46F204FD1EB00470A16 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CE70A471204FD1EB00470A16 /* InfoPlist.strings */; };
 		CE70A475204FD3AC00470A16 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CE70A477204FD3AC00470A16 /* Localizable.strings */; };
+		CE743922207B216800A1BDAD /* iconfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE743921207B215800A1BDAD /* iconfont.ttf */; };
 		CE759CF42064E0910034EA46 /* GSKeyChain.m in Sources */ = {isa = PBXBuildFile; fileRef = CE759CF12064E0900034EA46 /* GSKeyChain.m */; };
 		CE759CF52064E0910034EA46 /* GSKeyChainDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CE759CF32064E0910034EA46 /* GSKeyChainDataManager.m */; };
 		CE759CF72064F5950034EA46 /* UserInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE759CF62064F5950034EA46 /* UserInfoController.m */; };
@@ -66,6 +67,7 @@
 		CE70A472204FD1F800470A16 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		CE70A476204FD3AC00470A16 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		CE70A478204FD3AE00470A16 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CE743921207B215800A1BDAD /* iconfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = iconfont.ttf; sourceTree = "<group>"; };
 		CE759CF02064E0900034EA46 /* GSKeyChain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSKeyChain.h; path = PhotoPartner/GSKeyChain.h; sourceTree = "<group>"; };
 		CE759CF12064E0900034EA46 /* GSKeyChain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GSKeyChain.m; path = PhotoPartner/GSKeyChain.m; sourceTree = "<group>"; };
 		CE759CF22064E0900034EA46 /* GSKeyChainDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSKeyChainDataManager.h; path = PhotoPartner/GSKeyChainDataManager.h; sourceTree = "<group>"; };
@@ -237,6 +239,7 @@
 				CEC978ED204E38F800AE8CB3 /* HomeController.m */,
 				CEC978F2204E38F800AE8CB3 /* Assets.xcassets */,
 				CEC978F7204E38F800AE8CB3 /* Info.plist */,
+				CE743921207B215800A1BDAD /* iconfont.ttf */,
 				CE70A477204FD3AC00470A16 /* Localizable.strings */,
 				CE70A471204FD1EB00470A16 /* InfoPlist.strings */,
 				CEC978F8204E38F800AE8CB3 /* main.m */,
@@ -379,6 +382,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE743922207B216800A1BDAD /* iconfont.ttf in Resources */,
 				CE70A475204FD3AC00470A16 /* Localizable.strings in Resources */,
 				CEC978F3204E38F800AE8CB3 /* Assets.xcassets in Resources */,
 				CE70A46F204FD1EB00470A16 /* InfoPlist.strings in Resources */,

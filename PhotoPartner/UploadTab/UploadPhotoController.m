@@ -40,6 +40,8 @@
 
     self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
     
+    INIT_RightBarButtonItem(@"\U0000e6eb", clickSubmitButton);
+    
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
 //    self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(0, 44, GET_LAYOUT_WIDTH(self.view), 1)];
@@ -79,8 +81,6 @@
     self.textView.placeholder = NSLocalizedString(@"uploadTextViewPhotoPlaceHolderText", nil);
     self.textView.delegate = self;
 
-    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"uploadSendRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickSubmitButton)];
-    self.navigationItem.rightBarButtonItem = submitButton;
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     
     if( self.appDelegate.photos.count == 0 ){
