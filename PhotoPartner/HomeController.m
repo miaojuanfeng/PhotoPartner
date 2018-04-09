@@ -150,7 +150,7 @@
         [bottomBoxView addSubview:bindDeviceButton];
     
         UIView *bindDevicIcon = [[UIView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(bindDeviceButton)-90)/2, (GET_LAYOUT_HEIGHT(bindDeviceButton)-60)/2-10, 90, 60)];
-        messageIcon.userInteractionEnabled = NO;
+        bindDevicIcon.userInteractionEnabled = NO;
     
         UIImageView *bindDevicIconImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(bindDevicIcon), GET_LAYOUT_HEIGHT(bindDevicIcon))];
         bindDevicIconImage.image = [UIImage imageNamed:@"connecting_devices"];
@@ -163,7 +163,7 @@
         bindDeviceLabel.textColor = [UIColor whiteColor];
         bindDeviceLabel.text = NSLocalizedString(@"deviceListNavigationItemTitle", nil);
         [bindDeviceButton addSubview:bindDeviceLabel];
-    
+
     
     UIButton *settingButton = [[UIButton alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_HEIGHT(bindDeviceButton)+GAP_HEIGHT, GET_LAYOUT_WIDTH(bottomBoxView), (GET_LAYOUT_HEIGHT(bottomBoxView)-GAP_HEIGHT)/2)];
     settingButton.backgroundColor = RGBA_COLOR(235, 182, 67, 1);

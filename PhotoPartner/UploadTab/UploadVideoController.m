@@ -149,7 +149,10 @@
         NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
         cell.textLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
         
-//        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        if( [[deviceItem objectForKey:@"isSelected"] boolValue] ){
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        }
+        
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     }
     return cell;
@@ -253,15 +256,16 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
     [self.view endEditing:YES];
     if( indexPath.section == 1 ){
-        NSString *device_id = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] objectForKey:@"device_id"];
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-        if( [self.appDelegate.deviceId containsObject:device_id] ){
-            [self.appDelegate.deviceId removeObject:device_id];
+        NSMutableDictionary *device = [self.appDelegate.deviceList objectAtIndex:indexPath.row];
+        if( [[device objectForKey:@"isSelected"] boolValue] ){
             cell.accessoryType = UITableViewCellAccessoryNone;
+            [device setObject:@0 forKey:@"isSelected"];
         }else{
-            [self.appDelegate.deviceId addObject:device_id];
             cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            [device setObject:@1 forKey:@"isSelected"];
         }
+        [self.appDelegate.deviceList replaceObjectAtIndex:indexPath.row withObject:device];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
@@ -423,6 +427,12 @@
     if( !self.appDelegate.isSending ){
         [self.view endEditing:YES];
         
+        for (NSMutableDictionary *device in self.appDelegate.deviceList) {
+            if( [[device objectForKey:@"isSelected"] boolValue] ){
+                [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
+            }
+        }
+        
         if( self.appDelegate.photos.count == 0 ){
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
             return;
@@ -504,6 +514,8 @@
                 NSDictionary *data = [dic objectForKey:@"data"];
                 if( [[data objectForKey:@"complete"] intValue] ){
                     
+                    [self.manager.session invalidateAndCancel];
+                    
                     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
                     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
                     [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
@@ -535,6 +547,9 @@
                     HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
                 }else{
                     [successBlock addObject:fileBlock];
+                    if( (successBlock.count + failedBlock.count) == self.appDelegate.videos.count ){
+                        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+                    }
                 }
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                 NSLog(@"上传失败.%@",error);
@@ -844,6 +859,7 @@
 - (void)clickRmButton:(UIButton *)btn{
     self.isDeleteSignals = true;
     [self.appDelegate clearIndexProperty:btn.tag];
+    [self.appDelegate.videos removeAllObjects];
     
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];

@@ -118,6 +118,7 @@
                             DO_CLEAR_MEDIA_VIEW; \
                             self.textView.text = @"";   \
                             self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS]; \
+                            [self.appDelegate saveDeviceList];  \
                             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];   \
                             UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];   \
                             [self getMediaView:cell];   \
