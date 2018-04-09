@@ -26,7 +26,7 @@
     COMMON_MACRO;
     self.navigationItem.title = NSLocalizedString(@"deviceListNavigationItemTitle", nil);
     
-    INIT_RightBarButtonItem(@"\U0000e767", clickDeviceAddButton);
+    INIT_RightBarButtonItem(ICON_ADD, clickDeviceAddButton);
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, MARGIN_TOP, VIEW_WIDTH, VIEW_HEIGHT)];
     self.tableView.dataSource = self;

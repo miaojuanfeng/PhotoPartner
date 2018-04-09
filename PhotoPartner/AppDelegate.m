@@ -50,7 +50,14 @@
     if( self.messageList == nil ){
         self.messageList = [[NSMutableArray alloc] init];
     }
-    NSLog(@"ms: %@", self.messageList);
+    
+    [self loadFailedBlock];
+    if( self.failedBlock == nil ){
+        self.failedBlock = [[NSMutableDictionary alloc] init];
+    }
+//    [self.failedBlock removeAllObjects];
+//    [self saveFailedBlock];
+    NSLog(@"self.failedBlock: %@", self.failedBlock);
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     HomeController *homeController = [[HomeController alloc] init];
@@ -145,6 +152,42 @@
     }else{
         self.focusImageIndex = -1;
     }
+}
+
+- (void)addFailedBlock:(NSMutableArray *) failedBlock withMD5:(NSString *)md5 {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"failedBlock.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableDictionary *newDic = nil;
+    if ([fileManager fileExistsAtPath:plistPath] == NO) {
+        newDic = [[NSMutableDictionary alloc] init];
+    }else{
+        newDic = [[NSMutableDictionary alloc] initWithContentsOfFile:plistPath];
+    }
+    [newDic setValue:failedBlock forKey:md5];
+    [newDic writeToFile:plistPath atomically:YES];
+}
+
+- (void)saveFailedBlock {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"failedBlock.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:plistPath error:nil];
+    
+    if( self.failedBlock.count ){
+        [self.failedBlock writeToFile:plistPath atomically:YES];
+    }
+}
+
+- (void)loadFailedBlock {
+    NSArray *pathArray = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *path = [pathArray objectAtIndex:0];
+    NSString *plistPath = [path stringByAppendingPathComponent:@"failedBlock.plist"];
+    self.failedBlock = [[NSMutableDictionary alloc] initWithContentsOfFile:plistPath];
 }
 
 - (void)addDeviceList:(NSMutableDictionary *) device {

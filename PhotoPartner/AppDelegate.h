@@ -28,6 +28,7 @@
  *  For Video
  */
 @property NSMutableArray<NSData *> *videos;
+@property NSMutableDictionary *failedBlock;
 @property NSMutableArray *completedUnitPercent;
 @property NSString *md5;
 /*
@@ -42,6 +43,9 @@
 - (void)clearProperty;
 //- (void)clearPickerProperty;
 - (void)clearIndexProperty:(long)index;
+- (void)addFailedBlock:(NSMutableArray *) failedBlock withMD5:(NSString *)md5;
+- (void)saveFailedBlock;
+- (void)loadFailedBlock;
 - (void)addDeviceList:(NSMutableDictionary *) device;
 - (void)saveDeviceList;
 - (void)loadDeviceList;

@@ -97,12 +97,12 @@
 
 #define NAV_UPLOAD_START do{ \
                             self.appDelegate.isSending = true; \
-                            UPDATE_RightBarButtonItem(@"\U0000e646"); \
+                            UPDATE_RightBarButtonItem(ICON_CANCEL); \
                          }while(0)
 
 #define NAV_UPLOAD_END do{ \
                             self.appDelegate.isSending = false; \
-                            UPDATE_RightBarButtonItem(@"\U0000e6eb"); \
+                            UPDATE_RightBarButtonItem(ICON_FORWARD); \
                        }while(0)
 
 #define DO_CLEAR_MEDIA_VIEW do{ \
@@ -139,14 +139,25 @@
                                         [rightBarButton setTitle:t forState:UIControlStateNormal];   \
                                     }while(0)
 
+#define DISABLE_RightBarButtonItem do{  \
+                                        UIButton *rightBarButton = self.navigationItem.rightBarButtonItem.customView;   \
+                                        rightBarButton.enabled = NO; \
+                                    }while(0)
+
+#define ENABLE_RightBarButtonItem do{  \
+                                        UIButton *rightBarButton = self.navigationItem.rightBarButtonItem.customView;   \
+                                        rightBarButton.enabled = YES; \
+                                    }while(0)
+
 #define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
 
 #define IMAGE_CELL_HEIGHT 230
 #define VIDEO_CELL_HEIGHT 230
 #define TEXT_CELL_HEIGHT 80
 
-#define ICON_ADD 
-#define ICON_SCAN 3
-#define ICON_FORWARD 4
+#define ICON_ADD @"\U0000e767"
+#define ICON_SCAN @"\U0000e689"
+#define ICON_FORWARD @"\U0000e6eb"
+#define ICON_CANCEL @"\U0000e646"
 
 #endif /* MacroDefine_h */

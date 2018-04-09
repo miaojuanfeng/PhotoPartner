@@ -27,7 +27,7 @@
     self.view.backgroundColor = RGBA_COLOR(239, 239, 239, 1);
     self.navigationItem.title = NSLocalizedString(@"deviceAddNavigationItemTitle", nil);
     
-    INIT_RightBarButtonItem(@"\U0000e689", clickDeviceScanButton);
+    INIT_RightBarButtonItem(ICON_SCAN, clickDeviceScanButton);
     
 //    UIBarButtonItem *deviceAddButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"deviceAddRightBarButtonItemTitle", nil) style:UIBarButtonItemStylePlain target:self action:@selector(clickDeviceAddButtonButton)];
 //    self.navigationItem.rightBarButtonItem = deviceAddButton;

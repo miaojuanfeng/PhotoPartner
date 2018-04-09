@@ -40,7 +40,7 @@
 
     self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
     
-    INIT_RightBarButtonItem(@"\U0000e6eb", clickSubmitButton);
+    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
