@@ -95,6 +95,24 @@
                                 }]; \
                             }while(0)
 
+#define HUD_TOAST_POP_SHOW(t) do{ \
+                                [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
+                                self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \
+                                self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
+                                self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
+                                self.appDelegate.hudToast.label.text = t; \
+                                self.appDelegate.hudToast.bezelView.backgroundColor = [UIColor blackColor]; \
+                                self.appDelegate.hudToast.contentColor = [UIColor whiteColor]; \
+                                [self.appDelegate.hudToast showAnimated:YES whileExecutingBlock:^{ \
+                                    sleep(2); \
+                                } \
+                                completionBlock:^{ \
+                                    [self.appDelegate.hudToast removeFromSuperview]; \
+                                    self.appDelegate.hudToast = nil; \
+                                    [self.navigationController popViewControllerAnimated:YES]; \
+                                }]; \
+                                }while(0)
+
 #define NAV_UPLOAD_START do{ \
                             self.appDelegate.isSending = true; \
                             UPDATE_RightBarButtonItem(ICON_CANCEL); \

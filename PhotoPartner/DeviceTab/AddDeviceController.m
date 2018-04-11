@@ -90,6 +90,8 @@
 }
 
 - (void)clickDeviceAddButton {
+    [self.view endEditing:YES];
+    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
@@ -133,8 +135,7 @@
             NSString *desc = @"";
             [self.appDelegate addMessageList:@"text" withTime:time withTitle:title withDesc:desc withData:nil];
             
-            
-            [self.navigationController popViewControllerAnimated:YES];
+            HUD_TOAST_POP_SHOW(NSLocalizedString(@"deviceAddBindSuccess", nil));
         }else{
             NSString *eCode = [NSString stringWithFormat:@"e%d", status];
             HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
