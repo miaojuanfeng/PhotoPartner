@@ -169,9 +169,9 @@
 
 #define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
 
-#define IMAGE_CELL_HEIGHT 230
-#define VIDEO_CELL_HEIGHT 230
-#define TEXT_CELL_HEIGHT 80
+#define IMAGE_CELL_HEIGHT 250
+#define VIDEO_CELL_HEIGHT IMAGE_CELL_HEIGHT
+#define TEXT_CELL_HEIGHT 70
 
 #define ICON_ADD @"\U0000e767"
 #define ICON_SCAN @"\U0000e689"

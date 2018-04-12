@@ -248,15 +248,12 @@
                                         NSLog(@"%ld", device_id);
                                         NSLog(@"%d", [[[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] longValue] == device_id);
                     if( [[[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] longValue] == device_id ){
-                        NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
-                        NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
-                        deviceName = [NSString stringWithFormat:@"%@(%@)", device_name, device_token];
+                        deviceName = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
                         break;
                     }
                 }
-                NSString *title = [NSString stringWithFormat:@"Unbind device %@", deviceName];
                 NSString *desc = @"";
-                [self.appDelegate addMessageList:@"text" withTime:time withTitle:title withDesc:desc withData:nil];
+                [self.appDelegate addMessageList:@"unbind" withTime:time withTitle:deviceName withDesc:desc withData:nil];
                 
                 
                 for (NSDictionary *device in self.appDelegate.deviceList) {

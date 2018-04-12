@@ -356,4 +356,22 @@
     return s;
 }
 
+- (NSString*)getMessageTime:(NSString*) time{
+    NSDate *nowDate = [NSDate date]; // 当前日期
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd HH-mm-ss";
+    NSDate *creat = [formatter dateFromString:time];// 将传入的字符串转化成时间
+    NSTimeInterval delta = [nowDate timeIntervalSinceDate:creat]; // 计算出相差多少秒
+    if( delta < 60.0 ){
+        return [NSString stringWithFormat:@"%d%@", (int)delta, NSLocalizedString(@"messageSecondAgo", nil)];
+    }
+    if( delta < ( 60.0 * 60.0 ) ){
+        return [NSString stringWithFormat:@"%d%@", (int)delta/60, NSLocalizedString(@"messageMinuteAgo", nil)];
+    }
+    if( delta < ( 60.0 * 60.0 * 24) ){
+        return [NSString stringWithFormat:@"%d%@", (int)delta/60/60, NSLocalizedString(@"messageHourAgo", nil)];
+    }
+    return time;
+}
+
 @end

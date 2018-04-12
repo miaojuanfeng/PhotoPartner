@@ -87,33 +87,54 @@
     UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, GET_LAYOUT_WIDTH(self.tableView)-20, [self getCellHeight:indexPath.row]-20)];
 //    messageView.backgroundColor = [UIColor redColor];
     
-    UILabel *timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(messageView), 20)];
-    timeLabel.text = [messageItem objectForKey:@"time"];
+    UILabel *timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(messageView), 25)];
+    timeLabel.text = [self.appDelegate getMessageTime:[messageItem objectForKey:@"time"]];
 //    timeLabel.backgroundColor = [UIColor blueColor];
     [messageView addSubview:timeLabel];
     
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(timeLabel)+GET_LAYOUT_HEIGHT(timeLabel), GET_LAYOUT_WIDTH(messageView), 20)];
-    titleLabel.text = [messageItem objectForKey:@"title"];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(timeLabel)+GET_LAYOUT_HEIGHT(timeLabel), GET_LAYOUT_WIDTH(messageView), 25)];
 //    titleLabel.backgroundColor = [UIColor grayColor];
+    if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"bind"] ){
+        titleLabel.text = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"messageBindDeviceTo", nil), [messageItem objectForKey:@"title"]];
+    }else if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"unbind"] ){
+        titleLabel.text = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"messageUnbindDeviceTo", nil), [messageItem objectForKey:@"title"]];
+    }else if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"image"] ){
+        titleLabel.text = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"messageSendPhotoTo", nil), [messageItem objectForKey:@"title"]];
+    }else if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"video"] ){
+        titleLabel.text = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"messageSendVideoTo", nil), [messageItem objectForKey:@"title"]];
+    }
     [messageView addSubview:titleLabel];
-    
-    UILabel *descLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(titleLabel)+GET_LAYOUT_HEIGHT(titleLabel), GET_LAYOUT_WIDTH(messageView), 20)];
-    descLabel.text = [messageItem objectForKey:@"desc"];
-//    descLabel.backgroundColor = [UIColor orangeColor];
-    [messageView addSubview:descLabel];
     
     if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"image"] ||
         [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"video"] ){
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(descLabel)+GET_LAYOUT_HEIGHT(descLabel), 200, 150)];
+        
+        UILabel *descLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(titleLabel)+GET_LAYOUT_HEIGHT(titleLabel), GET_LAYOUT_WIDTH(messageView), 25)];
+        descLabel.text = [messageItem objectForKey:@"desc"];
+//        descLabel.backgroundColor = [UIColor orangeColor];
+        [messageView addSubview:descLabel];
+        
+        UIView *mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(descLabel)+GET_LAYOUT_HEIGHT(descLabel), 100, 150)];
+        
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 5, GET_LAYOUT_WIDTH(mediaView), GET_LAYOUT_HEIGHT(mediaView))];
         imageView.image = [UIImage imageWithData:[[NSData alloc] initWithBase64Encoding:[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"data"]]];
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
-        [messageView addSubview:imageView];
+        [mediaView addSubview:imageView];
         
-        NSLog(@"%f", GET_LAYOUT_HEIGHT(timeLabel)+GET_LAYOUT_HEIGHT(titleLabel)+GET_LAYOUT_HEIGHT(descLabel)+GET_LAYOUT_HEIGHT(imageView));
+        if( [[[self.appDelegate.messageList objectAtIndex:indexPath.row] objectForKey:@"type"] isEqualToString:@"video"] ){
+            UIImageView *videoView = [[UIImageView alloc] initWithFrame:CGRectMake((GET_LAYOUT_WIDTH(mediaView)-80)/2, (GET_LAYOUT_HEIGHT(mediaView)-80)/2, 80, 80)];
+            videoView.image = [UIImage imageNamed:@"message_video"];
+//            videoView.contentMode = UIViewContentModeScaleAspectFill;
+//            videoView.clipsToBounds = YES;
+            [mediaView addSubview:videoView];
+        }
+        
+        [messageView addSubview:mediaView];
+        
+//        NSLog(@"%f", GET_LAYOUT_HEIGHT(timeLabel)+GET_LAYOUT_HEIGHT(titleLabel)+GET_LAYOUT_HEIGHT(descLabel)+GET_LAYOUT_HEIGHT(imageView));
     }
     
-    NSLog(@"%f", GET_LAYOUT_HEIGHT(timeLabel)+GET_LAYOUT_HEIGHT(titleLabel)+GET_LAYOUT_HEIGHT(descLabel));
+//    NSLog(@"%f", GET_LAYOUT_HEIGHT(timeLabel)+GET_LAYOUT_HEIGHT(titleLabel)+GET_LAYOUT_HEIGHT(descLabel));
     
     [cell.contentView addSubview:messageView];
     

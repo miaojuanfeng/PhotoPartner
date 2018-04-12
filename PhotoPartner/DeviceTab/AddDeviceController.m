@@ -137,12 +137,9 @@
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
             NSString *time = [dateFormatter stringFromDate:date];
-            NSString *device_name = self.deviceNameField.text;
-            NSString *device_token = self.deviceTokenField.text;
-            NSString *deviceName = [NSString stringWithFormat:@"%@(%@)", device_name, device_token];
-            NSString *title = [NSString stringWithFormat:@"Bind device %@", deviceName];
+            NSString *deviceName = self.deviceNameField.text;
             NSString *desc = @"";
-            [self.appDelegate addMessageList:@"text" withTime:time withTitle:title withDesc:desc withData:nil];
+            [self.appDelegate addMessageList:@"bind" withTime:time withTitle:deviceName withDesc:desc withData:nil];
             
             HUD_TOAST_POP_SHOW(NSLocalizedString(@"deviceAddBindSuccess", nil));
         }else{

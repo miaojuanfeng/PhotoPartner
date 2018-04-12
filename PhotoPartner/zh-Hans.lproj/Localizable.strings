@@ -88,7 +88,13 @@ userInfoUserAccount = "账号：";
 userInfoUserNameTextFiledTitle = "请输入用户名称";
 
 messageNavigationItemTitle = "消息";
-
+messageSendPhotoTo = "发送照片给";
+messageSendVideoTo = "发送视频给";
+messageBindDeviceTo = "绑定设备";
+messageUnbindDeviceTo = "解绑设备";
+messageSecondAgo = "秒前";
+messageMinuteAgo = "分钟前";
+messageHourAgo = "小时前";
 
 
 /*

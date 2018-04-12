@@ -88,8 +88,13 @@ userInfoUserAccount = "Account：";
 userInfoUserNameTextFiledTitle = "Please enter the user's nickname";
 
 messageNavigationItemTitle = "Message";
-
-
+messageSendPhotoTo = "Send photo to";
+messageSendVideoTo = "Send video to";
+messageBindDeviceTo = "Bind device";
+messageUnbindDeviceTo = "Unbind device";
+messageSecondAgo = " second ago";
+messageMinuteAgo = " minute ago";
+messageHourAgo = " hour ago";
 
 /*
  *  从服务器返回的错误码
