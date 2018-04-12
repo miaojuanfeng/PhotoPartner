@@ -74,9 +74,9 @@ versionNewTitle = "New Version";
 versionNewDesc = "Go to App Store to Update";
 versionAlreadyLastVersion = "Already last version";
 
-AboutUsTitle = "About Us";
-AboutUsContent = "Photo Partner App uses cloud technology to upload photos and video files to the cloud, and then push it to the cloud frame device from the cloud, which is convenient and quick.";
-AboutUsVersion = "Version";
+aboutUsTitle = "About Us";
+aboutUsContent = "Photo Partner App uses cloud technology to upload photos and video files to the cloud, and then push it to the cloud frame device from the cloud, which is convenient and quick.";
+aboutUsVersion = "Version";
 
 clearMessageListTitle = "Do you confirm that you want to delete all messages";
 clearMessageListSubtitle = "This operation is not recoverable";

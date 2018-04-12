@@ -150,7 +150,7 @@
         self.tableView.rowHeight = 44;
         
         NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
-        cell.textLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
+        cell.textLabel.text = [NSString stringWithFormat:@"%@", [deviceItem objectForKey:@"device_name"]];
         
         if( [[deviceItem objectForKey:@"isSelected"] boolValue] ){
             cell.accessoryType = UITableViewCellAccessoryCheckmark;
@@ -546,8 +546,7 @@
                                 //                    NSLog(@"%@", device_id);
                                 if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
                                     NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
-                                    NSString *device_token = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_token"];
-                                    device = [NSString stringWithFormat:@"%@ %@(%@)", device, device_name, device_token];
+                                    device = [NSString stringWithFormat:@"%@, %@", device, device_name];
                                     break;
                                 }
                             }

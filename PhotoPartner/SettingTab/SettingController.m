@@ -42,31 +42,15 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    switch( section ){
-        case 0:
-            return 1;
-            break;
-        case 1:
-            return 2;
-            break;
-    }
-    return 0;
+    return 3;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 1;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    switch( section ){
-        case 0:
-            return NSLocalizedString(@"settingTableHeaderUserTitle", nil);;
-            break;
-        case 1:
-            return NSLocalizedString(@"settingTableHeaderSystemTitle", nil);;
-            break;
-    }
-    return nil;
+    return @" ";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -77,19 +61,20 @@
             case 0:
                 cell.textLabel.text = NSLocalizedString(@"settingCellUserInfoTitle", nil);
                 break;
-        }
-    }else if( indexPath.section == 1 ){
-        switch( indexPath.row ){
-            case 0:
+            case 1:
                 cell.textLabel.text = NSLocalizedString(@"settingCellClearMessageTitle", nil);
                 break;
-            case 1:
+            case 2:
 //                cell.textLabel.text = NSLocalizedString(@"settingCellVersionTitle", nil);;
                 cell.textLabel.text = NSLocalizedString(@"aboutUsTitle", nil);
                 break;
         }
     }
     return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return CGFLOAT_MIN;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
@@ -101,13 +86,10 @@
                 userInfoController = [[UserInfoController alloc] init];
                 [self.navigationController pushViewController:userInfoController animated:YES];
                 break;
-        }
-    }else if( indexPath.section == 1 ){
-        switch (indexPath.row) {
-            case 0:
+            case 1:
                 [self clickClearMessage];
                 break;
-            case 1:
+            case 2:
 //                [self versionUpdate];
                 aboutUsController = [[AboutUsController alloc] init];
                 [self.navigationController pushViewController:aboutUsController animated:YES];

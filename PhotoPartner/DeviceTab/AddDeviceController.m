@@ -92,6 +92,15 @@
 - (void)clickDeviceAddButton {
     [self.view endEditing:YES];
     
+    if( [self.deviceNameField.text isEqualToString:@""] ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddDeviceName", nil));
+        return;
+    }
+    if( [self.deviceTokenField.text isEqualToString:@""] ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddDeviceNumber", nil));
+        return;
+    }
+    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
