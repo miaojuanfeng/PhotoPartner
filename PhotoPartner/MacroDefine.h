@@ -145,7 +145,7 @@
 
 #define INIT_RightBarButtonItem(t,s) do{  \
                                     UIButton *rightBarButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];    \
-                                    rightBarButton.frame = CGRectMake(0, 0, 20, 20); \
+                                    rightBarButton.frame = CGRectMake(0, 0, 25, 20); \
                                     rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:26.0f]; \
                                     [rightBarButton setTitle:t forState:UIControlStateNormal];   \
                                     [rightBarButton addTarget:self action:@selector(s) forControlEvents:UIControlEventTouchUpInside]; \

@@ -22,6 +22,8 @@
     COMMON_MACRO;
     self.navigationItem.title = NSLocalizedString(@"aboutUsTitle", nil);
     
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.lineSpacing = 10;// 字体的行间距
     NSDictionary *attributes = @{NSFontAttributeName:[UIFont systemFontOfSize:16.0f], NSParagraphStyleAttributeName:paragraphStyle};

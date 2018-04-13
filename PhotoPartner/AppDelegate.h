@@ -49,6 +49,7 @@
 - (void)addDeviceList:(NSMutableDictionary *) device;
 - (void)saveDeviceList;
 - (void)loadDeviceList;
+- (Boolean)isNilDeviceList;
 - (void)addMessageList:(NSString *)type withTime:(NSString *) time withTitle:(NSString *) title withDesc:(NSString *) desc withData:(UIImage *) data;
 - (void)saveMessageList;
 - (void)loadMessageList;

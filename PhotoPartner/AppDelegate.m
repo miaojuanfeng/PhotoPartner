@@ -226,6 +226,14 @@
     self.deviceList = [[NSMutableArray alloc] initWithContentsOfFile:plistPath];
 }
 
+- (Boolean)isNilDeviceList {
+    NSArray *pathArray = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *path = [pathArray objectAtIndex:0];
+    NSString *plistPath = [path stringByAppendingPathComponent:@"deviceList.plist"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    return ![fileManager fileExistsAtPath:plistPath];
+}
+
 - (void)addMessageList:(NSString *)type withTime:(NSString *) time withTitle:(NSString *) title withDesc:(NSString *) desc withData:(UIImage *) data {
     NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsPath = [path objectAtIndex:0];

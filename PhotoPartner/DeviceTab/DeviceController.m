@@ -37,7 +37,6 @@
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
 }
 
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -100,13 +99,51 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated{
-    [self isEmptyDeviceList];
+    if( self.appDelegate.deviceList.count == 0 && [self.appDelegate isNilDeviceList] ){
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        manager.requestSerializer.timeoutInterval = 30.0f;
+        NSDictionary *parameters=@{
+                                   @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"]
+                                   };
+        HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+        [manager POST:BASE_URL(@"user/user_device") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+            
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+                
+                HUD_LOADING_PROGRESS(progress);
+            });
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"成功.%@",responseObject);
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+            
+            int status = [[dic objectForKey:@"status"] intValue];
+            
+            HUD_WAITING_HIDE;
+            if( status == 200 ){
+                self.appDelegate.deviceList = [dic objectForKey:@"data"];
+                [self.appDelegate saveDeviceList];
+            }
+            [self isEmptyDeviceList];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"失败.%@",error);
+            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+            
+            HUD_WAITING_HIDE;
+            HUD_TOAST_SHOW(NSLocalizedString(@"networkError", nil));
+            [self isEmptyDeviceList];
+        }];
+    }else{
+        [self isEmptyDeviceList];
+    }
 }
 
 - (void)isEmptyDeviceList{
     NSLog(@"self.appDelegate.deviceList: %@", self.appDelegate.deviceList);
     if( self.appDelegate.deviceList.count == 0 ){
-        self.emptyLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, self.view.frame.size.width-40, 95)];
+        self.emptyLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, 54, self.view.frame.size.width-40, 95)];
         self.emptyLabel.numberOfLines = 0;
         self.emptyLabel.font =  [UIFont fontWithName:@"AppleGothic" size:18.0];
         self.emptyLabel.lineBreakMode = NSLineBreakByWordWrapping;
@@ -121,7 +158,7 @@
                                      };
         self.emptyLabel.attributedText = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"deviceListEmpty", nil) attributes:attributes];
         
-        [self.tableView addSubview:self.emptyLabel];
+        [self.view addSubview:self.emptyLabel];
     }else{
         [self.emptyLabel removeFromSuperview];
     }
