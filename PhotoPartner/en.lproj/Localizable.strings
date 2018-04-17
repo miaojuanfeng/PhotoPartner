@@ -14,7 +14,10 @@ saveButton = "Save";
 saveSuccess = "Save Success";
 saveFailed = "Save Failed";
 
-homeNavigationItemTitle = "Photo Partner";
+loadingSignin = "Sign In";
+loadingDeviceList = "Loading Device";
+
+//homeNavigationItemTitle = "Photo Partner";
 
 homeTakePhotoTitle = "Photo";
 homePhotoLibTitle = "Local Photo & Video";

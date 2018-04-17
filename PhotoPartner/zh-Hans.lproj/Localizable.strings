@@ -14,7 +14,10 @@ saveButton = "保存";
 saveSuccess = "保存成功";
 saveFailed = "保存失败";
 
-homeNavigationItemTitle = "照片伴侣";
+loadingSignin = "登录中";
+loadingDeviceList = "读取设备";
+
+//homeNavigationItemTitle = "照片伴侣";
 
 homeTakePhotoTitle = "拍照";
 homePhotoLibTitle = "本地图库";

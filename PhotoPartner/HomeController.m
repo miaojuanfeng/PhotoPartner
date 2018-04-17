@@ -207,7 +207,7 @@
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
     NSDictionary *parameters=@{@"user_imei":deviceUUID};
-    HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+    HUD_WAITING_SHOW(NSLocalizedString(@"loadingSignin", nil));
     [manager POST:BASE_URL(@"user/signin") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
     } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -226,6 +226,48 @@
         HUD_WAITING_HIDE;
         if( status == 200 ){
             self.appDelegate.userInfo =  [NSMutableDictionary dictionaryWithDictionary:[dic objectForKey:@"data"]];
+            
+            // 获取设备列表，如果为空就链接服务器查询，如果任然为空，就跳转页面
+            if( self.appDelegate.deviceList.count == 0 && [self.appDelegate isNilDeviceList] ){
+                AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+                manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+                manager.requestSerializer.timeoutInterval = 30.0f;
+                NSDictionary *parameters=@{
+                                           @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"]
+                                           };
+                HUD_WAITING_SHOW(NSLocalizedString(@"loadingDeviceList", nil));
+                [manager POST:BASE_URL(@"user/user_device") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+                    
+                } progress:^(NSProgress * _Nonnull uploadProgress) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+                        
+                        HUD_LOADING_PROGRESS(progress);
+                    });
+                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    NSLog(@"成功.%@",responseObject);
+                    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+                    
+                    int status = [[dic objectForKey:@"status"] intValue];
+                    
+                    HUD_WAITING_HIDE;
+                    if( status == 200 ){
+                        self.appDelegate.deviceList = [[dic objectForKey:@"data"] mutableCopy];
+                        [self.appDelegate saveDeviceList];
+                        
+                        if( self.appDelegate.deviceList.count == 0 ){
+                            AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+                            [self.navigationController pushViewController:addDeviceController animated:YES];
+                        }
+                    }
+                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    NSLog(@"失败.%@",error);
+                    NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+                    
+                    HUD_WAITING_HIDE;
+                    [self closeAlart];
+                }];
+            }
         }
         NSLog(@"userInfo: %@", self.appDelegate.userInfo);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -233,21 +275,8 @@
         NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
         
         HUD_WAITING_HIDE;
-//        HUD_TOAST_SHOW(NSLocalizedString(@"networkError", nil));
-        
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"networkError", nil)
-                                                                                 message:NSLocalizedString(@"willCloseApp", nil)
-                                                                          preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self clickQuitButton];
-        }];
-        
-        [alertController addAction:okAction];
-        
-        [self presentViewController:alertController animated:YES completion:nil];
+        [self closeAlart];
     }];
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -507,6 +536,15 @@
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (void)closeAlart {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"networkError", nil) message:NSLocalizedString(@"willCloseApp", nil) preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self clickQuitButton];
+    }];
+    [alertController addAction:okAction];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)clickQuitButton {
