@@ -540,6 +540,7 @@
             [self.manager.session invalidateAndCancel];
             NAV_UPLOAD_END;
             HUD_LOADING_HIDE;
+            HUD_WAITING_HIDE;
         }
         [self.appDelegate clearProperty];
     }

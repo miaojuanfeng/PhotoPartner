@@ -131,6 +131,10 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+    [self isEmptyDeviceList];
+}
+
 - (void)clickDeviceAddButton {
     AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
     [self.navigationController pushViewController:addDeviceController animated:YES];
@@ -216,7 +220,7 @@
                                    @"device_id":[NSString stringWithFormat:@"%ld", btn.tag],
                                    @"status":@"unbind"
                                    };
-        HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+        HUD_WAITING_SHOW(NSLocalizedString(@"loadingUnbinding", nil));
         [manager POST:BASE_URL(@"device/status") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             
         } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -262,7 +266,12 @@
                 [self isEmptyDeviceList];
                 [self.tableView reloadData];
                 
-                HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindSuccess", nil));
+                if( self.appDelegate.deviceList.count == 0 ){
+                    AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+                    HUD_TOAST_PUSH_SHOW(NSLocalizedString(@"deviceListUnbindSuccess", nil), addDeviceController);
+                }else{
+                    HUD_TOAST_SHOW(NSLocalizedString(@"deviceListUnbindSuccess", nil));
+                }
             }else{
                 NSString *eCode = [NSString stringWithFormat:@"e%d", status];
                 HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));

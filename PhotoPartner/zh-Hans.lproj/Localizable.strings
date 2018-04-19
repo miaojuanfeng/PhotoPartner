@@ -16,6 +16,10 @@ saveFailed = "保存失败";
 
 loadingSignin = "登录中";
 loadingDeviceList = "读取设备";
+loadingProcessing = "处理中";
+loadingBinding = "绑定中";
+loadingUnbinding = "解绑中";
+loadingSaving = "保存中";
 
 //homeNavigationItemTitle = "照片伴侣";
 

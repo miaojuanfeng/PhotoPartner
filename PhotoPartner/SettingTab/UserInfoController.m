@@ -16,6 +16,7 @@
 
 @property UITextField *userNameField;
 @property UITextField *userAccountField;
+@property NSString *userNickname;
 
 @property AppDelegate *appDelegate;
 @end
@@ -37,6 +38,8 @@
     [self.view addSubview:self.tableView];
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    self.userNickname = [self.appDelegate.userInfo objectForKey:@"user_nickname"];
     
     self.view.userInteractionEnabled = YES;
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
@@ -63,7 +66,7 @@
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     if( indexPath.row == 0 ){
         self.userNameField = [[UITextField alloc] initWithFrame:CGRectMake(15, 0, GET_LAYOUT_WIDTH(self.tableView)-30, 44)];
-        self.userNameField.text = [self.appDelegate.userInfo objectForKey:@"user_nickname"];
+        self.userNameField.text = self.userNickname;
         self.userNameField.backgroundColor = [UIColor whiteColor];
         [self setTextFieldLeftPadding:self.userNameField forWidth:85 forText:NSLocalizedString(@"userInfoUserName", nil)];
         self.userNameField.placeholder = NSLocalizedString(@"userInfoUserNameTextFiledTitle", nil);
@@ -106,11 +109,18 @@
 }
 
 - (void)clickUserSaveButton {
+    [self.view endEditing:YES];
+    
+    if( [self.userNickname isEqualToString:self.userNameField.text] ){
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
     NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"], @"user_nickname": self.userNameField.text};
-    HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+    HUD_WAITING_SHOW(NSLocalizedString(@"loadingSaving", nil));
     [manager POST:BASE_URL(@"user/update_profile") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
     } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -124,6 +134,7 @@
         
         HUD_WAITING_HIDE;
         if( status == 200 ){
+            self.userNickname = self.userNameField.text;
             [self.appDelegate.userInfo setObject:self.userNameField.text forKey:@"user_nickname"];
             HUD_TOAST_SHOW(NSLocalizedString(@"saveSuccess", nil));
         }else{

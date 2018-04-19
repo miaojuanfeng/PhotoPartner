@@ -74,6 +74,10 @@
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
     singleTap.delegate = self;
     [self.view addGestureRecognizer:singleTap];
+    
+    if( self.appDelegate.deviceList.count == 0 ){
+        [self.navigationItem setHidesBackButton:YES];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -105,7 +109,7 @@
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
     NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_token":self.deviceTokenField.text,@"device_name":self.deviceNameField.text};
-    HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+    HUD_WAITING_SHOW(NSLocalizedString(@"loadingBinding", nil));
     [manager POST:BASE_URL(@"device/bind") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
     } progress:^(NSProgress * _Nonnull uploadProgress) {

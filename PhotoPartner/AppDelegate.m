@@ -34,6 +34,8 @@
 //    self.isTakePhoto = [[NSMutableArray alloc] init];
     self.focusImageIndex = -1;
     
+    self.videoAsset = nil;
+    self.videoData = nil;
     self.videos = [[NSMutableArray alloc] init];
     self.completedUnitPercent = [[NSMutableArray alloc] init];
     self.md5 = @"";
@@ -124,7 +126,10 @@
     [self.photos removeAllObjects];
 //    [self.isTakePhoto removeAllObjects];
     self.focusImageIndex = -1;
+//    self.isSending = false;
     // Video
+    self.videoAsset = nil;
+    self.videoData = nil;
     [self.videos removeAllObjects];
     [self.completedUnitPercent removeAllObjects];
     self.md5 = @"";

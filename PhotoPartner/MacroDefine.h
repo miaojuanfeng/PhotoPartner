@@ -78,14 +78,18 @@
                                 [self.appDelegate.hudWaiting hideAnimated:YES]; \
                             }while(0)
 
+#define HIDE_TOAST(t) do{   \
+                            [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
+                            self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \
+                            self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
+                            self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
+                            self.appDelegate.hudToast.label.text = t; \
+                            self.appDelegate.hudToast.bezelView.backgroundColor = [UIColor blackColor]; \
+                            self.appDelegate.hudToast.contentColor = [UIColor whiteColor]; \
+                      }while(0)
+
 #define HUD_TOAST_SHOW(t) do{ \
-                                [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
-                                self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \
-                                self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
-                                self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
-                                self.appDelegate.hudToast.label.text = t; \
-                                self.appDelegate.hudToast.bezelView.backgroundColor = [UIColor blackColor]; \
-                                self.appDelegate.hudToast.contentColor = [UIColor whiteColor]; \
+                                HIDE_TOAST(t); \
                                 [self.appDelegate.hudToast showAnimated:YES whileExecutingBlock:^{ \
                                     sleep(2); \
                                 } \
@@ -96,13 +100,7 @@
                             }while(0)
 
 #define HUD_TOAST_POP_SHOW(t) do{ \
-                                [MBProgressHUD hideAllHUDsForView:self.view animated:YES]; \
-                                self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \
-                                self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
-                                self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
-                                self.appDelegate.hudToast.label.text = t; \
-                                self.appDelegate.hudToast.bezelView.backgroundColor = [UIColor blackColor]; \
-                                self.appDelegate.hudToast.contentColor = [UIColor whiteColor]; \
+                                HIDE_TOAST(t); \
                                 [self.appDelegate.hudToast showAnimated:YES whileExecutingBlock:^{ \
                                     sleep(2); \
                                 } \
@@ -111,7 +109,19 @@
                                     self.appDelegate.hudToast = nil; \
                                     [self.navigationController popViewControllerAnimated:YES]; \
                                 }]; \
-                                }while(0)
+                            }while(0)
+
+#define HUD_TOAST_PUSH_SHOW(t,c) do{ \
+                                HIDE_TOAST(t); \
+                                [self.appDelegate.hudToast showAnimated:YES whileExecutingBlock:^{ \
+                                    sleep(2); \
+                                } \
+                                completionBlock:^{ \
+                                    [self.appDelegate.hudToast removeFromSuperview]; \
+                                    self.appDelegate.hudToast = nil; \
+                                    [self.navigationController pushViewController:c animated:YES]; \
+                                }]; \
+                            }while(0)
 
 #define NAV_UPLOAD_START do{ \
                             self.appDelegate.isSending = true; \
@@ -146,7 +156,11 @@
 #define INIT_RightBarButtonItem(t,s) do{  \
                                     UIButton *rightBarButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];    \
                                     rightBarButton.frame = CGRectMake(0, 0, 25, 20); \
-                                    rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:26.0f]; \
+                                    if([t isEqualToString:ICON_FORWARD]){   \
+                                        rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:22.0f]; \
+                                    }else{  \
+                                        rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:27.0f]; \
+                                    }   \
                                     [rightBarButton setTitle:t forState:UIControlStateNormal];   \
                                     [rightBarButton addTarget:self action:@selector(s) forControlEvents:UIControlEventTouchUpInside]; \
                                     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightBarButton];  \
@@ -154,6 +168,11 @@
 
 #define UPDATE_RightBarButtonItem(t) do{ \
                                         UIButton *rightBarButton = self.navigationItem.rightBarButtonItem.customView;   \
+                                        if([t isEqualToString:ICON_FORWARD]){   \
+                                            rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:22.0f]; \
+                                        }else{  \
+                                            rightBarButton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:27.0f]; \
+                                        }   \
                                         [rightBarButton setTitle:t forState:UIControlStateNormal];   \
                                     }while(0)
 
@@ -175,7 +194,7 @@
 
 #define ICON_ADD @"\U0000e767"
 #define ICON_SCAN @"\U0000e689"
-#define ICON_FORWARD @"\U0000e6eb"
+#define ICON_FORWARD @"\U000f0026"
 #define ICON_CANCEL @"\U0000e646"
 
 #endif /* MacroDefine_h */

@@ -357,6 +357,7 @@
         pickerController.videoQuality = UIImagePickerControllerQualityType640x480;
         pickerController.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
         //            pickerController.allowsEditing = YES;
+        pickerController.videoMaximumDuration = 300.0f;
         pickerController.delegate = self;
         [self presentViewController:pickerController animated:YES completion:nil];
     }else{
@@ -429,18 +430,19 @@
         player.shouldAutoplay = NO;
         UIImage  *thumbnail = [player thumbnailImageAtTime:0.0 timeOption:MPMovieTimeOptionNearestKeyFrame];
         player = nil;
-        NSData *videoData = [NSData dataWithContentsOfURL:videoURL];
-        NSLog(@"Total bytes %ld", [videoData length]);
+//        NSLog(@"Total bytes %ld", [videoData length]);
         
-        self.appDelegate.md5 =  [self.appDelegate fileMD5:UIImagePNGRepresentation(thumbnail)];
-        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+//        self.appDelegate.md5 =  [self.appDelegate fileMD5:UIImagePNGRepresentation(thumbnail)];
+//        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+//
+//        if( ![self.appDelegate doDataToBlock:videoData] ){
+//            [self.appDelegate clearProperty];
+//            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
+//            return;
+//        }
         
-        if( ![self.appDelegate doDataToBlock:videoData] ){
-            [self.appDelegate clearProperty];
-            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
-            return;
-        }
-        
+        self.appDelegate.videoAsset = nil;
+        self.appDelegate.videoData = [NSData dataWithContentsOfURL:videoURL];
         [self.appDelegate.photos addObject:thumbnail];
         [self.appDelegate.fileDesc addObject:@""];
         self.appDelegate.focusImageIndex = 0;

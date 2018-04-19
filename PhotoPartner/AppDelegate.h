@@ -27,6 +27,8 @@
 /*
  *  For Video
  */
+@property id videoAsset;
+@property NSData *videoData;
 @property NSMutableArray<NSData *> *videos;
 @property NSMutableDictionary *failedBlock;
 @property NSMutableArray *completedUnitPercent;

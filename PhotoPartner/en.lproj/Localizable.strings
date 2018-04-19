@@ -14,8 +14,12 @@ saveButton = "Save";
 saveSuccess = "Save Success";
 saveFailed = "Save Failed";
 
-loadingSignin = "Sign In";
+loadingSignin = "Login";
 loadingDeviceList = "Loading Device";
+loadingProcessing = "Processing";
+loadingBinding = "Binding";
+loadingUnbinding = "Unbinding";
+loadingSaving = "Saving";
 
 //homeNavigationItemTitle = "Photo Partner";
 
