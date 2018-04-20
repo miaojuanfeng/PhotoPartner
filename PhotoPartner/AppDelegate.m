@@ -316,6 +316,7 @@
         videoChunkCount = videoData.length/VIDEO_CHUNK_SIZE + 1;
         lastChunkEnd = videoData.length%VIDEO_CHUNK_SIZE;
     }
+    [self.videos removeAllObjects];
     for (int i=0; i<videoChunkCount; i++) {
         if( i == videoChunkCount-1 ){
             [self.videos addObject:[videoData subdataWithRange:NSMakeRange(i*VIDEO_CHUNK_SIZE, lastChunkEnd)]];

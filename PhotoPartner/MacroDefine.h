@@ -186,6 +186,22 @@
                                         rightBarButton.enabled = YES; \
                                     }while(0)
 
+#define DO_DATA_TO_BLOCK_IF_FAILED(v) do{  \
+                                        if( ![self.appDelegate doDataToBlock:v] ){ \
+                                            [self.appDelegate clearProperty];   \
+                                            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];   \
+                                            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];   \
+                                            [self getMediaView:cell];   \
+                                            self.textView.text = @"";   \
+                                            [self.tableView reloadData];    \
+                                            HUD_WAITING_HIDE;   \
+                                            NAV_UPLOAD_END; \
+                                            ENABLE_RightBarButtonItem; \
+                                            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil)); \
+                                            return; \
+                                        }   \
+                                    }while(0)
+
 #define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
 
 #define IMAGE_CELL_HEIGHT 250

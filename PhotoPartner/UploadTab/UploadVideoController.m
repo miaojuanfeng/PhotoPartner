@@ -421,18 +421,7 @@
                 //            NSLog(@"***%@",videoData);
                 //            NSLog(@"***%ld",videoData.length);
                 
-                if( ![self.appDelegate doDataToBlock:videoData] ){
-                    [self.appDelegate clearProperty];
-                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
-                    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-                    [self getMediaView:cell];
-                    self.textView.text = @"";
-                    [self.tableView reloadData];
-                    HUD_WAITING_HIDE;
-                    NAV_UPLOAD_END;
-                    HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
-                    return;
-                }
+                DO_DATA_TO_BLOCK_IF_FAILED(videoData);
             
                 if( self.appDelegate.isSending ){
                     [self doUploadVideo];
@@ -454,11 +443,7 @@
                 
             }];
         }else{
-            if( ![self.appDelegate doDataToBlock:self.appDelegate.videoData] ){
-                [self.appDelegate clearProperty];
-                HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoMaxSizeError", nil));
-                return;
-            }
+            DO_DATA_TO_BLOCK_IF_FAILED(self.appDelegate.videoData);
             
             if( self.appDelegate.isSending ){
                 [self doUploadVideo];
