@@ -354,7 +354,7 @@
         UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
         pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
         pickerController.mediaTypes = @[(NSString *)kUTTypeMovie];
-        pickerController.videoQuality = UIImagePickerControllerQualityType640x480;
+        pickerController.videoQuality = UIImagePickerControllerQualityTypeMedium;
         pickerController.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
         //            pickerController.allowsEditing = YES;
         pickerController.videoMaximumDuration = 300.0f;

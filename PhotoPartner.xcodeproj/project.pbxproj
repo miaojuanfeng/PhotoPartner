@@ -181,8 +181,8 @@
 			children = (
 				CEFF9E1D2059088C0084DB27 /* UploadVideoController.h */,
 				CEFF9E1C2059088C0084DB27 /* UploadVideoController.m */,
-				CEB8E2C02050E1A900655887 /* UploadPhotoController.m */,
 				CEB8E2C22050E1B400655887 /* UploadPhotoController.h */,
+				CEB8E2C02050E1A900655887 /* UploadPhotoController.m */,
 			);
 			path = UploadTab;
 			sourceTree = "<group>";

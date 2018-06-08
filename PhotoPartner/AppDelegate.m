@@ -304,6 +304,8 @@
 
 - (bool)doDataToBlock:(NSData *) videoData{
     
+    NSLog(@"video length: %ld", videoData.length);
+    
     if( videoData.length > VIDEO_MAX_SIZE ){
         return false;
     }
