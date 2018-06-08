@@ -86,10 +86,7 @@
     self.textView.delegate = self;
     
     if( self.appDelegate.photos.count == 0 ){
-        self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:MAX_VIDEO_COUNT delegate:self];
-        self.imagePickerVc.allowPickingImage = NO;
-        self.imagePickerVc.allowPickingOriginalPhoto = NO;
-        [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+        [self showImagePickerVc:MAX_VIDEO_COUNT];
     }
 }
 
@@ -793,7 +790,11 @@
 //}
 
 - (void)clickAddMediaButton {
-    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:(MAX_VIDEO_COUNT-self.appDelegate.photos.count) delegate:self];
+     [self showImagePickerVc:(MAX_VIDEO_COUNT-self.appDelegate.photos.count)];
+}
+
+- (void)showImagePickerVc:(long) count{
+    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:count delegate:self];
     self.imagePickerVc.allowPickingImage = NO;
     self.imagePickerVc.allowPickingOriginalPhoto = NO;
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];

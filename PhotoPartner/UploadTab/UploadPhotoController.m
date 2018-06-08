@@ -84,11 +84,7 @@
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     
     if( self.appDelegate.photos.count == 0 ){
-        self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:MAX_PHOTO_COUNT delegate:self];
-        self.imagePickerVc.allowPickingVideo = NO;
-        self.imagePickerVc.allowPickingOriginalPhoto = NO;
-        self.imagePickerVc.allowTakePicture = NO;
-        [self presentViewController:self.imagePickerVc animated:YES completion:nil];
+        [self showImagePickerVc:MAX_PHOTO_COUNT];
     }
     
     self.isDeleteSignals = false;
@@ -481,10 +477,14 @@
 //}
 
 - (void)clickAddMediaButton {
-    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:(MAX_PHOTO_COUNT-self.appDelegate.photos.count) delegate:self];
+    [self showImagePickerVc:(MAX_PHOTO_COUNT-self.appDelegate.photos.count)];
+}
+
+- (void)showImagePickerVc:(long) count{
+    self.imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:count delegate:self];
     self.imagePickerVc.allowPickingVideo = NO;
     self.imagePickerVc.allowPickingOriginalPhoto = NO;
-    self.imagePickerVc.allowTakePicture = NO;
+    //    self.imagePickerVc.allowTakePicture = NO;
     [self presentViewController:self.imagePickerVc animated:YES completion:nil];
 }
 
