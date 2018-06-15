@@ -13,6 +13,7 @@
 #import "AppDelegate.h"
 #import "UploadPhotoController.h"
 #import "UITextView+ZWPlaceHolder.h"
+#import <QiniuSDK.h>
 
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate>
 @property UITableView *tableView;
@@ -40,7 +41,8 @@
 
     self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
     
-    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
+//    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
+    INIT_RightBarButtonItem(ICON_FORWARD, test);
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
@@ -722,6 +724,45 @@
     self.tLabel.textAlignment = NSTextAlignmentCenter;
     self.tLabel.text = @"T";
     [imageView addSubview:self.tLabel];
+}
+
+- (void)test{
+    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+        builder.zone = [QNFixedZone zoneNa0];
+    }];
+    QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
+    //    NSData *data = [@"Hello, World!" dataUsingEncoding : NSUTF8StringEncoding];
+    NSString *upToken = @"2LlH425zih5U1CpzSE_-gl3BtvDH0nlLX8cDnQ16:yIWgnpqG3_5gYbRItR1F88NYyPg=:eyJzY29wZSI6InBob3RvcGFydG5lciIsImRlYWRsaW5lIjoxNTI5MDU3OTI4fQ==";
+    //
+    for (int i=0; i< self.appDelegate.photos.count; i++) {
+        int imageWidth = 0;
+        int imageHeight = 0;
+        if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+            imageWidth = 750;
+            imageHeight = 750 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+        }else{
+            imageWidth = 750 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+            imageHeight = 750;
+        }
+        CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+        NSData *file = [self compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
+        NSString *fileExt = [self typeForImageData:file];
+        if( fileExt == nil ){
+            fileExt = @"jpeg";
+        }
+        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+        NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
+//        [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
+        NSData *data = file;
+        NSLog(@"input data: %@", data);
+        [upManager putData:data key:[NSString stringWithFormat:@"upload/photo/%@.%@", fileName, fileExt] token:upToken
+                  complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+                      NSLog(@"oss: %@", info);
+                      NSLog(@"oss: %@", resp);
+                  } option:nil];
+    }
 }
 
 @end

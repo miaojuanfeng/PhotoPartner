@@ -13,6 +13,7 @@ target 'PhotoPartner' do
   pod 'TZImagePickerController'
   pod 'MBProgressHUD', '~> 1.1.0'
   pod 'ZWPlaceHolder'
+  pod 'Qiniu', '~> 7.1'
 
   target 'PhotoPartnerTests' do
     inherit! :search_paths
