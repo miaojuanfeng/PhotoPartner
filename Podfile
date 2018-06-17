@@ -14,6 +14,7 @@ target 'PhotoPartner' do
   pod 'MBProgressHUD', '~> 1.1.0'
   pod 'ZWPlaceHolder'
   pod 'Qiniu', '~> 7.1'
+  pod 'ZipArchive'
 
   target 'PhotoPartnerTests' do
     inherit! :search_paths

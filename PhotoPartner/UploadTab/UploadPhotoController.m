@@ -14,6 +14,7 @@
 #import "UploadPhotoController.h"
 #import "UITextView+ZWPlaceHolder.h"
 #import <QiniuSDK.h>
+#import <ZipArchive.h>
 
 @interface UploadPhotoController () <UITableViewDataSource, UITableViewDelegate, TZImagePickerControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate>
 @property UITableView *tableView;
@@ -727,6 +728,26 @@
 }
 
 - (void)test{
+    
+    ZipArchive* zip = [[ZipArchive alloc] init];
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    NSString *zipFileName = [NSString stringWithFormat:@"IMG_%@.zip", [dateFormatter stringFromDate:date]];
+    NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
+    
+    [zip CreateZipFile2:zipFile];
+    
+    
+    /*
+     *  设备最大数量绑定有bug，检查一下
+     */
+    
+    
+    
+    
     QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
         builder.zone = [QNFixedZone zoneNa0];
     }];
@@ -750,19 +771,24 @@
         if( fileExt == nil ){
             fileExt = @"jpeg";
         }
-        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-        NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000];
+        NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d.%@", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000, fileExt];
 //        [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
         NSData *data = file;
-        NSLog(@"input data: %@", data);
-        [upManager putData:data key:[NSString stringWithFormat:@"upload/photo/%@.%@", fileName, fileExt] token:upToken
-                  complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
-                      NSLog(@"oss: %@", info);
-                      NSLog(@"oss: %@", resp);
-                  } option:nil];
+        
+        
+        
+        [zip addDataToZip:data fileAttributes:nil newname:fileName];
     }
+    
+    
+    [zip CloseZipFile2];
+    
+    NSLog(@"zipFile: %@", zipFile);
+    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/photo/%@", zipFileName] token:upToken
+              complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+                  NSLog(@"oss: %@", info);
+                  NSLog(@"oss: %@", resp);
+              } option:nil];
 }
 
 @end

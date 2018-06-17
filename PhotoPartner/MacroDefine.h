@@ -83,7 +83,7 @@
                             self.appDelegate.hudToast = [MBProgressHUD showHUDAddedTo:self.view animated:YES]; \
                             self.appDelegate.hudToast.mode = MBProgressHUDModeText; \
                             self.appDelegate.hudToast.removeFromSuperViewOnHide = YES; \
-                            self.appDelegate.hudToast.label.text = t; \
+                            self.appDelegate.hudToast.detailsLabel.text = t; \
                             self.appDelegate.hudToast.bezelView.backgroundColor = [UIColor blackColor]; \
                             self.appDelegate.hudToast.contentColor = [UIColor whiteColor]; \
                       }while(0)

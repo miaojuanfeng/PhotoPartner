@@ -115,6 +115,7 @@ e107 = "Update user device relationship failed, please try again later";
 e108 = "The device already been bound";
 e109 = "Unable to find the user";
 e110 = "Update device name failed, please try again later";
+e117 = "The number of binding users of the device exceeds the limit";
 e301 = "File-MD5 property is not set or format error";
 e302 = "File-Size property format error";
 e303 = "File-Size property is not set";
