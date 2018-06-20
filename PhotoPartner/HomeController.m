@@ -24,6 +24,8 @@
 @interface HomeController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 @property UIAlertController *actionSheet;
 @property AppDelegate *appDelegate;
+
+@property Boolean isHideBar;
 @end
 
 @implementation HomeController
@@ -34,6 +36,7 @@
     COMMON_MACRO;
 //    self.navigationItem.title = NSLocalizedString(@"homeNavigationItemTitle", nil);
     self.navigationController.delegate = self;
+    self.isHideBar = true;
     
     VIEW_WIDTH = VIEW_WIDTH - GAP_WIDTH * 2;
     VIEW_HEIGHT = VIEW_HEIGHT - GAP_HEIGHT * 3 -20;
@@ -284,23 +287,30 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    NSLog(@"current view controller: %@", [viewController class]);
-    NSLog(@"is hidden: %d", [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")]);
-    BOOL isHidden = NO;
-    if( [viewController isKindOfClass:[self class]] ||
-        [viewController isKindOfClass: NSClassFromString(@"CAMImagePickerCameraViewController")] ||
-        [viewController isKindOfClass: NSClassFromString(@"PUPhotoPickerHostViewController")] ||
-        [viewController isKindOfClass: NSClassFromString(@"PUUIAlbumListViewController")] ){
-        isHidden = YES;
-    }
-    [self.navigationController setNavigationBarHidden:isHidden animated:YES];
+//- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+//    NSLog(@"is title: %@", viewController );
+//    BOOL isHidden = NO;
+//    if( [viewController isKindOfClass:[self class]] ){
+//        isHidden = YES;
+//    }
+////    [self.navigationController setNavigationBarHidden:isHidden animated:YES];
+//}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
 }
 
-
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    if( self.isHideBar ){
+        [self.navigationController setNavigationBarHidden:NO animated:animated];
+    }
+}
 
 #pragma mark - Button Action
-
 
 - (void)clickTakePhotoButton {
 //    UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
@@ -309,11 +319,14 @@
     
     if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ){
 //        [self.activityIndicator startAnimating];
+        self.isHideBar = false;
         UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
         pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
         //            pickerController.allowsEditing = YES;
         pickerController.delegate = self;
-        [self presentViewController:pickerController animated:YES completion:nil];
+        [self presentViewController:pickerController animated:YES completion:^{
+            self.isHideBar = true;
+        }];
     }else{
         NSLog(@"不支持相机");
     }
@@ -350,6 +363,7 @@
 
 - (void)clickTakeVideoButton{
     if( [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ){
+        self.isHideBar = false;
         //        [self.activityIndicator startAnimating];
         UIImagePickerController *pickerController = [[UIImagePickerController alloc] init];
         pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -359,7 +373,9 @@
         //            pickerController.allowsEditing = YES;
         pickerController.videoMaximumDuration = 300.0f;
         pickerController.delegate = self;
-        [self presentViewController:pickerController animated:YES completion:nil];
+        [self presentViewController:pickerController animated:YES completion:^{
+            self.isHideBar = true;
+        }];
     }else{
         NSLog(@"不支持相机");
     }
@@ -386,6 +402,7 @@
 //}
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
 //    [self.activityIndicator startAnimating];
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
     NSLog(@"%@", info);

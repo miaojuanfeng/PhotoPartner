@@ -49,8 +49,8 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-//    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
-    INIT_RightBarButtonItem(ICON_FORWARD, test);
+    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
+//    INIT_RightBarButtonItem(ICON_FORWARD, test);
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
