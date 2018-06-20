@@ -381,6 +381,7 @@
     if( !self.appDelegate.isSending ){
         [self.view endEditing:YES];
         
+        [self.appDelegate.deviceId removeAllObjects];
         for (NSMutableDictionary *device in self.appDelegate.deviceList) {
             if( [[device objectForKey:@"isSelected"] boolValue] ){
                 [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
@@ -552,8 +553,8 @@
                 NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
                 NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
                 [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                NSString *time = [dateFormatter stringFromDate:date];
                 for(int i=0;i<self.appDelegate.photos.count;i++){
-                    NSString *time = [dateFormatter stringFromDate:date];
                     NSString *deviceName = @"";
                     for(int j=0;j<self.appDelegate.deviceId.count;j++){
                         NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];

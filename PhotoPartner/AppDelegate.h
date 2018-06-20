@@ -17,6 +17,7 @@
 @property NSMutableArray *deviceList;
 @property NSMutableArray *messageList;
 @property int appVersion;
+@property NSString *deviceUUID;
 //
 @property NSMutableArray *deviceId;
 @property NSMutableArray *fileDesc;
@@ -60,6 +61,9 @@
 //- (NSString *)md5:(NSString *) string;
 - (NSString*)fileMD5:(NSData*)data;
 - (NSString*)getMessageTime:(NSString*) time;
+
+- (NSString*)convertToJSONData:(id)infoDict;
+- (NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString;
 
 @end
 

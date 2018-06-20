@@ -31,6 +31,8 @@
 @property Boolean isDeleteSignals;
 
 @property AFHTTPSessionManager *manager;
+
+@property Boolean isCancelSignals;
 @end
 
 @implementation UploadPhotoController
@@ -42,8 +44,8 @@
 
     self.navigationItem.title = NSLocalizedString(@"uploadPhotoNavigationItemTitle", nil);
     
-    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
-//    INIT_RightBarButtonItem(ICON_FORWARD, test);
+//    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
+    INIT_RightBarButtonItem(ICON_FORWARD, test);
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
@@ -313,6 +315,7 @@
     if( !self.appDelegate.isSending ){
         [self.view endEditing:YES];
         
+        [self.appDelegate.deviceId removeAllObjects];
         for (NSMutableDictionary *device in self.appDelegate.deviceList) {
             if( [[device objectForKey:@"isSelected"] boolValue] ){
                 [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
@@ -396,8 +399,8 @@
             NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
             NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
             [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            NSString *time = [dateFormatter stringFromDate:date];
             for(int i=0;i<self.appDelegate.photos.count;i++){
-                NSString *time = [dateFormatter stringFromDate:date];
                 NSString *deviceName = @"";
                 for(int j=0;j<self.appDelegate.deviceId.count;j++){
                     NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
@@ -728,67 +731,197 @@
 }
 
 - (void)test{
-    
-    ZipArchive* zip = [[ZipArchive alloc] init];
-    
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    NSString *zipFileName = [NSString stringWithFormat:@"IMG_%@.zip", [dateFormatter stringFromDate:date]];
-    NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
-    
-    [zip CreateZipFile2:zipFile];
-    
-    
-    /*
-     *  设备最大数量绑定有bug，检查一下
-     */
-    
-    
-    
-    
-    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
-        builder.zone = [QNFixedZone zoneNa0];
-    }];
-    QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
-    //    NSData *data = [@"Hello, World!" dataUsingEncoding : NSUTF8StringEncoding];
-    NSString *upToken = @"2LlH425zih5U1CpzSE_-gl3BtvDH0nlLX8cDnQ16:yIWgnpqG3_5gYbRItR1F88NYyPg=:eyJzY29wZSI6InBob3RvcGFydG5lciIsImRlYWRsaW5lIjoxNTI5MDU3OTI4fQ==";
-    //
-    for (int i=0; i< self.appDelegate.photos.count; i++) {
-        int imageWidth = 0;
-        int imageHeight = 0;
-        if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
-            imageWidth = 750;
-            imageHeight = 750 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
-        }else{
-            imageWidth = 750 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
-            imageHeight = 750;
-        }
-        CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
-        NSData *file = [self compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
-        NSString *fileExt = [self typeForImageData:file];
-        if( fileExt == nil ){
-            fileExt = @"jpeg";
-        }
-        NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d.%@", [dateFormatter stringFromDate:date], arc4random() % 50001 + 100000, fileExt];
-//        [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
-        NSData *data = file;
-        
-        
-        
-        [zip addDataToZip:data fileAttributes:nil newname:fileName];
+    if( !self.appDelegate.isSending ){
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        manager.requestSerializer.timeoutInterval = 30.0f;
+        NSDictionary *parameters=@{
+                                   @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
+                                   @"user_imei":self.appDelegate.deviceUUID
+                                   };
+        HUD_WAITING_SHOW(NSLocalizedString(@"loading", nil));
+        [manager POST:BASE_URL(@"upload/token") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+            
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"成功.%@",responseObject);
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+            NSLog(@"results: %@", dic);
+            
+            int status = [[dic objectForKey:@"status"] intValue];
+            
+            HUD_WAITING_HIDE;
+            if( status == 200 ){
+                NSDictionary *data = [dic objectForKey:@"data"];
+                
+                [self ossUpload:[data objectForKey:@"upToken"]];
+            }else{
+                NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+                HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"失败.%@",error);
+            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+            
+            HUD_WAITING_HIDE;
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+        }];
+    }else{
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
+        NAV_UPLOAD_END;
+        HUD_LOADING_HIDE;
     }
-    
-    
-    [zip CloseZipFile2];
-    
-    NSLog(@"zipFile: %@", zipFile);
-    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/photo/%@", zipFileName] token:upToken
-              complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
-                  NSLog(@"oss: %@", info);
-                  NSLog(@"oss: %@", resp);
-              } option:nil];
+}
+
+- (void)ossUpload:(NSString*) upToken{
+    if( !self.appDelegate.isSending ){
+        [self.view endEditing:YES];
+        
+        [self.appDelegate.deviceId removeAllObjects];
+        for (NSMutableDictionary *device in self.appDelegate.deviceList) {
+            if( [[device objectForKey:@"isSelected"] boolValue] ){
+                [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
+            }
+        }
+        
+        if( self.appDelegate.photos.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadPhotoEmptyError", nil));
+            return;
+        }
+        if( self.appDelegate.deviceId.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+            return;
+        }
+        
+        ZipArchive* zip = [[ZipArchive alloc] init];
+        
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+        NSString *zipFileName = [NSString stringWithFormat:@"IMG_%@.zip", [dateFormatter stringFromDate:date]];
+        NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
+        
+        [zip CreateZipFile2:zipFile];
+        
+        
+        /*
+         *  设备最大数量绑定有bug，检查一下
+         */
+        
+        
+        
+        
+        QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+            builder.zone = [QNFixedZone zoneNa0];
+        }];
+        QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
+        //    NSData *data = [@"Hello, World!" dataUsingEncoding : NSUTF8StringEncoding];
+        //
+        for (int i=0; i< self.appDelegate.photos.count; i++) {
+            int imageWidth = 0;
+            int imageHeight = 0;
+            if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+                imageWidth = 750;
+                imageHeight = 750 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+            }else{
+                imageWidth = 750 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+                imageHeight = 750;
+            }
+            CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+            NSData *file = [self compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
+            NSString *fileExt = [self typeForImageData:file];
+            if( fileExt == nil ){
+                fileExt = @"jpeg";
+            }
+            NSString *fileName = [NSString stringWithFormat:@"IMG_%@_%d.%@", [dateFormatter stringFromDate:date], i, fileExt];
+    //        [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
+            NSData *data = file;
+            
+            
+            
+            [zip addDataToZip:data fileAttributes:nil newname:fileName];
+        }
+        
+        
+        [zip CloseZipFile2];
+        
+        NSLog(@"zipFile: %@", zipFile);
+        
+        self.isCancelSignals = false;
+        HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+        QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
+            // percent 为上传进度
+            NSLog(@"percent: %@ %f", key, percent);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                HUD_LOADING_PROGRESS(percent);
+            });
+        }
+        params:@{
+                 @"x:type":@"image",
+                 @"x:user_id":[[self.appDelegate.userInfo objectForKey:@"user_id"] stringValue],
+                 @"x:name":zipFileName,
+                 @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
+                 @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]]
+                 }
+        checkCrc:NO
+        cancellationSignal:^BOOL() {
+            return self.isCancelSignals;
+        }];
+        
+        NAV_UPLOAD_START;
+        [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/photo/%@", zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+            NSLog(@"oss: %@", info);
+            NSLog(@"oss: %@", resp);
+            
+            NSInteger statusCode = [info statusCode];
+            
+            if( statusCode == 200 ){
+                [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                NSString *time = [dateFormatter stringFromDate:date];
+                for(int i=0;i<self.appDelegate.photos.count;i++){
+                    NSString *deviceName = @"";
+                    for(int j=0;j<self.appDelegate.deviceId.count;j++){
+                        NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
+                        for(int k=0;k<self.appDelegate.deviceList.count;k++){
+                            //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+                            //                    NSLog(@"%@", device_id);
+                            if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
+                                NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                                if( [deviceName isEqualToString:@""] ){
+                                    deviceName = device_name;
+                                }else{
+                                    deviceName = [NSString stringWithFormat:@"%@, %@", deviceName, device_name];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
+                    UIImage *data = self.appDelegate.photos[i];
+                    [self.appDelegate addMessageList:@"image" withTime:time withTitle:deviceName withDesc:desc withData:data];
+                }
+                
+                DO_FINISH_UPLOAD;
+                NAV_UPLOAD_END;
+                HUD_LOADING_HIDE;
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
+            }else if( statusCode == -999 ){
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
+                NAV_UPLOAD_END;
+                HUD_LOADING_HIDE;
+            }else{
+                HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+                NAV_UPLOAD_END;
+                HUD_LOADING_HIDE;
+            }
+        } option:uploadOption];
+    }else{
+        NSLog(@"Cancel sending");
+        self.isCancelSignals = true;
+    }
 }
 
 @end

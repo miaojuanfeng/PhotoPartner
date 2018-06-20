@@ -198,18 +198,18 @@
     
     
     
-    NSString *deviceUUID = [GSKeyChainDataManager readUUID];
-    NSLog(@"deviceUUID: %@", deviceUUID);
-    if( deviceUUID == nil ){
-        deviceUUID = [[UIDevice currentDevice].identifierForVendor UUIDString];
-        [GSKeyChainDataManager saveUUID:deviceUUID];
-        NSLog(@"重新生成deviceUUID: %@", deviceUUID);
+    self.appDelegate.deviceUUID = [GSKeyChainDataManager readUUID];
+    NSLog(@"deviceUUID: %@", self.appDelegate.deviceUUID);
+    if( self.appDelegate.deviceUUID == nil ){
+        self.appDelegate.deviceUUID = [[UIDevice currentDevice].identifierForVendor UUIDString];
+        [GSKeyChainDataManager saveUUID:self.appDelegate.deviceUUID];
+        NSLog(@"重新生成deviceUUID: %@", self.appDelegate.deviceUUID);
     }
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
-    NSDictionary *parameters=@{@"user_imei":deviceUUID};
+    NSDictionary *parameters = @{@"user_imei":self.appDelegate.deviceUUID};
     HUD_WAITING_SHOW(NSLocalizedString(@"loadingSignin", nil));
     [manager POST:BASE_URL(@"user/signin") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
