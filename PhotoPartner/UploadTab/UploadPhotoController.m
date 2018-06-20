@@ -739,7 +739,7 @@
                                    @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
                                    @"user_imei":self.appDelegate.deviceUUID
                                    };
-        HUD_WAITING_SHOW(NSLocalizedString(@"loading", nil));
+        HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
         [manager POST:BASE_URL(@"upload/token") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             
         } progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -864,7 +864,8 @@
                  @"x:user_id":[[self.appDelegate.userInfo objectForKey:@"user_id"] stringValue],
                  @"x:name":zipFileName,
                  @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
-                 @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]]
+                 @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]],
+                 @"x:md5":@""
                  }
         checkCrc:NO
         cancellationSignal:^BOOL() {
@@ -872,7 +873,7 @@
         }];
         
         NAV_UPLOAD_START;
-        [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/photo/%@", zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+        [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/image/%@", zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
             NSLog(@"oss: %@", info);
             NSLog(@"oss: %@", resp);
             
@@ -917,6 +918,7 @@
                 NAV_UPLOAD_END;
                 HUD_LOADING_HIDE;
             }
+            // 删除zip文件
         } option:uploadOption];
     }else{
         NSLog(@"Cancel sending");

@@ -14,6 +14,7 @@
 #import <TZImageManager.h>
 #import "UITextView+ZWPlaceHolder.h"
 #import <QiniuSDK.h>
+#import <ZipArchive.h>
 
 //#define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
@@ -36,6 +37,8 @@
 
 @property NSMutableArray *successBlock;
 @property NSMutableArray *failedBlock;
+
+@property Boolean isCancelSignals;
 @end
 
 @implementation UploadVideoController
@@ -49,8 +52,8 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
-//    INIT_RightBarButtonItem(ICON_FORWARD, test);
+//    INIT_RightBarButtonItem(ICON_FORWARD, clickSubmitButton);
+    INIT_RightBarButtonItem(ICON_FORWARD, test);
     
     self.mediaView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), IMAGE_VIEW_SIZE+PHOTO_NUM_HEIGHT+GAP_HEIGHT+2*GAP_HEIGHT)];
     self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, GET_LAYOUT_WIDTH(self.view), 100)];
@@ -954,6 +957,239 @@
     self.tLabel.textAlignment = NSTextAlignmentCenter;
     self.tLabel.text = @"T";
     [imageView addSubview:self.tLabel];
+}
+
+
+- (void)test{
+    if( !self.appDelegate.isSending ){
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        manager.requestSerializer.timeoutInterval = 30.0f;
+        NSDictionary *parameters=@{
+                                   @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
+                                   @"user_imei":self.appDelegate.deviceUUID
+                                   };
+        HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
+        [manager POST:BASE_URL(@"upload/token") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+            
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"成功.%@",responseObject);
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+            NSLog(@"results: %@", dic);
+            
+            int status = [[dic objectForKey:@"status"] intValue];
+            
+            HUD_WAITING_HIDE;
+            if( status == 200 ){
+                NSDictionary *data = [dic objectForKey:@"data"];
+                
+                [self ossUpload:[data objectForKey:@"upToken"]];
+            }else{
+                NSString *eCode = [NSString stringWithFormat:@"e%d", status];
+                HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"失败.%@",error);
+            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+            
+            HUD_WAITING_HIDE;
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+        }];
+    }else{
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
+        NAV_UPLOAD_END;
+        HUD_LOADING_HIDE;
+    }
+}
+
+- (void)ossUpload:(NSString*) upToken{
+    if( !self.appDelegate.isSending ){
+        [self.view endEditing:YES];
+        
+        [self.appDelegate.deviceId removeAllObjects];
+        for (NSMutableDictionary *device in self.appDelegate.deviceList) {
+            if( [[device objectForKey:@"isSelected"] boolValue] ){
+                [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
+            }
+        }
+        
+        if( self.appDelegate.photos.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
+            return;
+        }
+        if( self.appDelegate.deviceId.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+            return;
+        }
+        
+        DISABLE_RightBarButtonItem;
+        NAV_UPLOAD_START;
+        HUD_WAITING_SHOW(NSLocalizedString(@"loadingProcessing", nil));
+        
+        ZipArchive* zip = [[ZipArchive alloc] init];
+        
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+        NSString *zipFileName = [NSString stringWithFormat:@"VID_%@.zip", [dateFormatter stringFromDate:date]];
+        NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
+        
+        [zip CreateZipFile2:zipFile];
+        
+        
+        
+        /*
+         *  设备最大数量绑定有bug，检查一下
+         */
+        
+        NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+        
+        
+        QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+            builder.zone = [QNFixedZone zoneNa0];
+        }];
+        QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
+        //
+        
+        if( self.appDelegate.videoAsset != nil && self.appDelegate.videoData == nil ){
+            
+            self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation([self.appDelegate.photos objectAtIndex:0])];
+            NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+            
+            [[TZImageManager manager] getVideoOutputPathWithAsset:self.appDelegate.videoAsset success:^(NSString *outputPath){
+                            NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+                
+                ENABLE_RightBarButtonItem;
+                HUD_WAITING_HIDE;
+                HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+                
+    //            DO_DATA_TO_BLOCK_IF_FAILED(videoData);
+    //
+    //            if( self.appDelegate.isSending ){
+    //                [self doUploadVideo];
+    //            }
+                
+    //            ENABLE_RightBarButtonItem;
+                //            UPDATE_RightBarButtonItem(ICON_FORWARD);
+                
+                //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
+                //        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
+                //
+                //        NSURL *newVideoUrl ; //一般.mp4
+                //        NSDateFormatter *formater = [[NSDateFormatter alloc] init];//用时间给文件全名，以免重复，在测试的时候其实可以判断文件是否存在若存在，则删除，重新生成文件即可
+                //        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
+                //        //    这个是保存在app自己的沙盒路径里，后面可以选择是否在上传后删除掉。我建议删除掉，免得占空间。
+                //        newVideoUrl = [NSURL fileURLWithPath:[NSHomeDirectory() stringByAppendingFormat:@"/Documents/output-%@.mp4", [formater stringFromDate:[NSDate date]]]];
+                //        [self convertVideoQuailtyWithInputURL:videoUrl outputURL:newVideoUrl completeHandler:nil];
+                
+                
+                [zip addFileToZip:outputPath newname:fileName];
+                
+                
+                [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
+                
+                
+                [zip CloseZipFile2];
+                
+                
+            } failure:^(NSString *errorMessage, NSError *error) {
+                
+            }];
+        }else{
+            [zip addDataToZip:self.appDelegate.videoData fileAttributes:nil newname:fileName];
+            [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
+        }
+        
+    }else{
+        NSLog(@"Cancel sending");
+        self.isCancelSignals = true;
+    }
+        
+        
+}
+
+- (void)doUploadOssVideo:(NSString*)zipFile withFileName:(NSString*)zipFileName withToken:(NSString*)upToken{
+    self.isCancelSignals = false;
+    HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+    QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
+        // percent 为上传进度
+        NSLog(@"percent: %@ %f", key, percent);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            HUD_LOADING_PROGRESS(percent);
+        });
+    }
+    params:@{
+              @"x:type":@"video",
+              @"x:user_id":[[self.appDelegate.userInfo objectForKey:@"user_id"] stringValue],
+              @"x:name":zipFileName,
+              @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
+              @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]],
+              @"x:md5":self.appDelegate.md5
+              }
+    checkCrc:NO
+    cancellationSignal:^BOOL() {
+    return self.isCancelSignals;
+    }];
+    
+    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+        builder.zone = [QNFixedZone zoneNa0];
+    }];
+    QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
+    
+    NAV_UPLOAD_START;
+    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/video/%@", zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+        NSLog(@"oss: %@", info);
+        NSLog(@"oss: %@", resp);
+        
+        NSInteger statusCode = [info statusCode];
+        
+        if( statusCode == 200 ){
+            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+            NSString *time = [dateFormatter stringFromDate:date];
+            for(int i=0;i<self.appDelegate.photos.count;i++){
+                NSString *deviceName = @"";
+                for(int j=0;j<self.appDelegate.deviceId.count;j++){
+                    NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
+                    for(int k=0;k<self.appDelegate.deviceList.count;k++){
+                        //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+                        //                    NSLog(@"%@", device_id);
+                        if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
+                            NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                            if( [deviceName isEqualToString:@""] ){
+                                deviceName = device_name;
+                            }else{
+                                deviceName = [NSString stringWithFormat:@"%@, %@", deviceName, device_name];
+                            }
+                            break;
+                        }
+                    }
+                }
+                NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
+                UIImage *data = self.appDelegate.photos[i];
+                [self.appDelegate addMessageList:@"video" withTime:time withTitle:deviceName withDesc:desc withData:data];
+            }
+            
+            DO_FINISH_UPLOAD;
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
+        }else if( statusCode == -999 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+        }else{
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
+            NAV_UPLOAD_END;
+            HUD_LOADING_HIDE;
+        }
+        // 删除zip文件
+    } option:uploadOption];
 }
 
 @end
