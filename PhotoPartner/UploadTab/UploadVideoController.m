@@ -576,7 +576,17 @@
                         }
                     }
                     NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
-                    UIImage *data = self.appDelegate.photos[i];
+                    int imageWidth = 0;
+                    int imageHeight = 0;
+                    if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+                        imageWidth = 150;
+                        imageHeight = 150 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+                    }else{
+                        imageWidth = 150 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+                        imageHeight = 150;
+                    }
+                    CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+                    NSData *data = [self.appDelegate compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self.appDelegate imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
                     [self.appDelegate addMessageList:@"video" withTime:time withTitle:deviceName withDesc:desc withData:data];
                 }
                 
@@ -961,6 +971,8 @@
 
 
 - (void)test{
+    [self.view endEditing:YES];
+    
     if( !self.appDelegate.isSending ){
         AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
@@ -998,118 +1010,109 @@
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
         }];
     }else{
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
-        NAV_UPLOAD_END;
-        HUD_LOADING_HIDE;
+        NSLog(@"Cancel sending");
+        self.isCancelSignals = true;
     }
 }
 
 - (void)ossUpload:(NSString*) upToken{
-    if( !self.appDelegate.isSending ){
-        [self.view endEditing:YES];
         
-        [self.appDelegate.deviceId removeAllObjects];
-        for (NSMutableDictionary *device in self.appDelegate.deviceList) {
-            if( [[device objectForKey:@"isSelected"] boolValue] ){
-                [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
-            }
+    [self.appDelegate.deviceId removeAllObjects];
+    for (NSMutableDictionary *device in self.appDelegate.deviceList) {
+        if( [[device objectForKey:@"isSelected"] boolValue] ){
+            [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
         }
+    }
+    
+    if( self.appDelegate.photos.count == 0 ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
+        return;
+    }
+    if( self.appDelegate.deviceId.count == 0 ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+        return;
+    }
+    
+    DISABLE_RightBarButtonItem;
+    NAV_UPLOAD_START;
+    
+    ZipArchive* zip = [[ZipArchive alloc] init];
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+//    NSString *zipFileName = [NSString stringWithFormat:@"VID_%@.zip", [dateFormatter stringFromDate:date]];
+    NSString *zipFileName = [NSString stringWithFormat:@"VID_20180621.zip"];
+    NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
+    
+    [zip CreateZipFile2:zipFile];
+    
+    
+    
+    /*
+     *  设备最大数量绑定有bug，检查一下
+     */
+    
+    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+    
+    //
+    
+    self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation([self.appDelegate.photos objectAtIndex:0])];
+    NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+    
+    if( self.appDelegate.videoAsset != nil && self.appDelegate.videoData == nil ){
         
-        if( self.appDelegate.photos.count == 0 ){
-            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
-            return;
-        }
-        if( self.appDelegate.deviceId.count == 0 ){
-            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
-            return;
-        }
-        
-        DISABLE_RightBarButtonItem;
-        NAV_UPLOAD_START;
         HUD_WAITING_SHOW(NSLocalizedString(@"loadingProcessing", nil));
         
-        ZipArchive* zip = [[ZipArchive alloc] init];
-        
-        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-        NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-        NSString *zipFileName = [NSString stringWithFormat:@"VID_%@.zip", [dateFormatter stringFromDate:date]];
-        NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
-        
-        [zip CreateZipFile2:zipFile];
-        
-        
-        
-        /*
-         *  设备最大数量绑定有bug，检查一下
-         */
-        
-        NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
-        
-        
-        QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
-            builder.zone = [QNFixedZone zoneNa0];
-        }];
-        QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
-        //
-        
-        if( self.appDelegate.videoAsset != nil && self.appDelegate.videoData == nil ){
+        [[TZImageManager manager] getVideoOutputPathWithAsset:self.appDelegate.videoAsset success:^(NSString *outputPath){
+                        NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
             
-            self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation([self.appDelegate.photos objectAtIndex:0])];
-            NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+            ENABLE_RightBarButtonItem;
+            HUD_WAITING_HIDE;
+            HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
             
-            [[TZImageManager manager] getVideoOutputPathWithAsset:self.appDelegate.videoAsset success:^(NSString *outputPath){
-                            NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
-                
-                ENABLE_RightBarButtonItem;
-                HUD_WAITING_HIDE;
-                HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
-                
-    //            DO_DATA_TO_BLOCK_IF_FAILED(videoData);
-    //
-    //            if( self.appDelegate.isSending ){
-    //                [self doUploadVideo];
-    //            }
-                
-    //            ENABLE_RightBarButtonItem;
-                //            UPDATE_RightBarButtonItem(ICON_FORWARD);
-                
-                //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
-                //        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
-                //
-                //        NSURL *newVideoUrl ; //一般.mp4
-                //        NSDateFormatter *formater = [[NSDateFormatter alloc] init];//用时间给文件全名，以免重复，在测试的时候其实可以判断文件是否存在若存在，则删除，重新生成文件即可
-                //        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
-                //        //    这个是保存在app自己的沙盒路径里，后面可以选择是否在上传后删除掉。我建议删除掉，免得占空间。
-                //        newVideoUrl = [NSURL fileURLWithPath:[NSHomeDirectory() stringByAppendingFormat:@"/Documents/output-%@.mp4", [formater stringFromDate:[NSDate date]]]];
-                //        [self convertVideoQuailtyWithInputURL:videoUrl outputURL:newVideoUrl completeHandler:nil];
-                
-                
-                [zip addFileToZip:outputPath newname:fileName];
-                
-                
-                [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
-                
-                
-                [zip CloseZipFile2];
-                
-                
-            } failure:^(NSString *errorMessage, NSError *error) {
-                
-            }];
-        }else{
-            [zip addDataToZip:self.appDelegate.videoData fileAttributes:nil newname:fileName];
+//            DO_DATA_TO_BLOCK_IF_FAILED(videoData);
+//
+//            if( self.appDelegate.isSending ){
+//                [self doUploadVideo];
+//            }
+            
+//            ENABLE_RightBarButtonItem;
+            //            UPDATE_RightBarButtonItem(ICON_FORWARD);
+            
+            //        NSLog(@"%@",[NSString stringWithFormat:@"%f s", [self getVideoLength:videoUrl]]);
+            //        NSLog(@"%@", [NSString stringWithFormat:@"%.2f kb", [self getFileSize:[videoUrl path]]]);
+            //
+            //        NSURL *newVideoUrl ; //一般.mp4
+            //        NSDateFormatter *formater = [[NSDateFormatter alloc] init];//用时间给文件全名，以免重复，在测试的时候其实可以判断文件是否存在若存在，则删除，重新生成文件即可
+            //        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
+            //        //    这个是保存在app自己的沙盒路径里，后面可以选择是否在上传后删除掉。我建议删除掉，免得占空间。
+            //        newVideoUrl = [NSURL fileURLWithPath:[NSHomeDirectory() stringByAppendingFormat:@"/Documents/output-%@.mp4", [formater stringFromDate:[NSDate date]]]];
+            //        [self convertVideoQuailtyWithInputURL:videoUrl outputURL:newVideoUrl completeHandler:nil];
+            
+            
+            [zip addFileToZip:outputPath newname:fileName];
+            
+            
             [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
-        }
-        
+            
+            
+            [zip CloseZipFile2];
+            
+            
+        } failure:^(NSString *errorMessage, NSError *error) {
+            
+        }];
     }else{
-        NSLog(@"Cancel sending");
-        self.isCancelSignals = true;
+        [zip addDataToZip:self.appDelegate.videoData fileAttributes:nil newname:fileName];
+        
+        ENABLE_RightBarButtonItem;
+        HUD_WAITING_HIDE;
+        
+        [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
     }
-        
-        
 }
 
 - (void)doUploadOssVideo:(NSString*)zipFile withFileName:(NSString*)zipFileName withToken:(NSString*)upToken{
@@ -1132,13 +1135,22 @@
               }
     checkCrc:NO
     cancellationSignal:^BOOL() {
-    return self.isCancelSignals;
+        return self.isCancelSignals;
     }];
     
-    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
-        builder.zone = [QNFixedZone zoneNa0];
-    }];
-    QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
+//    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+//        builder.zone = [QNFixedZone zoneNa0];
+//    }];
+//    QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
+    
+    //文件管理  文件路径可以自定义
+    NSString *document = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    //upprogress 文件夹用来存储上传进度 七牛云自动实现记录 无需别的操作
+    NSString* fileurl = [document stringByAppendingPathComponent:@"qiniu"];
+    // 传入断点记录的代理
+    QNFileRecorder *file = [QNFileRecorder fileRecorderWithFolder:fileurl error:nil];
+    // 创建带有断点记录代理的上传管理者
+    QNUploadManager *upManager = [[QNUploadManager alloc] initWithRecorder:file];
     
     NAV_UPLOAD_START;
     [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/video/%@", zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
@@ -1171,7 +1183,17 @@
                     }
                 }
                 NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
-                UIImage *data = self.appDelegate.photos[i];
+                int imageWidth = 0;
+                int imageHeight = 0;
+                if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+                    imageWidth = 150;
+                    imageHeight = 150 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+                }else{
+                    imageWidth = 150 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+                    imageHeight = 150;
+                }
+                CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+                NSData *data = [self.appDelegate compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self.appDelegate imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
                 [self.appDelegate addMessageList:@"video" withTime:time withTitle:deviceName withDesc:desc withData:data];
             }
             

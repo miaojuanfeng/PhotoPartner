@@ -53,7 +53,7 @@
 - (void)saveDeviceList;
 - (void)loadDeviceList;
 - (Boolean)isNilDeviceList;
-- (void)addMessageList:(NSString *)type withTime:(NSString *) time withTitle:(NSString *) title withDesc:(NSString *) desc withData:(UIImage *) data;
+- (void)addMessageList:(NSString *)type withTime:(NSString *) time withTitle:(NSString *) title withDesc:(NSString *) desc withData:(NSData *) data;
 - (void)saveMessageList;
 - (void)loadMessageList;
 - (void)clearMessageList;
@@ -64,6 +64,9 @@
 
 - (NSString*)convertToJSONData:(id)infoDict;
 - (NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString;
+
+- (UIImage*)imageByScalingAndCroppingForSize:(CGSize)targetSize withSourceImage:(UIImage *)sourceImage;
+- (NSData *)compressQualityWithMaxLength:(NSInteger)maxLength withSourceImage:(UIImage *)sourceImage;
 
 @end
 

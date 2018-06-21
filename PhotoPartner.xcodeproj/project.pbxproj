@@ -670,7 +670,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.joyhong.PhotoPartner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "db7ea170-fcdf-4ce6-9afb-dbb32859099d";
+				PROVISIONING_PROFILE = "762125de-08bf-4574-a615-2026207c57e6";
 				PROVISIONING_PROFILE_SPECIFIER = PhotoPartner_Dev;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
