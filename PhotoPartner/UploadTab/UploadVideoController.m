@@ -849,7 +849,8 @@
     if( !parent ){
         if( self.appDelegate.isSending ){
             NSLog(@"Cancel sending");
-            [self.manager.session invalidateAndCancel];
+//            [self.manager.session invalidateAndCancel];
+            self.isCancelSignals = true;
             //
             for (int i=0; i<self.appDelegate.videos.count; i++) {
                 NSString *fileBlock = [NSString stringWithFormat:@"%d", i+1];
@@ -974,15 +975,42 @@
     [self.view endEditing:YES];
     
     if( !self.appDelegate.isSending ){
+        
+        [self.appDelegate.deviceId removeAllObjects];
+        for (NSMutableDictionary *device in self.appDelegate.deviceList) {
+            if( [[device objectForKey:@"isSelected"] boolValue] ){
+                [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
+            }
+        }
+        
+        if( self.appDelegate.photos.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
+            return;
+        }
+        if( self.appDelegate.deviceId.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+            return;
+        }
+        
+        self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation([self.appDelegate.photos objectAtIndex:0])];
+        NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
+        
+        NSMutableDictionary *video_data = [[NSMutableDictionary alloc] init];
+        [video_data setObject:self.appDelegate.md5 forKey:@"file_md5"];
+        [video_data setObject:[self.appDelegate.fileDesc objectAtIndex:0] forKey:@"file_desc"];
+        [video_data setObject:self.appDelegate.deviceId forKey:@"device_id"];
+        NSString *videoData = [self.appDelegate convertToJSONData:video_data];
+        
         AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
         manager.requestSerializer.timeoutInterval = 30.0f;
         NSDictionary *parameters=@{
                                    @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
-                                   @"user_imei":self.appDelegate.deviceUUID
+                                   @"user_imei":self.appDelegate.deviceUUID,
+                                   @"video_data":videoData
                                    };
         HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
-        [manager POST:BASE_URL(@"upload/token") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        [manager POST:BASE_URL(@"upload/token/video") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             
         } progress:^(NSProgress * _Nonnull uploadProgress) {
             
@@ -997,7 +1025,18 @@
             if( status == 200 ){
                 NSDictionary *data = [dic objectForKey:@"data"];
                 
-                [self ossUpload:[data objectForKey:@"upToken"]];
+                NSString *upToken = [data objectForKey:@"upToken"];
+                if( upToken != nil ){
+                    [self ossUpload:upToken];
+                }else{
+                    [self doMessage];
+                    
+                    NSLog(@"upToken: %@", upToken);
+                    DO_FINISH_UPLOAD;
+                    NAV_UPLOAD_END;
+                    HUD_LOADING_HIDE;
+                    HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
+                }
             }else{
                 NSString *eCode = [NSString stringWithFormat:@"e%d", status];
                 HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
@@ -1016,22 +1055,6 @@
 }
 
 - (void)ossUpload:(NSString*) upToken{
-        
-    [self.appDelegate.deviceId removeAllObjects];
-    for (NSMutableDictionary *device in self.appDelegate.deviceList) {
-        if( [[device objectForKey:@"isSelected"] boolValue] ){
-            [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
-        }
-    }
-    
-    if( self.appDelegate.photos.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadVideoEmptyError", nil));
-        return;
-    }
-    if( self.appDelegate.deviceId.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
-        return;
-    }
     
     DISABLE_RightBarButtonItem;
     NAV_UPLOAD_START;
@@ -1043,8 +1066,8 @@
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-//    NSString *zipFileName = [NSString stringWithFormat:@"VID_%@.zip", [dateFormatter stringFromDate:date]];
-    NSString *zipFileName = [NSString stringWithFormat:@"VID_20180621.zip"];
+    NSString *zipFileName = [NSString stringWithFormat:@"VID_%@.zip", [dateFormatter stringFromDate:date]];
+//    NSString *zipFileName = [NSString stringWithFormat:@"VID_20180621.zip"];
     NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
     
     [zip CreateZipFile2:zipFile];
@@ -1058,9 +1081,6 @@
     NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
     
     //
-    
-    self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation([self.appDelegate.photos objectAtIndex:0])];
-    NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
     
     if( self.appDelegate.videoAsset != nil && self.appDelegate.videoData == nil ){
         
@@ -1160,42 +1180,7 @@
         NSInteger statusCode = [info statusCode];
         
         if( statusCode == 200 ){
-            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-            NSString *time = [dateFormatter stringFromDate:date];
-            for(int i=0;i<self.appDelegate.photos.count;i++){
-                NSString *deviceName = @"";
-                for(int j=0;j<self.appDelegate.deviceId.count;j++){
-                    NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
-                    for(int k=0;k<self.appDelegate.deviceList.count;k++){
-                        //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
-                        //                    NSLog(@"%@", device_id);
-                        if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
-                            NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
-                            if( [deviceName isEqualToString:@""] ){
-                                deviceName = device_name;
-                            }else{
-                                deviceName = [NSString stringWithFormat:@"%@, %@", deviceName, device_name];
-                            }
-                            break;
-                        }
-                    }
-                }
-                NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
-                int imageWidth = 0;
-                int imageHeight = 0;
-                if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
-                    imageWidth = 150;
-                    imageHeight = 150 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
-                }else{
-                    imageWidth = 150 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
-                    imageHeight = 150;
-                }
-                CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
-                NSData *data = [self.appDelegate compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self.appDelegate imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
-                [self.appDelegate addMessageList:@"video" withTime:time withTitle:deviceName withDesc:desc withData:data];
-            }
+            [self doMessage];
             
             DO_FINISH_UPLOAD;
             NAV_UPLOAD_END;
@@ -1212,6 +1197,45 @@
         }
         // 删除zip文件
     } option:uploadOption];
+}
+
+- (void)doMessage{
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *time = [dateFormatter stringFromDate:date];
+    for(int i=0;i<self.appDelegate.photos.count;i++){
+        NSString *deviceName = @"";
+        for(int j=0;j<self.appDelegate.deviceId.count;j++){
+            NSString  *device_id = [self.appDelegate.deviceId objectAtIndex:j];
+            for(int k=0;k<self.appDelegate.deviceList.count;k++){
+                //                    NSLog(@"%@", [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] );
+                //                    NSLog(@"%@", device_id);
+                if( [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_id"] == device_id ){
+                    NSString *device_name = [[self.appDelegate.deviceList objectAtIndex:k] objectForKey:@"device_name"];
+                    if( [deviceName isEqualToString:@""] ){
+                        deviceName = device_name;
+                    }else{
+                        deviceName = [NSString stringWithFormat:@"%@, %@", deviceName, device_name];
+                    }
+                    break;
+                }
+            }
+        }
+        NSString *desc = [self.appDelegate.fileDesc objectAtIndex:i];
+        int imageWidth = 0;
+        int imageHeight = 0;
+        if( self.appDelegate.photos[i].size.width >= self.appDelegate.photos[i].size.height ){
+            imageWidth = 150;
+            imageHeight = 150 / self.appDelegate.photos[i].size.width * self.appDelegate.photos[i].size.height;
+        }else{
+            imageWidth = 150 / self.appDelegate.photos[i].size.height * self.appDelegate.photos[i].size.width;
+            imageHeight = 150;
+        }
+        CGSize imageSize = CGSizeMake(imageWidth, imageHeight);
+        NSData *data = [self.appDelegate compressQualityWithMaxLength:PHOTO_MAX_SIZE withSourceImage:[self.appDelegate imageByScalingAndCroppingForSize:imageSize withSourceImage:self.appDelegate.photos[i]]];
+        [self.appDelegate addMessageList:@"video" withTime:time withTitle:deviceName withDesc:desc withData:data];
+    }
 }
 
 @end

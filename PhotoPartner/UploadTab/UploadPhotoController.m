@@ -553,7 +553,8 @@
     if( !parent ){
         if( self.appDelegate.isSending ){
             NSLog(@"Cancel sending");
-            [self.manager.session invalidateAndCancel];
+//            [self.manager.session invalidateAndCancel];
+            self.isCancelSignals = true;
             NAV_UPLOAD_END;
             HUD_LOADING_HIDE;
             HUD_WAITING_HIDE;
@@ -681,7 +682,7 @@
                                    @"user_imei":self.appDelegate.deviceUUID
                                    };
         HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
-        [manager POST:BASE_URL(@"upload/token") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        [manager POST:BASE_URL(@"upload/token/image") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             
         } progress:^(NSProgress * _Nonnull uploadProgress) {
             
@@ -804,7 +805,7 @@
              @"x:name":zipFileName,
              @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
              @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]],
-             @"x:md5":@""
+             @"x:md5":@" "
              }
     checkCrc:NO
     cancellationSignal:^BOOL() {
