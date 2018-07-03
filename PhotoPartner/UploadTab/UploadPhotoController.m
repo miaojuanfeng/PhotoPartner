@@ -813,7 +813,7 @@
         return self.isCancelSignals;
     }];
     
-    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/image/%@", zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/image/uid%@/%@", [self.appDelegate.userInfo objectForKey:@"user_id"], zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
         NSLog(@"oss: %@", info);
         NSLog(@"oss: %@", resp);
         
