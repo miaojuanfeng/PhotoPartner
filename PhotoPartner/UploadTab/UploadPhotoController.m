@@ -708,6 +708,7 @@
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
             
             HUD_WAITING_HIDE;
+            NAV_UPLOAD_END;
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
         }];
     }else{
@@ -868,6 +869,8 @@
             HUD_LOADING_HIDE;
         }
         // 删除zip文件
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        [fileManager removeItemAtPath:zipFile error:nil];
     } option:uploadOption];
 }
 

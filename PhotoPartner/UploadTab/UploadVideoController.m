@@ -1046,6 +1046,7 @@
             NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
             
             HUD_WAITING_HIDE;
+            NAV_UPLOAD_END;
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
         }];
     }else{
@@ -1115,6 +1116,9 @@
             
             [zip addFileToZip:outputPath newname:fileName];
             
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            [fileManager removeItemAtPath:outputPath error:nil];
+            
             
             [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
             
@@ -1168,7 +1172,9 @@
     //upprogress 文件夹用来存储上传进度 七牛云自动实现记录 无需别的操作
     NSString* fileurl = [document stringByAppendingPathComponent:@"qiniu"];
     // 传入断点记录的代理
-    QNFileRecorder *file = [QNFileRecorder fileRecorderWithFolder:fileurl error:nil];
+    NSError *error;
+    QNFileRecorder *file = [QNFileRecorder fileRecorderWithFolder:fileurl error:&error];
+    NSLog(@"qiniu error: %@", error);
     // 创建带有断点记录代理的上传管理者
     QNUploadManager *upManager = [[QNUploadManager alloc] initWithRecorder:file];
     
@@ -1196,6 +1202,8 @@
             HUD_LOADING_HIDE;
         }
         // 删除zip文件
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        [fileManager removeItemAtPath:zipFile error:nil];
     } option:uploadOption];
 }
 
