@@ -1060,18 +1060,16 @@
     DISABLE_RightBarButtonItem;
     NAV_UPLOAD_START;
     
-    ZipArchive* zip = [[ZipArchive alloc] init];
+//    ZipArchive* zip = [[ZipArchive alloc] init];
     
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-    NSString *zipFileName = [NSString stringWithFormat:@"VID_%@.zip", [dateFormatter stringFromDate:date]];
-//    NSString *zipFileName = [NSString stringWithFormat:@"VID_20180621.zip"];
-    NSString *zipFile = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", zipFileName]];
+    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+//    NSString *mp4FileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+//    NSString *mp4File = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", mp4FileName]];
     
-    [zip CreateZipFile2:zipFile];
+//    [zip CreateZipFile2:zipFile];
     
     
     
@@ -1079,7 +1077,7 @@
      *  设备最大数量绑定有bug，检查一下
      */
     
-    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+    
     
     //
     
@@ -1088,7 +1086,8 @@
         HUD_WAITING_SHOW(NSLocalizedString(@"loadingProcessing", nil));
         
         [[TZImageManager manager] getVideoOutputPathWithAsset:self.appDelegate.videoAsset success:^(NSString *outputPath){
-                        NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+            
+            NSLog(@"视频导出到本地完成,沙盒路径为:%@", outputPath);
             
             ENABLE_RightBarButtonItem;
             HUD_WAITING_HIDE;
@@ -1114,28 +1113,39 @@
             //        [self convertVideoQuailtyWithInputURL:videoUrl outputURL:newVideoUrl completeHandler:nil];
             
             
-            [zip addFileToZip:outputPath newname:fileName];
+//            [zip addFileToZip:outputPath newname:fileName];
             
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            [fileManager removeItemAtPath:outputPath error:nil];
-            
-            
-            [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
+//            NSFileManager *fileManager = [NSFileManager defaultManager];
+//            [fileManager removeItemAtPath:outputPath error:nil];
             
             
-            [zip CloseZipFile2];
+            [self doUploadOssVideo:outputPath withFileName:fileName withToken:upToken];
+            
+            
+//            [zip CloseZipFile2];
             
             
         } failure:^(NSString *errorMessage, NSError *error) {
             
         }];
     }else{
-        [zip addDataToZip:self.appDelegate.videoData fileAttributes:nil newname:fileName];
+//        [zip addDataToZip:self.appDelegate.videoData fileAttributes:nil newname:fileName];
+//
+//        ENABLE_RightBarButtonItem;
+//        HUD_WAITING_HIDE;
+//
+//        [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
+        
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+        NSString *filePath = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", fileName]];
+        
+        [self.appDelegate.videoData writeToFile:filePath atomically:NO];
         
         ENABLE_RightBarButtonItem;
         HUD_WAITING_HIDE;
         
-        [self doUploadOssVideo:zipFile withFileName:zipFileName withToken:upToken];
+        [self doUploadOssVideo:filePath withFileName:fileName withToken:upToken];
     }
 }
 
