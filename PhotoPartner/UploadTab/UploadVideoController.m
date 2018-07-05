@@ -1066,6 +1066,7 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
     NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+//    NSString *fileName = @"qiniu_test.mp4";
 //    NSString *mp4FileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
 //    NSString *mp4File = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", mp4FileName]];
     
@@ -1194,6 +1195,7 @@
     
     NAV_UPLOAD_START;
     [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/video/uid%@/%@", [self.appDelegate.userInfo objectForKey:@"user_id"],zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+//    [upManager putFile:zipFile key:[NSString stringWithFormat:@"%@",zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
         NSLog(@"oss: %@", info);
         NSLog(@"oss: %@", resp);
         
