@@ -263,7 +263,7 @@
     [self.view endEditing:YES];
     if( indexPath.section == 1 ){
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-        NSMutableDictionary *device = [self.appDelegate.deviceList objectAtIndex:indexPath.row];
+        NSMutableDictionary *device = [[self.appDelegate.deviceList objectAtIndex:indexPath.row] mutableCopy];
         if( [[device objectForKey:@"isSelected"] boolValue] ){
             cell.accessoryType = UITableViewCellAccessoryNone;
             [device setObject:@0 forKey:@"isSelected"];
