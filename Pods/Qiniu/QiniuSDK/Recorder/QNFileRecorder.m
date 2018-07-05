@@ -24,7 +24,10 @@
 
 + (NSString *)pathJoin:(NSString *)key
                   path:(NSString *)path {
-    return [[NSString alloc] initWithFormat:@"%@/%@", path, key];
+    NSRange range =  [key rangeOfString:@"/" options:NSBackwardsSearch];
+    NSString *fileName = [key substringFromIndex:range.location+1];
+//    NSLog(@"fileName: %@", fileName);
+    return [[NSString alloc] initWithFormat:@"%@/%@", path, fileName];
 }
 
 + (instancetype)fileRecorderWithFolder:(NSString *)directory

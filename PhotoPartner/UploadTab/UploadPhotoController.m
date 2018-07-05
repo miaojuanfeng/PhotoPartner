@@ -859,7 +859,7 @@
             NAV_UPLOAD_END;
             HUD_LOADING_HIDE;
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
-        }else if( statusCode == -999 ){
+        }else if( statusCode == -999 || statusCode == -2 ){
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
             NAV_UPLOAD_END;
             HUD_LOADING_HIDE;

@@ -167,11 +167,11 @@ typedef void (^task)(void);
     if (offset > size || size != self.size) {
         return 0;
     }
-    UInt64 t = [time unsignedLongLongValue];
-    if (t != _modifyTime) {
-        NSLog(@"modify time changed %llu, %llu", t, _modifyTime);
-        return 0;
-    }
+//    UInt64 t = [time unsignedLongLongValue];
+//    if (t != _modifyTime) {
+//        NSLog(@"modify time changed %llu, %llu", t, _modifyTime);
+//        return 0;
+//    }
     _contexts = [[NSMutableArray alloc] initWithArray:contexts copyItems:true];
     return offset;
 }

@@ -1062,10 +1062,11 @@
     
 //    ZipArchive* zip = [[ZipArchive alloc] init];
     
-    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+//    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+//    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", self.appDelegate.md5];
 //    NSString *fileName = @"qiniu_test.mp4";
 //    NSString *mp4FileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
 //    NSString *mp4File = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", mp4FileName]];
@@ -1208,7 +1209,7 @@
             NAV_UPLOAD_END;
             HUD_LOADING_HIDE;
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
-        }else if( statusCode == -999 ){
+        }else if( statusCode == -999 || statusCode == -2 ){
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendCanceled", nil));
             NAV_UPLOAD_END;
             HUD_LOADING_HIDE;
