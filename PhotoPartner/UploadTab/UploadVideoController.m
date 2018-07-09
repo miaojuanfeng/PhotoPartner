@@ -1062,11 +1062,11 @@
     
 //    ZipArchive* zip = [[ZipArchive alloc] init];
     
-//    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-//    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
-//    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
-    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", self.appDelegate.md5];
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+    NSString *fileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
+    NSString *pathName = [NSString stringWithFormat:@"VID_%@.mp4", self.appDelegate.md5];
 //    NSString *fileName = @"qiniu_test.mp4";
 //    NSString *mp4FileName = [NSString stringWithFormat:@"VID_%@.mp4", [dateFormatter stringFromDate:date]];
 //    NSString *mp4File = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", mp4FileName]];
@@ -1121,7 +1121,7 @@
 //            [fileManager removeItemAtPath:outputPath error:nil];
             
             
-            [self doUploadOssVideo:outputPath withFileName:fileName withToken:upToken];
+            [self doUploadOssVideo:outputPath withFileName:fileName withPathName:pathName withToken:upToken];
             
             
 //            [zip CloseZipFile2];
@@ -1140,7 +1140,7 @@
         
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentPath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-        NSString *filePath = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", fileName]];
+        NSString *filePath = [documentPath stringByAppendingString:[NSString stringWithFormat:@"/%@", pathName]];
         
         [self.appDelegate.videoData writeToFile:filePath atomically:NO];
         
@@ -1151,11 +1151,11 @@
         ENABLE_RightBarButtonItem;
         HUD_WAITING_HIDE;
         
-        [self doUploadOssVideo:filePath withFileName:fileName withToken:upToken];
+        [self doUploadOssVideo:filePath withFileName:fileName withPathName:pathName withToken:upToken];
     }
 }
 
-- (void)doUploadOssVideo:(NSString*)zipFile withFileName:(NSString*)zipFileName withToken:(NSString*)upToken{
+- (void)doUploadOssVideo:(NSString*)zipFile withFileName:(NSString*)fileName withPathName:(NSString*)pathName withToken:(NSString*)upToken{
     self.isCancelSignals = false;
     HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
     QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
@@ -1168,7 +1168,7 @@
     params:@{
               @"x:type":@"video",
               @"x:user_id":[[self.appDelegate.userInfo objectForKey:@"user_id"] stringValue],
-              @"x:name":zipFileName,
+              @"x:name":fileName,
               @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
               @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]],
               @"x:md5":self.appDelegate.md5
@@ -1195,7 +1195,7 @@
     QNUploadManager *upManager = [[QNUploadManager alloc] initWithRecorder:file];
     
     NAV_UPLOAD_START;
-    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/video/uid%@/%@", [self.appDelegate.userInfo objectForKey:@"user_id"],zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+    [upManager putFile:zipFile key:[NSString stringWithFormat:@"upload/video/uid%@/%@", [self.appDelegate.userInfo objectForKey:@"user_id"], pathName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
 //    [upManager putFile:zipFile key:[NSString stringWithFormat:@"%@",zipFileName] token:upToken complete: ^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
         NSLog(@"oss: %@", info);
         NSLog(@"oss: %@", resp);
