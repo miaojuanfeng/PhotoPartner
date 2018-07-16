@@ -671,6 +671,22 @@
     
     if( !self.appDelegate.isSending ){
         
+        [self.appDelegate.deviceId removeAllObjects];
+        for (NSMutableDictionary *device in self.appDelegate.deviceList) {
+            if( [[device objectForKey:@"isSelected"] boolValue] ){
+                [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
+            }
+        }
+        
+        if( self.appDelegate.photos.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadPhotoEmptyError", nil));
+            return;
+        }
+        if( self.appDelegate.deviceId.count == 0 ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
+            return;
+        }
+        
         DISABLE_RightBarButtonItem;
         NAV_UPLOAD_START;
         
@@ -700,6 +716,7 @@
                 ENABLE_RightBarButtonItem;
                 [self ossUpload:[data objectForKey:@"upToken"]];
             }else{
+                ENABLE_RightBarButtonItem;
                 NSString *eCode = [NSString stringWithFormat:@"e%d", status];
                 HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
             }
@@ -709,6 +726,7 @@
             
             HUD_WAITING_HIDE;
             NAV_UPLOAD_END;
+            ENABLE_RightBarButtonItem;
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
         }];
     }else{
@@ -718,22 +736,6 @@
 }
 
 - (void)ossUpload:(NSString*) upToken{
-    
-    [self.appDelegate.deviceId removeAllObjects];
-    for (NSMutableDictionary *device in self.appDelegate.deviceList) {
-        if( [[device objectForKey:@"isSelected"] boolValue] ){
-            [self.appDelegate.deviceId addObject:[device objectForKey:@"device_id"]];
-        }
-    }
-    
-    if( self.appDelegate.photos.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadPhotoEmptyError", nil));
-        return;
-    }
-    if( self.appDelegate.deviceId.count == 0 ){
-        HUD_TOAST_SHOW(NSLocalizedString(@"uploadDeviceEmptyError", nil));
-        return;
-    }
     
     ZipArchive* zip = [[ZipArchive alloc] init];
     

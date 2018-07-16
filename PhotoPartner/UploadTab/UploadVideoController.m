@@ -992,6 +992,9 @@
             return;
         }
         
+        DISABLE_RightBarButtonItem;
+        NAV_UPLOAD_START;
+        
         self.appDelegate.md5 = [self.appDelegate fileMD5:UIImagePNGRepresentation([self.appDelegate.photos objectAtIndex:0])];
         NSLog(@"视频md5计算完成,md5值为:%@", self.appDelegate.md5);
         
@@ -1035,9 +1038,12 @@
                     DO_FINISH_UPLOAD;
                     NAV_UPLOAD_END;
                     HUD_LOADING_HIDE;
+                    ENABLE_RightBarButtonItem;
                     HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
                 }
             }else{
+//                NAV_UPLOAD_END;
+                ENABLE_RightBarButtonItem;
                 NSString *eCode = [NSString stringWithFormat:@"e%d", status];
                 HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
             }
@@ -1047,6 +1053,7 @@
             
             HUD_WAITING_HIDE;
             NAV_UPLOAD_END;
+            ENABLE_RightBarButtonItem;
             HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendFailed", nil));
         }];
     }else{
