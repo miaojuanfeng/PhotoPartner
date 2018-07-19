@@ -75,10 +75,9 @@
     return self.appDelegate.messageList.count;
 }
 
-//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-////    return [self getCellHeight:indexPath.row];
-//    return 200;
-//}
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return [self getCellHeight:indexPath.row];
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
@@ -155,15 +154,15 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-//- (CGFloat)getCellHeight:(long)index {
-//    if( [[[self.appDelegate.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"image"] ){
-//        return IMAGE_CELL_HEIGHT;
-//    }else if( [[[self.appDelegate.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"video"] ){
-//        return VIDEO_CELL_HEIGHT;
-//    }else{
-//        return TEXT_CELL_HEIGHT;
-//    }
-//}
+- (CGFloat)getCellHeight:(long)index {
+    if( [[[self.appDelegate.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"image"] ){
+        return IMAGE_CELL_HEIGHT;
+    }else if( [[[self.appDelegate.messageList objectAtIndex:index] objectForKey:@"type"] isEqualToString:@"video"] ){
+        return VIDEO_CELL_HEIGHT;
+    }else{
+        return TEXT_CELL_HEIGHT;
+    }
+}
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
