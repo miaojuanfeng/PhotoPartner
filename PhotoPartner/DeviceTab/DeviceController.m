@@ -146,7 +146,13 @@
         textField.placeholder = NSLocalizedString(@"deviceListRenameTextFieldTitle", nil);
     }];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        
         NSString *deviceName = alertController.textFields.firstObject.text;
+        if( deviceName.length > INPUT_MAX_TEXT ){
+            HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+            return;
+        }
+        
         AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
         manager.requestSerializer.timeoutInterval = 30.0f;

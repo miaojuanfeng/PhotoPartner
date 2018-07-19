@@ -53,6 +53,7 @@
 #define MAX_LIMIT_NUMS 50
 #define MAX_PHOTO_COUNT 9
 #define MAX_VIDEO_COUNT 1
+#define INPUT_MAX_TEXT 18
 
 #define FileHashDefaultChunkSizeForReadingData 256
 
@@ -204,9 +205,9 @@
 
 #define BASE_URL(url) [NSString stringWithFormat:@"https://well.bsimb.cn/%@", url]
 
-#define IMAGE_CELL_HEIGHT 250
-#define VIDEO_CELL_HEIGHT IMAGE_CELL_HEIGHT
-#define TEXT_CELL_HEIGHT 70
+//#define IMAGE_CELL_HEIGHT 250
+//#define VIDEO_CELL_HEIGHT IMAGE_CELL_HEIGHT
+//#define TEXT_CELL_HEIGHT 70
 
 #define ICON_ADD @"\U0000e767"
 #define ICON_SCAN @"\U0000e689"

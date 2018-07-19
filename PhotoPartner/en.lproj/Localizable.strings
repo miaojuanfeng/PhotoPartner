@@ -20,6 +20,7 @@ loadingProcessing = "Processing";
 loadingBinding = "Binding";
 loadingUnbinding = "Unbinding";
 loadingSaving = "Saving";
+inputMaxText = "No more than 18 characters";
 
 //homeNavigationItemTitle = "Photo Partner";
 

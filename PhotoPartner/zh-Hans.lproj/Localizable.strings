@@ -20,6 +20,7 @@ loadingProcessing = "处理中";
 loadingBinding = "绑定中";
 loadingUnbinding = "解绑中";
 loadingSaving = "保存中";
+inputMaxText = "最多输入18个字符";
 
 //homeNavigationItemTitle = "照片伴侣";
 

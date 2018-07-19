@@ -116,6 +116,11 @@
         return;
     }
     
+    if( self.userNameField.text.length > INPUT_MAX_TEXT ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+        return;
+    }
+    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;

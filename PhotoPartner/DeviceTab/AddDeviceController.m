@@ -46,6 +46,7 @@
     self.deviceNameField.layer.borderWidth = BORDER_WIDTH;
     self.deviceNameField.placeholder = NSLocalizedString(@"deviceAddDeviceName", nil);
     self.deviceNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    self.deviceNameField.delegate = self;
     [deviceView addSubview:self.deviceNameField];
     
     self.deviceTokenField = [[UITextField alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(self.deviceNameField)+GET_LAYOUT_HEIGHT(self.deviceNameField)+10, GET_LAYOUT_WIDTH(deviceView), 44)];
@@ -102,6 +103,11 @@
     }
     if( [self.deviceTokenField.text isEqualToString:@""] ){
         HUD_TOAST_SHOW(NSLocalizedString(@"deviceAddDeviceNumber", nil));
+        return;
+    }
+    
+    if( self.deviceNameField.text.length > INPUT_MAX_TEXT ){
+        HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
         return;
     }
     
