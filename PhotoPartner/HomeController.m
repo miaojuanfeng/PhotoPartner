@@ -423,18 +423,14 @@
 //        [self.appDelegate.isTakePhoto addObject:[NSString stringWithFormat:@"%d", true]];
         [self.appDelegate.fileDesc addObject:@""];
         self.appDelegate.focusImageIndex = 0;
-//        //设置一个图片的存储路径
-//        NSString *imagePath = [NSString stringWithFormat:@"%@/Documents/%@",NSHomeDirectory(),timeStampString];
-//        //把图片直接保存到指定的路径（同时应该把图片的路径imagePath存起来，下次就可以直接用来取）
-//        [UIImagePNGRepresentation(image) writeToFile:imagePath atomically:YES];
-//        self.photoName = timeStampString;
-        
-        
-        //        // 读取沙盒路径图片
-        //        NSString *aPath3=[NSString stringWithFormat:@"%@/Documents/%@",NSHomeDirectory(),timeStampString];
-        //        // 拿到沙盒路径图片
-        //        UIImage *imgFromUrl3=[[UIImage alloc]initWithContentsOfFile:aPath3];
-        //        self.imageView.image = imgFromUrl3;
+        //保存图片到相册
+        if (image) {
+            [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+                if (!error) {
+                    
+                }
+            }];
+        }
         
         UploadPhotoController *uploadPhotoController = [[UploadPhotoController alloc] init];
         [self.navigationController pushViewController:uploadPhotoController animated:YES];
@@ -463,6 +459,14 @@
         [self.appDelegate.photos addObject:thumbnail];
         [self.appDelegate.fileDesc addObject:@""];
         self.appDelegate.focusImageIndex = 0;
+        
+        //保存视频到相册
+        NSURL *url = [info objectForKey:UIImagePickerControllerMediaURL];
+        [[TZImageManager manager] saveVideoWithUrl:url completion:^(NSError *error){
+            if (!error) {
+                
+            }
+        }];
         
         UploadVideoController *uploadVideoController = [[UploadVideoController alloc] init];
         [self.navigationController pushViewController:uploadVideoController animated:YES];

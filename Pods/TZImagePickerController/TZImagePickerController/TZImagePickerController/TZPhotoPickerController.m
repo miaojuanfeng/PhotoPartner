@@ -16,6 +16,7 @@
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
     NSMutableArray *_models;
@@ -441,6 +442,7 @@ static CGFloat itemMargin = 5;
         if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
             return _models.count + 1;
         }
+        return _models.count + 1;
     }
     return _models.count;
 }
@@ -448,9 +450,14 @@ static CGFloat itemMargin = 5;
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     // the cell lead to take a picture / 去拍照的cell
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+//    NSLog(@"tzImagePickerVc.allowPickingImage: %d", tzImagePickerVc.allowPickingImage);
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
-        cell.imageView.image = [UIImage imageNamedFromMyBundle:tzImagePickerVc.takePictureImageName];
+        if( tzImagePickerVc.allowPickingImage ){
+            cell.imageView.image = [UIImage imageNamedFromMyBundle:tzImagePickerVc.takePictureImageName];
+        }else{
+            cell.imageView.image = [UIImage imageNamedFromMyBundle:@"takeVideo"];
+        }
         return cell;
     }
     // the cell dipaly photo or video / 展示照片或视频的cell
@@ -605,6 +612,15 @@ static CGFloat itemMargin = 5;
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
+        
+        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+        if( !tzImagePickerVc.allowPickingImage ){
+            self.imagePickerVc.mediaTypes = @[(NSString *)kUTTypeMovie];
+            self.imagePickerVc.videoQuality = UIImagePickerControllerQualityTypeMedium;
+            self.imagePickerVc.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
+            self.imagePickerVc.videoMaximumDuration = 300.0f;
+        }
+        
         if(iOS8Later) {
             _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         }
@@ -726,6 +742,13 @@ static CGFloat itemMargin = 5;
             }];
             self.location = nil;
         }
+    }else if([type isEqualToString:@"public.movie"]){
+        NSURL *url = [info objectForKey:UIImagePickerControllerMediaURL];
+        [[TZImageManager manager] saveVideoWithUrl:url completion:^(NSError *error){
+            if (!error) {
+                [self reloadVideoArray];
+            }
+        }];
     }
 }
 
@@ -767,6 +790,31 @@ static CGFloat itemMargin = 5;
                 [tzImagePickerVc.selectedModels addObject:assetModel];
                 [self refreshBottomToolBarStatus];
             }
+            _collectionView.hidden = YES;
+            [_collectionView reloadData];
+            
+            _shouldScrollToBottom = YES;
+            [self scrollCollectionViewToBottom];
+        }];
+    }];
+}
+
+- (void)reloadVideoArray {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
+        _model = model;
+        [[TZImageManager manager] getAssetsFromFetchResult:_model.result completion:^(NSArray<TZAssetModel *> *models) {
+            [tzImagePickerVc hideProgressHUD];
+            
+            TZAssetModel *assetModel;
+            if (tzImagePickerVc.sortAscendingByModificationDate) {
+                assetModel = [models lastObject];
+                [_models addObject:assetModel];
+            } else {
+                assetModel = [models firstObject];
+                [_models insertObject:assetModel atIndex:0];
+            }
+            
             _collectionView.hidden = YES;
             [_collectionView reloadData];
             
