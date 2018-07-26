@@ -197,89 +197,96 @@
     
     
     
-    
+    /**
+     *  获取设备UUID
+     */
     self.appDelegate.deviceUUID = [GSKeyChainDataManager readUUID];
     NSLog(@"deviceUUID: %@", self.appDelegate.deviceUUID);
-    if( self.appDelegate.deviceUUID == nil ){
+    NSLog(@"userInfo: %@", self.appDelegate.userInfo);
+    if( self.appDelegate.deviceUUID == nil || self.appDelegate.userInfo == nil ){
         self.appDelegate.deviceUUID = [[UIDevice currentDevice].identifierForVendor UUIDString];
         [GSKeyChainDataManager saveUUID:self.appDelegate.deviceUUID];
         NSLog(@"重新生成deviceUUID: %@", self.appDelegate.deviceUUID);
-    }
     
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    manager.requestSerializer.timeoutInterval = 30.0f;
-    NSDictionary *parameters = @{@"user_imei":self.appDelegate.deviceUUID};
-    HUD_WAITING_SHOW(NSLocalizedString(@"loadingSignin", nil));
-    [manager POST:BASE_URL(@"user/signin") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
-        
-    } progress:^(NSProgress * _Nonnull uploadProgress) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+        /**
+         *  向服务器提交登录信息
+         */
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        manager.requestSerializer.timeoutInterval = 30.0f;
+        NSDictionary *parameters = @{@"user_imei":self.appDelegate.deviceUUID};
+        HUD_WAITING_SHOW(NSLocalizedString(@"loadingSignin", nil));
+        [manager POST:BASE_URL(@"user/signin") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
             
-            HUD_LOADING_PROGRESS(progress);
-        });
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        NSLog(@"成功.%@",responseObject);
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-        NSLog(@"results: %@", dic);
-        
-        int status = [[dic objectForKey:@"status"] intValue];
-        
-        HUD_WAITING_HIDE;
-        if( status == 200 ){
-            self.appDelegate.userInfo =  [NSMutableDictionary dictionaryWithDictionary:[dic objectForKey:@"data"]];
+        } progress:^(NSProgress * _Nonnull uploadProgress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+                
+                HUD_LOADING_PROGRESS(progress);
+            });
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"成功.%@",responseObject);
+            NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+            NSLog(@"results: %@", dic);
             
-            // 获取设备列表，如果为空就链接服务器查询，如果任然为空，就跳转页面
-            if( self.appDelegate.deviceList.count == 0 && [self.appDelegate isNilDeviceList] ){
-                AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-                manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-                manager.requestSerializer.timeoutInterval = 30.0f;
-                NSDictionary *parameters=@{
-                                           @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"]
-                                           };
-                HUD_WAITING_SHOW(NSLocalizedString(@"loadingDeviceList", nil));
-                [manager POST:BASE_URL(@"user/user_device") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
-                    
-                } progress:^(NSProgress * _Nonnull uploadProgress) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+            int status = [[dic objectForKey:@"status"] intValue];
+            
+            HUD_WAITING_HIDE;
+            if( status == 200 ){
+                self.appDelegate.userInfo =  [NSMutableDictionary dictionaryWithDictionary:[dic objectForKey:@"data"]];
+                [self.appDelegate saveUserInfo];
+                
+                // 获取设备列表，如果为空就链接服务器查询，如果任然为空，就跳转页面
+                if( self.appDelegate.deviceList.count == 0 && [self.appDelegate isNilDeviceList] ){
+                    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+                    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+                    manager.requestSerializer.timeoutInterval = 30.0f;
+                    NSDictionary *parameters=@{
+                                               @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"]
+                                               };
+                    HUD_WAITING_SHOW(NSLocalizedString(@"loadingDeviceList", nil));
+                    [manager POST:BASE_URL(@"user/user_device") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
                         
-                        HUD_LOADING_PROGRESS(progress);
-                    });
-                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                    NSLog(@"成功.%@",responseObject);
-                    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
-                    
-                    int status = [[dic objectForKey:@"status"] intValue];
-                    
-                    HUD_WAITING_HIDE;
-                    if( status == 200 ){
-                        self.appDelegate.deviceList = [[dic objectForKey:@"data"] mutableCopy];
-                        [self.appDelegate saveDeviceList];
+                    } progress:^(NSProgress * _Nonnull uploadProgress) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            float progress = 1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount;
+                            
+                            HUD_LOADING_PROGRESS(progress);
+                        });
+                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                        NSLog(@"成功.%@",responseObject);
+                        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
                         
-                        if( self.appDelegate.deviceList.count == 0 ){
-                            AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
-                            [self.navigationController pushViewController:addDeviceController animated:YES];
+                        int status = [[dic objectForKey:@"status"] intValue];
+                        
+                        HUD_WAITING_HIDE;
+                        if( status == 200 ){
+                            self.appDelegate.deviceList = [[dic objectForKey:@"data"] mutableCopy];
+                            [self.appDelegate saveDeviceList];
+                            
+                            if( self.appDelegate.deviceList.count == 0 ){
+                                AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+                                [self.navigationController pushViewController:addDeviceController animated:YES];
+                            }
                         }
-                    }
-                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                    NSLog(@"失败.%@",error);
-                    NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
-                    
-                    HUD_WAITING_HIDE;
-                    [self closeAlart];
-                }];
+                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                        NSLog(@"失败.%@",error);
+                        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+                        
+                        HUD_WAITING_HIDE;
+                        [self closeAlart];
+                    }];
+                }
             }
-        }
-        NSLog(@"userInfo: %@", self.appDelegate.userInfo);
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"失败.%@",error);
-        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
-        
-        HUD_WAITING_HIDE;
-        [self closeAlart];
-    }];
+            NSLog(@"userInfo: %@", self.appDelegate.userInfo);
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"失败.%@",error);
+            NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+            
+            HUD_WAITING_HIDE;
+            [self closeAlart];
+        }];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

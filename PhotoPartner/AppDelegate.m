@@ -44,7 +44,7 @@
     if( self.deviceList == nil ){
         self.deviceList = [[NSMutableArray alloc] init];
     }
-    self.userInfo = nil;
+    [self loadUserInfo];
     self.appVersion = 11;
     self.isSending = false;
     
@@ -270,6 +270,26 @@
     
     [newDic insertObject:message atIndex:0];
     [newDic writeToFile:plistPath atomically:YES];
+}
+
+- (void)saveUserInfo {
+    NSArray *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsPath = [path objectAtIndex:0];
+    NSString *plistPath = [documentsPath stringByAppendingPathComponent:@"userInfo.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:plistPath error:nil];
+    
+    if( self.userInfo != nil ){
+        [self.userInfo writeToFile:plistPath atomically:YES];
+    }
+}
+
+- (void)loadUserInfo {
+    NSArray *pathArray = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *path = [pathArray objectAtIndex:0];
+    NSString *plistPath = [path stringByAppendingPathComponent:@"userInfo.plist"];
+    self.userInfo = [[NSMutableDictionary alloc] initWithContentsOfFile:plistPath];
 }
 
 - (void)saveMessageList {

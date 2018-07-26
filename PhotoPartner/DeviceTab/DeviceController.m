@@ -144,6 +144,7 @@
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"deviceListRenameTextFieldTitle", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
     [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = NSLocalizedString(@"deviceListRenameTextFieldTitle", nil);
+        [textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     }];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         
@@ -298,6 +299,17 @@
     [alertController addAction:cancelAction];       // B
     
     [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)textFieldDidChange:(UITextField *)textField{
+    NSString  *nsTextContent = textField.text;
+    NSInteger existTextNum = nsTextContent.length;
+    
+    if (existTextNum > INPUT_MAX_TEXT){
+        NSString *s = [nsTextContent substringToIndex:INPUT_MAX_TEXT];
+        [textField setText:s];
+        HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+    }
 }
 
 @end

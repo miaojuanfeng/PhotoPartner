@@ -61,6 +61,8 @@
         }else if( [[messageItem objectForKey:@"type"] isEqualToString:@"video"] ){
             titleLabel.text = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"messageSendVideoTo", nil), [messageItem objectForKey:@"title"]];
         }
+        titleLabel.numberOfLines = 0;
+        [titleLabel sizeToFit];
         messageHeight = GET_LAYOUT_OFFSET_Y(titleLabel)+GET_LAYOUT_HEIGHT(titleLabel);
         
         UIView *messageView = [[UIView alloc] initWithFrame:CGRectMake(10, offsetTop, messageWidth, GET_LAYOUT_OFFSET_Y(titleLabel)+GET_LAYOUT_HEIGHT(titleLabel)+5)];

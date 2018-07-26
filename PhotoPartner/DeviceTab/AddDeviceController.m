@@ -12,7 +12,7 @@
 #import "AddDeviceController.h"
 #import "ScanDeviceController.h"
 
-@interface AddDeviceController () <UITextFieldDelegate, UIGestureRecognizerDelegate, ScanDeviceControllerDelegate>
+@interface AddDeviceController () <UIGestureRecognizerDelegate, ScanDeviceControllerDelegate>
 @property AppDelegate *appDelegate;
 @property UITextField *deviceNameField;
 @property UITextField *deviceTokenField;
@@ -46,7 +46,7 @@
     self.deviceNameField.layer.borderWidth = BORDER_WIDTH;
     self.deviceNameField.placeholder = NSLocalizedString(@"deviceAddDeviceName", nil);
     self.deviceNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
-    self.deviceNameField.delegate = self;
+    [self.deviceNameField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [deviceView addSubview:self.deviceNameField];
     
     self.deviceTokenField = [[UITextField alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(self.deviceNameField)+GET_LAYOUT_HEIGHT(self.deviceNameField)+10, GET_LAYOUT_WIDTH(deviceView), 44)];
@@ -202,6 +202,17 @@
 
 - (void)license:(NSString *)license {
     self.deviceTokenField.text = license;
+}
+
+- (void)textFieldDidChange:(UITextField *)textField{
+    NSString  *nsTextContent = textField.text;
+    NSInteger existTextNum = nsTextContent.length;
+    
+    if (existTextNum > INPUT_MAX_TEXT){
+        NSString *s = [nsTextContent substringToIndex:INPUT_MAX_TEXT];
+        [textField setText:s];
+        HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+    }
 }
 
 @end

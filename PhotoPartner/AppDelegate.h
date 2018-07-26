@@ -68,5 +68,8 @@
 - (UIImage*)imageByScalingAndCroppingForSize:(CGSize)targetSize withSourceImage:(UIImage *)sourceImage;
 - (NSData *)compressQualityWithMaxLength:(NSInteger)maxLength withSourceImage:(UIImage *)sourceImage;
 
+- (void)saveUserInfo;
+- (void)loadUserInfo;
+
 @end
 

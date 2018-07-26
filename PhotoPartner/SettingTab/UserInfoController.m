@@ -68,6 +68,7 @@
         self.userNameField = [[UITextField alloc] initWithFrame:CGRectMake(15, 0, GET_LAYOUT_WIDTH(self.tableView)-30, 44)];
         self.userNameField.text = self.userNickname;
         self.userNameField.backgroundColor = [UIColor whiteColor];
+        [self.userNameField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         [self setTextFieldLeftPadding:self.userNameField forWidth:85 forText:NSLocalizedString(@"userInfoUserName", nil)];
         self.userNameField.placeholder = NSLocalizedString(@"userInfoUserNameTextFiledTitle", nil);
         self.userNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
@@ -141,6 +142,7 @@
         if( status == 200 ){
             self.userNickname = self.userNameField.text;
             [self.appDelegate.userInfo setObject:self.userNameField.text forKey:@"user_nickname"];
+            [self.appDelegate saveUserInfo];
             HUD_TOAST_SHOW(NSLocalizedString(@"saveSuccess", nil));
         }else{
             NSString *eCode = [NSString stringWithFormat:@"e%d", status];
@@ -157,6 +159,17 @@
 
 -(void)fingerTapped:(UITapGestureRecognizer *)gestureRecognizer {
     [self.view endEditing:YES];
+}
+
+- (void)textFieldDidChange:(UITextField *)textField{
+    NSString  *nsTextContent = textField.text;
+    NSInteger existTextNum = nsTextContent.length;
+    
+    if (existTextNum > INPUT_MAX_TEXT){
+        NSString *s = [nsTextContent substringToIndex:INPUT_MAX_TEXT];
+        [textField setText:s];
+        HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+    }
 }
 
 @end

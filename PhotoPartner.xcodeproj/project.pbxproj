@@ -170,8 +170,8 @@
 		CE70A466204FC3B300470A16 /* MessageTab */ = {
 			isa = PBXGroup;
 			children = (
-				CE70A467204FC3CD00470A16 /* MessageController.m */,
 				CE70A469204FC3D700470A16 /* MessageController.h */,
+				CE70A467204FC3CD00470A16 /* MessageController.m */,
 			);
 			path = MessageTab;
 			sourceTree = "<group>";
