@@ -11,7 +11,7 @@
 #import "UserInfoController.h"
 #import <AFNetworking/AFNetworking.h>
 
-@interface UserInfoController () <UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate>
+@interface UserInfoController () <UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITextFieldDelegate>
 @property UITableView *tableView;
 
 @property UITextField *userNameField;
@@ -68,10 +68,10 @@
         self.userNameField = [[UITextField alloc] initWithFrame:CGRectMake(15, 0, GET_LAYOUT_WIDTH(self.tableView)-30, 44)];
         self.userNameField.text = self.userNickname;
         self.userNameField.backgroundColor = [UIColor whiteColor];
-        [self.userNameField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
         [self setTextFieldLeftPadding:self.userNameField forWidth:85 forText:NSLocalizedString(@"userInfoUserName", nil)];
         self.userNameField.placeholder = NSLocalizedString(@"userInfoUserNameTextFiledTitle", nil);
         self.userNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
+        self.userNameField.delegate = self;
         
         [cell.contentView addSubview:self.userNameField];
     }else if( indexPath.row == 1 ){
@@ -125,7 +125,10 @@
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
-    NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"], @"user_nickname": self.userNameField.text};
+    NSDictionary *parameters=@{
+                               @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
+                               @"user_nickname": [self.userNameField.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                               };
     HUD_WAITING_SHOW(NSLocalizedString(@"loadingSaving", nil));
     [manager POST:BASE_URL(@"user/update_profile") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
@@ -161,15 +164,12 @@
     [self.view endEditing:YES];
 }
 
-- (void)textFieldDidChange:(UITextField *)textField{
-    NSString  *nsTextContent = textField.text;
-    NSInteger existTextNum = nsTextContent.length;
-    
-    if (existTextNum > INPUT_MAX_TEXT){
-        NSString *s = [nsTextContent substringToIndex:INPUT_MAX_TEXT];
-        [textField setText:s];
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    if( (self.userNameField.text.length + string.length) > INPUT_MAX_TEXT ){
         HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+        return NO;
     }
+    return YES;
 }
 
 @end

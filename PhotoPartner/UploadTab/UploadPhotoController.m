@@ -754,7 +754,7 @@
      *  设备最大数量绑定有bug，检查一下
      */
     
-    
+    NSMutableArray *fileDesc = [[NSMutableArray alloc] init];
     
     
     QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
@@ -783,11 +783,10 @@
 //        [formData appendPartWithFileData:file name:@"file" fileName:[NSString stringWithFormat:@"%@.%@", fileName, fileExt] mimeType:[NSString stringWithFormat:@"image/%@", fileExt]];
         NSData *data = file;
         
-        
-        
         [zip addDataToZip:data fileAttributes:nil newname:fileName];
+        //
+        [fileDesc addObject:[[self.appDelegate.fileDesc objectAtIndex:i] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     }
-    
     
     [zip CloseZipFile2];
     
@@ -806,7 +805,7 @@
              @"x:type":@"image",
              @"x:user_id":[[self.appDelegate.userInfo objectForKey:@"user_id"] stringValue],
              @"x:name":zipFileName,
-             @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
+             @"x:description":[self.appDelegate convertToJSONData:[fileDesc copy]],
              @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]],
              @"x:md5":@" "
              }

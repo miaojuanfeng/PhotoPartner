@@ -12,10 +12,11 @@
 #import "AddDeviceController.h"
 #import <AFNetworking/AFNetworking.h>
 
-@interface DeviceController () <UITableViewDataSource, UITableViewDelegate>
+@interface DeviceController () <UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
 @property UITableView *tableView;
 @property AppDelegate *appDelegate;
 @property UILabel *emptyLabel;
+@property UIAlertController *alertController;
 @end
 
 @implementation DeviceController
@@ -141,14 +142,14 @@
 }
 
 - (void)clickRenameButton:(UIButton *)btn {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"deviceListRenameTextFieldTitle", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
-    [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    self.alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"deviceListRenameTextFieldTitle", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
+    [self.alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.placeholder = NSLocalizedString(@"deviceListRenameTextFieldTitle", nil);
-        [textField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
+        textField.delegate = self;
     }];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"confirmOK", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         
-        NSString *deviceName = alertController.textFields.firstObject.text;
+        NSString *deviceName = self.alertController.textFields.firstObject.text;
         if( deviceName.length > INPUT_MAX_TEXT ){
             HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
             return;
@@ -160,7 +161,7 @@
         NSDictionary *parameters=@{
                                    @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
                                    @"device_id":[NSString stringWithFormat:@"%ld", btn.tag],
-                                   @"device_name":deviceName
+                                   @"device_name":[deviceName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
                                    };
         HUD_WAITING_SHOW(NSLocalizedString(@"hudLoading", nil));
         [manager POST:BASE_URL(@"device/rename") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
@@ -207,10 +208,10 @@
         
     }];
     
-    [alertController addAction:okAction];
-    [alertController addAction:cancelAction];
+    [self.alertController addAction:okAction];
+    [self.alertController addAction:cancelAction];
     
-    [self presentViewController:alertController animated:YES completion:nil];
+    [self presentViewController:self.alertController animated:YES completion:nil];
 }
 
 - (void)clickUnbindButton:(UIButton *)btn {
@@ -301,15 +302,12 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)textFieldDidChange:(UITextField *)textField{
-    NSString  *nsTextContent = textField.text;
-    NSInteger existTextNum = nsTextContent.length;
-    
-    if (existTextNum > INPUT_MAX_TEXT){
-        NSString *s = [nsTextContent substringToIndex:INPUT_MAX_TEXT];
-        [textField setText:s];
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    if( (self.alertController.textFields.firstObject.text.length + string.length) > INPUT_MAX_TEXT ){
         HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+        return NO;
     }
+    return YES;
 }
 
 @end

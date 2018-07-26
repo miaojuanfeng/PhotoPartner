@@ -12,7 +12,7 @@
 #import "AddDeviceController.h"
 #import "ScanDeviceController.h"
 
-@interface AddDeviceController () <UIGestureRecognizerDelegate, ScanDeviceControllerDelegate>
+@interface AddDeviceController () <UIGestureRecognizerDelegate, ScanDeviceControllerDelegate, UITextFieldDelegate>
 @property AppDelegate *appDelegate;
 @property UITextField *deviceNameField;
 @property UITextField *deviceTokenField;
@@ -46,7 +46,6 @@
     self.deviceNameField.layer.borderWidth = BORDER_WIDTH;
     self.deviceNameField.placeholder = NSLocalizedString(@"deviceAddDeviceName", nil);
     self.deviceNameField.clearButtonMode = UITextFieldViewModeWhileEditing;
-    [self.deviceNameField addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [deviceView addSubview:self.deviceNameField];
     
     self.deviceTokenField = [[UITextField alloc] initWithFrame:CGRectMake(0, GET_LAYOUT_OFFSET_Y(self.deviceNameField)+GET_LAYOUT_HEIGHT(self.deviceNameField)+10, GET_LAYOUT_WIDTH(deviceView), 44)];
@@ -114,7 +113,11 @@
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     manager.requestSerializer.timeoutInterval = 30.0f;
-    NSDictionary *parameters=@{@"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],@"device_token":self.deviceTokenField.text,@"device_name":self.deviceNameField.text};
+    NSDictionary *parameters=@{
+                               @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"],
+                               @"device_token":self.deviceTokenField.text,
+                               @"device_name":[self.deviceNameField.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                               };
     HUD_WAITING_SHOW(NSLocalizedString(@"loadingBinding", nil));
     [manager POST:BASE_URL(@"device/bind") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
         
@@ -204,15 +207,12 @@
     self.deviceTokenField.text = license;
 }
 
-- (void)textFieldDidChange:(UITextField *)textField{
-    NSString  *nsTextContent = textField.text;
-    NSInteger existTextNum = nsTextContent.length;
-    
-    if (existTextNum > INPUT_MAX_TEXT){
-        NSString *s = [nsTextContent substringToIndex:INPUT_MAX_TEXT];
-        [textField setText:s];
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    if( (self.deviceNameField.text.length + string.length) > INPUT_MAX_TEXT ){
         HUD_TOAST_SHOW(NSLocalizedString(@"inputMaxText", nil));
+        return NO;
     }
+    return YES;
 }
 
 @end
