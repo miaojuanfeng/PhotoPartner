@@ -152,7 +152,7 @@
         self.tableView.rowHeight = 44;
         
         NSMutableDictionary *deviceItem = self.appDelegate.deviceList[indexPath.row];
-        cell.textLabel.text = [NSString stringWithFormat:@"%@", [deviceItem objectForKey:@"device_name"]];
+        cell.textLabel.text = [NSString stringWithFormat:@"%@", [[deviceItem objectForKey:@"device_name"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
         
         if( [[deviceItem objectForKey:@"isSelected"] boolValue] ){
             cell.accessoryType = UITableViewCellAccessoryCheckmark;

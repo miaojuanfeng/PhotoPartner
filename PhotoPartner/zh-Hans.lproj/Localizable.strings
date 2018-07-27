@@ -13,6 +13,8 @@ willCloseApp = "应用即将关闭";
 saveButton = "保存";
 saveSuccess = "保存成功";
 saveFailed = "保存失败";
+refresh = "下拉刷新";
+refreshing = "正在刷新";
 
 loadingSignin = "登录中";
 loadingDeviceList = "读取设备";

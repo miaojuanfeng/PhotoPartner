@@ -13,6 +13,8 @@ willCloseApp = "The application will be closed";
 saveButton = "Save";
 saveSuccess = "Save Success";
 saveFailed = "Save Failed";
+refresh = "Pull to refresh";
+refreshing = "Refreshing";
 
 loadingSignin = "Login";
 loadingDeviceList = "Loading Device";

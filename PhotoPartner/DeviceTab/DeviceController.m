@@ -17,6 +17,7 @@
 @property AppDelegate *appDelegate;
 @property UILabel *emptyLabel;
 @property UIAlertController *alertController;
+@property UIRefreshControl *refreshControl;
 @end
 
 @implementation DeviceController
@@ -35,6 +36,8 @@
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.view addSubview:self.tableView];
     
+    [self setupRefresh];
+    
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     [self isEmptyDeviceList];
@@ -43,6 +46,74 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+// 下拉刷新
+- (void)setupRefresh {
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(refreshClick:) forControlEvents:UIControlEventValueChanged];
+    NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"refresh", nil)];
+    [attrString addAttribute:NSForegroundColorAttributeName value:[UIColor lightGrayColor] range:NSMakeRange(0, attrString.length)];
+    self.refreshControl.attributedTitle = attrString;
+    //刷新图形时的颜色，即刷新的时候那个菊花的颜色
+    self.refreshControl.tintColor = [UIColor lightGrayColor];
+    [self.tableView addSubview:self.refreshControl];
+//    [self.refreshControl beginRefreshing];
+//    [self refreshClick:self.refreshControl];
+}
+
+// 下拉刷新触发，在此获取数据
+- (void)refreshClick:(UIRefreshControl *)refreshControl {
+    NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"refreshing", nil)];
+    [attrString addAttribute:NSForegroundColorAttributeName value:[UIColor lightGrayColor] range:NSMakeRange(0, attrString.length)];
+    self.refreshControl.attributedTitle = attrString;
+    [self.refreshControl beginRefreshing];
+    //    。。。// 此处添加刷新tableView数据的代码
+    //    查询数据库
+//    self.dbCtrl=[[FMVC1 alloc]init];
+//    self.datasource=[self.dbCtrl select_data];
+//    [refreshControl endRefreshing];
+//    [self.tableView reloadData];// 刷新tableView即可
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.requestSerializer.timeoutInterval = 30.0f;
+    NSDictionary *parameters=@{
+                               @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"]
+                               };
+    [manager POST:BASE_URL(@"user/user_device") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+        
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"成功.%@",responseObject);
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+        
+        int status = [[dic objectForKey:@"status"] intValue];
+        
+        HUD_WAITING_HIDE;
+        if( status == 200 ){
+            self.appDelegate.deviceList = [[dic objectForKey:@"data"] mutableCopy];
+            [self.appDelegate saveDeviceList];
+            
+            [self endRefreshing];
+            
+            if( self.appDelegate.deviceList.count == 0 ){
+                AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+                [self.navigationController pushViewController:addDeviceController animated:YES];
+            }
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"失败.%@",error);
+        NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+        [self endRefreshing];
+    }];
+}
+
+-(void)endRefreshing{
+    NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"refresh", nil)];
+    [attrString addAttribute:NSForegroundColorAttributeName value:[UIColor lightGrayColor] range:NSMakeRange(0, attrString.length)];
+    self.refreshControl.attributedTitle = attrString;
+    [self.refreshControl endRefreshing];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -72,7 +143,7 @@
     deviceLabelView.layer.masksToBounds = YES;
     
     UILabel *deviceLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, GET_LAYOUT_WIDTH(deviceLabelView)-20, GET_LAYOUT_HEIGHT(deviceLabelView))];
-    deviceLabel.text = [NSString stringWithFormat:@"%@(%@)", [deviceItem objectForKey:@"device_name"], [deviceItem objectForKey:@"device_token"]];
+    deviceLabel.text = [NSString stringWithFormat:@"%@(%@)", [[deviceItem objectForKey:@"device_name"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], [deviceItem objectForKey:@"device_token"]];
     deviceLabel.textColor = [UIColor whiteColor];
     [deviceLabelView addSubview:deviceLabel];
     
@@ -184,6 +255,7 @@
                 for (int i=0;i<self.appDelegate.deviceList.count;i++) {
                     NSMutableDictionary *device = [self.appDelegate.deviceList objectAtIndex:i];
                     if( [[device objectForKey:@"device_id"] intValue] == btn.tag ){
+                        device = [[self.appDelegate.deviceList objectAtIndex:i] mutableCopy];
                         [device setObject:deviceName forKey:@"device_name"];
                         [self.appDelegate.deviceList replaceObjectAtIndex:i withObject:device];
                         break;
