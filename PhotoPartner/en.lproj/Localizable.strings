@@ -145,6 +145,7 @@ e323 = "The current block must be more than 0";
 e324 = "The total block must be more than 0";
 e325 = "The total block must be more or equal than current block";
 e326 = "Block file not exists";
+e327 = "User bound device change";
 e403 = "User registration failed, please try again later";
 e404 = "Update user profile failed, please try again later";
 e405 = "Unable to find the user";

@@ -15,6 +15,7 @@
 #import "UITextView+ZWPlaceHolder.h"
 #import <QiniuSDK.h>
 #import <ZipArchive.h>
+#import "AddDeviceController.h"
 
 //#define FileHashDefaultChunkSizeForReadingData 1024*8
 #include <CommonCrypto/CommonDigest.h>
@@ -988,6 +989,9 @@
     [imageView addSubview:self.tLabel];
 }
 
+- (void)viewDidAppear:(BOOL)animated{
+    [self.tableView reloadData];
+}
 
 - (void)test{
     [self.view endEditing:YES];
@@ -1059,8 +1063,54 @@
                     ENABLE_RightBarButtonItem;
                     HUD_TOAST_SHOW(NSLocalizedString(@"uploadSendSuccess", nil));
                 }
+            }else if( status == 327 ){
+                AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+                manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+                manager.requestSerializer.timeoutInterval = 30.0f;
+                NSDictionary *parameters=@{
+                                           @"user_id":[self.appDelegate.userInfo objectForKey:@"user_id"]
+                                           };
+                
+                HUD_WAITING_SHOW(NSLocalizedString(@"loadingDeviceList", nil));
+                [manager POST:BASE_URL(@"user/user_device") parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> _Nonnull formData) {
+                    
+                } progress:^(NSProgress * _Nonnull uploadProgress) {
+                    
+                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    NSLog(@"成功.%@",responseObject);
+                    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:NULL];
+                    
+                    int status = [[dic objectForKey:@"status"] intValue];
+                    
+                    HUD_WAITING_HIDE;
+                    if( status == 200 ){
+                        self.appDelegate.deviceList = [[dic objectForKey:@"data"] mutableCopy];
+                        [self.appDelegate saveDeviceList];
+                        
+                        [self.tableView reloadData];
+                        
+                        NAV_UPLOAD_END;
+                        ENABLE_RightBarButtonItem;
+                        NSString *eCode = @"e327";
+                        
+                        if( self.appDelegate.deviceList.count == 0 ){
+                            AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+                            HUD_TOAST_PUSH_SHOW(NSLocalizedString(eCode, nil), addDeviceController);
+                        }else{
+                            HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
+                        }
+                    }
+                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    NSLog(@"失败.%@",error);
+                    NSLog(@"%@",[[NSString alloc] initWithData:error.userInfo[@"com.alamofire.serialization.response.error.data"] encoding:NSUTF8StringEncoding]);
+                    
+                    NAV_UPLOAD_END;
+                    ENABLE_RightBarButtonItem;
+                    NSString *eCode = @"e327";
+                    HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));
+                }];
             }else{
-//                NAV_UPLOAD_END;
+                NAV_UPLOAD_END;
                 ENABLE_RightBarButtonItem;
                 NSString *eCode = [NSString stringWithFormat:@"e%d", status];
                 HUD_TOAST_SHOW(NSLocalizedString(eCode, nil));

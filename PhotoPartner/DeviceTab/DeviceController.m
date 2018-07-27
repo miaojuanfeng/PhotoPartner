@@ -96,6 +96,7 @@
             [self.appDelegate saveDeviceList];
             
             [self endRefreshing];
+            [self.tableView reloadData];
             
             if( self.appDelegate.deviceList.count == 0 ){
                 AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];

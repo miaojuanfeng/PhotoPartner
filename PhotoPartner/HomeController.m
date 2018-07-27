@@ -286,6 +286,9 @@
             HUD_WAITING_HIDE;
             [self closeAlart];
         }];
+    }else if( self.appDelegate.deviceList.count == 0 && [self.appDelegate isNilDeviceList] ){
+        AddDeviceController *addDeviceController = [[AddDeviceController alloc] init];
+        [self.navigationController pushViewController:addDeviceController animated:YES];
     }
 }
 
