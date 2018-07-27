@@ -883,47 +883,59 @@
     }
 }
 
+//- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+//    NSString *comcatstr = [textView.text stringByReplacingCharactersInRange:range withString:text];
+//    NSInteger caninputlen = MAX_LIMIT_NUMS - comcatstr.length;
+//    
+//    if (caninputlen >= 0){
+//        return YES;
+//    }else{
+//        NSInteger len = text.length + caninputlen;
+//        //防止当text.length + caninputlen < 0时，使得rg.length为一个非法最大正数出错
+//        NSRange rg = {0,MAX(len,0)};
+//        
+//        if (rg.length > 0){
+//            NSString *s = [text substringWithRange:rg];
+//            [textView setText:[textView.text stringByReplacingCharactersInRange:range withString:s]];
+//        }
+//        return NO;
+//    }
+//}
 
+//- (void)textViewDidChange:(UITextView *)textView{
+//    NSString  *nsTextContent = textView.text;
+//    NSInteger existTextNum = nsTextContent.length;
+//
+//    if (existTextNum > MAX_LIMIT_NUMS){
+//        NSString *s = [nsTextContent substringToIndex:MAX_LIMIT_NUMS];
+//        [textView setText:s];
+//    }
+//    if( self.appDelegate.photos.count > 0 ){
+//        UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
+//        UILabel *descLabel = imageView.subviews[0];
+//        if( textView.text.length == 0 ){
+//            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
+//        }else{
+//            descLabel.text = textView.text;
+//        }
+//    }
+//    self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - existTextNum)];
+//}
 
-
-
-- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    NSString *comcatstr = [textView.text stringByReplacingCharactersInRange:range withString:text];
-    NSInteger caninputlen = MAX_LIMIT_NUMS - comcatstr.length;
-    
-    if (caninputlen >= 0){
-        return YES;
-    }else{
-        NSInteger len = text.length + caninputlen;
-        //防止当text.length + caninputlen < 0时，使得rg.length为一个非法最大正数出错
-        NSRange rg = {0,MAX(len,0)};
-        
-        if (rg.length > 0){
-            NSString *s = [text substringWithRange:rg];
-            [textView setText:[textView.text stringByReplacingCharactersInRange:range withString:s]];
-        }
-        return NO;
-    }
-}
-
-- (void)textViewDidChange:(UITextView *)textView{
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     NSString  *nsTextContent = textView.text;
     NSInteger existTextNum = nsTextContent.length;
-    
-    if (existTextNum > MAX_LIMIT_NUMS){
-        NSString *s = [nsTextContent substringToIndex:MAX_LIMIT_NUMS];
-        [textView setText:s];
-    }
-    if( self.appDelegate.photos.count > 0 ){
-        UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
-        UILabel *descLabel = imageView.subviews[0];
-        if( textView.text.length == 0 ){
-            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
-        }else{
-            descLabel.text = textView.text;
+    if( ![text isEqualToString:@""] && (existTextNum + text.length) > MAX_LIMIT_NUMS ){
+        return NO;
+    }else if( [text isEqualToString:@""] ){
+        if( existTextNum > 0 ){
+            existTextNum--;
         }
+        self.textCountLabel.text = [NSString stringWithFormat:@"%d", (int)MAX(0, MAX_LIMIT_NUMS - existTextNum)];
+    }else{
+        self.textCountLabel.text = [NSString stringWithFormat:@"%d", (int)MAX(0, MAX_LIMIT_NUMS - (existTextNum + text.length))];
     }
-    self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - existTextNum)];
+    return YES;
 }
 
 - (void)clickRmButton:(UIButton *)btn{
@@ -938,7 +950,7 @@
     
     if( self.appDelegate.photos.count > 0 ){
         self.textView.text = [self.appDelegate.fileDesc objectAtIndex:self.appDelegate.focusImageIndex];
-        self.textCountLabel.text = [NSString stringWithFormat:@"%ld", MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
+        self.textCountLabel.text = [NSString stringWithFormat:@"%d", (int)MAX(0, MAX_LIMIT_NUMS - self.textView.text.length)];
     }else{
         self.textView.text = @"";
         self.textCountLabel.text = [NSString stringWithFormat:@"%d", MAX_LIMIT_NUMS];
@@ -1000,7 +1012,7 @@
         
         NSMutableDictionary *video_data = [[NSMutableDictionary alloc] init];
         [video_data setObject:self.appDelegate.md5 forKey:@"file_md5"];
-        [video_data setObject:[self.appDelegate.fileDesc objectAtIndex:0] forKey:@"file_desc"];
+        [video_data setObject:[[self.appDelegate.fileDesc objectAtIndex:0] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"file_desc"];
         [video_data setObject:self.appDelegate.deviceId forKey:@"device_id"];
         NSString *videoData = [self.appDelegate convertToJSONData:video_data];
         
