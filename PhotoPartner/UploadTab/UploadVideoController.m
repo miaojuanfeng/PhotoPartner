@@ -1165,6 +1165,12 @@
 - (void)doUploadOssVideo:(NSString*)zipFile withFileName:(NSString*)fileName withPathName:(NSString*)pathName withToken:(NSString*)upToken{
     self.isCancelSignals = false;
     HUD_LOADING_SHOW(NSLocalizedString(@"uploadSendingRightBarButtonItemTitle", nil));
+    
+    NSMutableArray *fileDesc = [[NSMutableArray alloc] init];
+    for (int i=0; i< self.appDelegate.photos.count; i++) {
+        [fileDesc addObject:[[self.appDelegate.fileDesc objectAtIndex:i] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }
+    
     QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
         // percent 为上传进度
         NSLog(@"percent: %@ %f", key, percent);
@@ -1176,7 +1182,7 @@
               @"x:type":@"video",
               @"x:user_id":[[self.appDelegate.userInfo objectForKey:@"user_id"] stringValue],
               @"x:name":fileName,
-              @"x:description":[self.appDelegate convertToJSONData:[self.appDelegate.fileDesc copy]],
+              @"x:description":[self.appDelegate convertToJSONData:[fileDesc copy]],
               @"x:device_id":[self.appDelegate convertToJSONData:[self.appDelegate.deviceId copy]],
               @"x:md5":self.appDelegate.md5
               }
