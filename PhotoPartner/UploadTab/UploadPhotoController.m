@@ -624,19 +624,25 @@
 //}
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
-    NSString  *nsTextContent = textView.text;
-    NSInteger existTextNum = nsTextContent.length;
-    if( ![text isEqualToString:@""] && (existTextNum + text.length) > MAX_LIMIT_NUMS ){
+    if( ![text isEqualToString:@""] && (textView.text.length + text.length) > MAX_LIMIT_NUMS ){
         return NO;
-    }else if( [text isEqualToString:@""] ){
-        if( existTextNum > 0 ){
-            existTextNum--;
-        }
-        self.textCountLabel.text = [NSString stringWithFormat:@"%d", (int)MAX(0, MAX_LIMIT_NUMS - existTextNum)];
-    }else{
-        self.textCountLabel.text = [NSString stringWithFormat:@"%d", (int)MAX(0, MAX_LIMIT_NUMS - (existTextNum + text.length))];
     }
     return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView{
+    NSString  *nsTextContent = textView.text;
+    NSInteger existTextNum = nsTextContent.length;
+    if( self.appDelegate.photos.count > 0 ){
+        UIImageView *imageView = self.mediaView.subviews[self.appDelegate.focusImageIndex];
+        UILabel *descLabel = imageView.subviews[0];
+        if( textView.text.length == 0 ){
+            descLabel.text = NSLocalizedString(@"uploadDescLabelPlaceHolderText", nil);
+        }else{
+            descLabel.text = textView.text;
+        }
+    }
+    self.textCountLabel.text = [NSString stringWithFormat:@"%d", (int)MAX(0, MAX_LIMIT_NUMS - existTextNum)];
 }
 
 - (void)clickRmButton:(UIButton *)btn{
@@ -684,6 +690,10 @@
 
 - (void)test{
     [self.view endEditing:YES];
+    
+//    self.appDelegate.deviceList = [[NSMutableArray alloc] init];
+//    [self.tableView reloadData];
+//    return;
     
     if( !self.appDelegate.isSending ){
         
