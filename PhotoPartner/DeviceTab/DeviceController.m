@@ -216,6 +216,13 @@
 - (void)clickRenameButton:(UIButton *)btn {
     self.alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"deviceListRenameTextFieldTitle", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
     [self.alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        for (int i=0;i<self.appDelegate.deviceList.count;i++) {
+            NSMutableDictionary *device = [self.appDelegate.deviceList objectAtIndex:i];
+            if( [[device objectForKey:@"device_id"] intValue] == btn.tag ){
+                textField.text = [[device objectForKey:@"device_name"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                break;
+            }
+        }
         textField.placeholder = NSLocalizedString(@"deviceListRenameTextFieldTitle", nil);
         textField.delegate = self;
     }];

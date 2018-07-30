@@ -39,7 +39,7 @@
     
     self.appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    self.userNickname = [self.appDelegate.userInfo objectForKey:@"user_nickname"];
+    self.userNickname = [[self.appDelegate.userInfo objectForKey:@"user_nickname"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     
     self.view.userInteractionEnabled = YES;
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(fingerTapped:)];
