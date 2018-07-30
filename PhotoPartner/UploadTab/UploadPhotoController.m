@@ -719,8 +719,8 @@
         }
         
         NSMutableDictionary *image_data = [[NSMutableDictionary alloc] init];
-        [image_data setObject:self.appDelegate.md5 forKey:@"file_md5"];
-        [image_data setObject:[[self.appDelegate.fileDesc objectAtIndex:0] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"file_desc"];
+//        [image_data setObject:self.appDelegate.md5 forKey:@"file_md5"];
+//        [image_data setObject:[[self.appDelegate.fileDesc objectAtIndex:0] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] forKey:@"file_desc"];
         [image_data setObject:self.appDelegate.deviceId forKey:@"device_id"];
         NSString *imageData = [self.appDelegate convertToJSONData:image_data];
         
