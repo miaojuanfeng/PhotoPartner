@@ -85,7 +85,7 @@ versionNewDesc = "将前往App Store下载";
 versionAlreadyLastVersion = "当前已经是最新版本";
 
 aboutUsTitle = "关于我们";
-aboutUsContent = "照片伴侣应用程序使用云技术将照片和视频文件上传到云上，然后将其推到云框架设备上，方便快捷。";
+aboutUsContent = "照片伴侣应用程序使用云存储技术将照片和视频文件上传到云端，然后推送到云相框，方便快捷。";
 aboutUsVersion = "版本";
 
 clearMessageListTitle = "确认要清空全部消息记录？";
