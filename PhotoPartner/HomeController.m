@@ -203,11 +203,12 @@
     self.appDelegate.deviceUUID = [GSKeyChainDataManager readUUID];
     NSLog(@"deviceUUID: %@", self.appDelegate.deviceUUID);
     NSLog(@"userInfo: %@", self.appDelegate.userInfo);
-    if( self.appDelegate.deviceUUID == nil || self.appDelegate.userInfo == nil ){
+    if( self.appDelegate.deviceUUID == nil ){
         self.appDelegate.deviceUUID = [[UIDevice currentDevice].identifierForVendor UUIDString];
         [GSKeyChainDataManager saveUUID:self.appDelegate.deviceUUID];
         NSLog(@"重新生成deviceUUID: %@", self.appDelegate.deviceUUID);
-    
+    }
+    if( self.appDelegate.userInfo == nil ){
         /**
          *  向服务器提交登录信息
          */
